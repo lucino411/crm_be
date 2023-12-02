@@ -1,0 +1,8 @@
+asgiref==3.7.2
+Django==4.2.6
+django-flatpickr==2.0.1
+Pillow==10.1.0
+psycopg2-binary==2.9.9
+pydantic==1.10.13
+sqlparse==0.4.4
+typing_extensions==4.8.0
