@@ -5,23 +5,21 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
-            <a class="navbar-brand" href="#">Blasting Experts</a>
+            {% if request.user.is_authenticated %}
+            {% if request.user.organizer %}
+            <a class="navbar-brand" href="{% url 'dashboard-home' %}">Blasting Experts</a>
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                {% if request.user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{% url 'dashboard_home' %}">Home</a>
                 </li>
-                {% if request.user.organizer %}
                 <li class="nav-item">
                     <a class="nav-link active" aria-current="page"
-                        href="{% url 'configuration:country-list' %}">Country</a>
+                        href="{% url 'configuration:country-list' organization_name=request.user.organizer.organization.name %}">Country</a>
                 </li>
                 {% endif %}
                 <li class="nav-item">
                     <span class="nav-link  ">Logged in as: {{ request.user.username }}</span>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link px-4" href="{% url 'logout' %}">Logout</a>
                 </li>
                 {% else %}
                 <li class="nav-item">
@@ -29,7 +27,6 @@
                 </li>
                 {% endif %}
             </ul>
-
         </div>
     </div>
 </nav>

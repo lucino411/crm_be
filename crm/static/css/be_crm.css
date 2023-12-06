@@ -1,0 +1,44 @@
+.table_leads {
+    width: 100% !important;  
+}
+
+.centered {
+    text-align: center !important;
+    vertical-align: middle !important; 
+}
+
+.table td a.table-link {
+    text-decoration: none;
+    color: black;
+}
+
+.table td a.table-link:hover {
+    color: #008ee0;
+}
+
+.table thead tr th,
+.table tfoot tr th {
+    color: rgb(122, 122, 122);
+    font-weight: 600;
+}
+
+
+.dtb-b3 {
+    width: fit-content !important;
+    padding: 20px !important;
+}
+
+
+td.highlight {
+    background-color: whitesmoke !important;
+}
+
+html.dark td.highlight {
+    background-color: rgba(var(--dt-row-hover), 0.082) !important;
+}
+
+/* unauthenticated template */
+.hide-field {
+    display: none !important;
+}
+

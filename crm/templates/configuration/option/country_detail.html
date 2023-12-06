@@ -1,0 +1,28 @@
+{% extends "core/base.html" %}
+
+{% block title %}Countries{% endblock %}
+
+{% block content %}
+
+<h1 class="text-xl">Country {{ country.name }}</h1>
+<br><br>
+
+<div class="row mb-3">
+    <div class="col-md-4">
+        <label for="leadGroupExampleInput2" class="lead-label">Codigo:</label>
+        {{ country.code }}
+    </div>
+    <div class="col-md-8">
+        <label for="leadGroupExampleInput2" class="lead-label">Selected:</label>
+        {{ country.is_selected }}
+    </div>
+    <a href="{% url 'configuration:country-update' country.pk %}" class="btn btn-primary">Update</a>
+</div>
+
+
+
+
+
+
+
+{% endblock %}
