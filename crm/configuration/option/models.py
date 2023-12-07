@@ -3,10 +3,10 @@ from django.core.validators import RegexValidator
 from administration.organization.models import Organization
 
 class Country(models.Model):
-    name = models.CharField(max_length=100, unique=True, null=False, blank=False, help_text="Nombre del país")
+    name = models.CharField(max_length=100, null=False,
+                            blank=False, help_text="Nombre del país")
     code = models.CharField(
         max_length=6,
-        unique=True,
         null=False,
         blank=False,
         validators=[
@@ -18,20 +18,33 @@ class Country(models.Model):
         default=False, help_text="Indica si el país está seleccionado")
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
 
+    def clean(self):
+        super().clean()
+        self.name = self.name.title()
+        self.code = self.code.upper()
 
     def __str__(self):
-        return self.name
+        return self.name    
 
     class Meta:
         verbose_name = 'Country'
         verbose_name_plural = 'Countries'
         ordering = ['name']
         constraints = [
-            models.CheckConstraint(check=models.Q(
-                code__regex=r'^CO[A-Z]{3}$'), name='El código debe empezar con CO seguido de tres mayúsculas'),
+            models.CheckConstraint(
+                check=models.Q(code__regex=r'^CO[A-Z]{3}$'),
+                name='El código debe empezar con CO seguido de tres mayúsculas'
+            ),
             models.UniqueConstraint(
-                fields=['code'], name='Ese código de país ya existe.'),
+                fields=['code', 'organization'],
+                name='La combinación de código y organización debe ser única.'
+            ),
+            models.UniqueConstraint(
+                fields=['name', 'organization'],
+                name='La combinación de nombre y organización debe ser única.'
+            ),
         ]
+
 
 
 '''

@@ -24,7 +24,7 @@ class Agent(models.Model):
         Organization,
         null=True,
         on_delete=models.SET_NULL,
-        related_name='agents',
+        related_name='agent',
         error_messages={
             'unique_together': "Este usuario ya es agente de otra organización.",
         }
