@@ -21,7 +21,7 @@ class Organization(models.Model):
 
 @receiver(pre_delete, sender=Organization)
 def delete_related_profiles(sender, instance, **kwargs):
-    organizer = instance.organizer
+    organizer = getattr(instance, 'organizer', None)
     agents = instance.agent.all()
     if organizer:
         organizer.delete()

@@ -1,4 +1,4 @@
-{% extends "core/base.html" %}
+{% extends "administration/core/base.html" %}
 
 {% block title %}Countries{% endblock %}
 
@@ -16,7 +16,10 @@
         <label for="leadGroupExampleInput2" class="lead-label">Selected:</label>
         {{ country.is_selected }}
     </div>
-    <a href="{% url 'configuration:country-update' country.pk %}" class="btn btn-primary">Update</a>
+    <div class="col-md-8">
+        <a href="{% url 'configuration:country-update' pk=country.pk organization_name=request.user.organizer.organization.name %}" class="btn btn-primary">Update</a>
+        <a href="{% url 'configuration:country-delete' pk=country.pk organization_name=request.user.organizer.organization.name %}" class="btn btn-danger">Delete</a>
+    </div>
 </div>
 
 

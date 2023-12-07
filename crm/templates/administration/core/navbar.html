@@ -7,7 +7,9 @@
         <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">                       
                 {% if request.user.is_authenticated %}
-                    {% if request.user.organizer or request.user.agent %}
+                    {% if not request.user.organizer and not request.user.agent %}
+                        <span class="navbar-brand">Blasting Experts Inc.</span>
+                    {% endif %}                    {% if request.user.organizer or request.user.agent %}
                         <a class="navbar-brand" href="{% url 'dashboard-home' organization_name=organization_name %}">Blasting Experts</a>
                         {% if request.user.organizer %}
                             <li class="nav-item">

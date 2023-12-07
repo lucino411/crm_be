@@ -18,13 +18,11 @@ class AgentForm(forms.ModelForm):
         cleaned_data = super().clean()
         user = cleaned_data.get('user')
         organization = cleaned_data.get('organization')
-        print(organization)
-  # Verifica si el usuario ya es organizer en alguna organización
+         # Verifica si el usuario ya es organizer en alguna organización
         organizer = Organizer.objects.filter(user=user).first()
         if organizer:
             # Obtén la organización del organizer
             organizer_organization = organizer.organization
-            print(organizer_organization)
             if organizer:
                 # Obtén la organización del organizer
                 organizer_organization = organizer.organization
@@ -54,13 +52,11 @@ class OrganizerForm(forms.ModelForm):
         cleaned_data = super().clean()
         user = cleaned_data.get('user')
         organization = cleaned_data.get('organization')
-        print(organization)
-  # Verifica si el usuario ya es organizer en alguna organización
+        # Verifica si el usuario ya es organizer en alguna organización
         agent = Agent.objects.filter(user=user).first()
         if agent:
             # Obtén la organización del organizer
             agent_organization = agent.organization
-            print(agent_organization)
             if agent:
                 # Obtén la organización del organizer
                 agent_organization = agent.organization

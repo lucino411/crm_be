@@ -1,12 +1,8 @@
-from typing import Any
-from django.shortcuts import render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.views import View
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from django.http import HttpResponse
-
+from django.contrib import messages
 
 from administration.userprofile.models import Organizer
 from .models import Country
@@ -18,19 +14,6 @@ class OrganizerRequiredMixin(UserPassesTestMixin):
         user_is_organizer = Organizer.objects.filter(
             user=self.request.user).exists()
         return user_is_organizer
-
-
-# class CountryListView(OrganizerRequiredMixin, ListView):
-#     model = Country
-#     template_name = 'configuration/option/country_list.html'
-#     context_object_name = 'countries'
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         organizer = Organizer.objects.get(user=self.request.user)
-#         context['organization_name'] = organizer.organization
-#         return context
-    
 
 
 class CountryListView(OrganizerRequiredMixin, ListView):
@@ -60,11 +43,16 @@ class CountryDetailView(OrganizerRequiredMixin, DetailView):
     template_name = 'configuration/option/country_detail.html'
     context_object_name = 'country'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        organization_name = self.request.user.organizer.organization.name
+        context['organization_name'] = organization_name
+        return context
+
 class CountryCreateView(OrganizerRequiredMixin, CreateView):
     model = Country
     template_name = 'configuration/option/country_create.html'
     form_class = CountryForm
-    success_url = reverse_lazy('configuration:country-list')
 
     def form_valid(self, form):
         # Obtén la organización asociada al organizador
@@ -72,6 +60,16 @@ class CountryCreateView(OrganizerRequiredMixin, CreateView):
         # Establece la organización en el objeto Country antes de guardarlo
         form.instance.organization = organization
         return super().form_valid(form)
+    
+    def get_success_url(self):
+        messages.success(self.request, "Country created.")
+        return reverse_lazy('configuration:country-list', kwargs={'organization_name': self.request.user.organizer.organization.name})
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        organization_name = self.request.user.organizer.organization.name
+        context['organization_name'] = organization_name
+        return context
 
 
 class CountryUpdateView(OrganizerRequiredMixin, UpdateView):
@@ -80,10 +78,28 @@ class CountryUpdateView(OrganizerRequiredMixin, UpdateView):
     fields = ['name', 'code', 'is_selected']
 
     def get_success_url(self):
-        return reverse_lazy('configuration:country-detail', kwargs={'pk': self.object.pk})
+        messages.success(self.request, "Country updated.")
+        return reverse_lazy('configuration:country-detail', kwargs={'pk': self.object.pk, 'organization_name': self.request.user.organizer.organization.name})
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        organization_name = self.request.user.organizer.organization.name
+        context['organization_name'] = organization_name
+        return context
 
 
-# class CountryDeleteView(OrganizerRequiredMixin, DeleteView):
-#     model = Country
-#     template_name = 'country_confirm_delete.html'
-#     success_url = reverse_lazy('country_list')
+class CountryDeleteView(OrganizerRequiredMixin, DeleteView):
+    model = Country
+    template_name = 'configuration/option/country_delete.html'
+
+    def get_success_url(self):
+        messages.success(self.request, "Country deleted.")
+        return reverse_lazy('configuration:country-list', kwargs={'organization_name': self.request.user.organizer.organization.name})
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        organization_name = self.request.user.organizer.organization.name
+        context['organization_name'] = organization_name
+        return context
+
+

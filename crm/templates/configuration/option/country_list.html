@@ -1,7 +1,7 @@
 {% extends "administration/core/base.html" %}
 {% load static %}
 
-{% block title %}Leads{% endblock %}
+{% block title %}Countries{% endblock %}
 
 {% block content %}
 <div class="container">
@@ -10,9 +10,10 @@
             <h1>Lista de Paises</h1>
             <ul>
                 {% for country in countries %}
-                <li>{{ country.name }}</li>
+                    <li><a href="{% url 'configuration:country-detail' pk=country.pk organization_name=request.user.organizer.organization.name  %}">{{ country.name }}</a></li>
                 {% endfor %}
             </ul>
+            <a href="{% url 'configuration:country-create' organization_name=request.user.organizer.organization.name %}" class="btn btn-primary">Create</a> 
         </div>
     </div>
 </div>
