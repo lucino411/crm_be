@@ -7,5 +7,5 @@ urlpatterns = [
     path('accounts/', include('administration.core.urls')),
     path('', include('operation.dashboard.urls')),
     path('<str:organization_name>/', include('operation.dashboard.urls')),
-    path('<str:organization_name>/', include('configuration.option.urls')),
+    path('<str:organization_name>/', include('configuration.country.urls')),
 ]

@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     'administration.userprofile',
     'administration.core',
     'administration.organization',
-    'configuration.option',
+    'configuration.country',
     'operation.dashboard',
     'operation.lead',
 ]

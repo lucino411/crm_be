@@ -1,6 +1,14 @@
 # from django.db import models
 # from administration.organization.models import Organization
 
+# def get_sentinel_user():
+#     user, created = CustomUser.objects.get_or_create(username="deleted")
+#     if created:
+#         # Si se crea un nuevo usuario, establece los otros campos según sea necesario
+#         user.set_unusable_password()
+#         user.save()
+#     return user
+
 # class Lead(models.Model):
 #     primary_email = models.EmailField(
 #         unique=True, blank=False, help_text="Please use the following format: <em>YYYY-MM-DD</em>.")
