@@ -17,6 +17,9 @@ class Organizer(models.Model):
     class Meta:
         ordering = ('user',)
 
+    def __str__(self):
+        return self.user.username
+
 
 class Agent(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -35,6 +38,9 @@ class Agent(models.Model):
     
     class Meta:
         ordering = ('user',)
+
+    def __str__(self):
+        return self.user.username
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

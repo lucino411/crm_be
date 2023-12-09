@@ -14,7 +14,16 @@
                     </a>
                 {% else %}
                     <span class="navbar-brand">Blasting Experts Inc.</span>
-                {% endif %}        
+                {% endif %}  
+
+                
+        {% if request.user.is_authenticated and request.user.agent %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'operation:lead-list' organization_name=organization_name %}">Leads</a>
+            </li>      
+        {% endif %}
+            
+
         
         <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
             aria-controls="offcanvasNavbar" aria-label="Toggle navigation">

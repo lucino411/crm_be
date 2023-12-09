@@ -79,7 +79,6 @@ class CountryUpdateView(OrganizerRequiredMixin, UpdateView):
 
     def get_success_url(self):
         messages.success(self.request, "Country updated.")
-        # return reverse_lazy('configuration:country-list', kwargs={'pk': self.object.pk, 'organization_name': self.request.user.organizer.organization.name})
         return reverse_lazy('configuration:country-list', kwargs={'organization_name': self.request.user.organizer.organization.name})
     
     def get_context_data(self, **kwargs):

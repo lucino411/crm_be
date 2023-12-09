@@ -4,30 +4,25 @@ let dataOption;
 
 const dataTableOptions = {
     columnDefs: [
-        { className: 'centered', targets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10] },
-        { orderable: false, targets: [0, 1, 2, 3, 4, 5, 8] },
-        { searchable: false, targets: [0, 1, 10] },
+        { className: 'centered', targets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] },
+        { orderable: false, targets: [0, 1, 2, 5, 8] },
+        { searchable: false, targets: [0, 1] },
     ],
     pageLength: 5,
     destroy: true,
     // dom: 'Bfrtip',
     dom: 'QBfrtip',
 
-    // API in Callbacks FILTRO EN CADA COLUMNA
     initComplete: function () {
         let api = this.api();
 
         api.columns([4, 8, 9]).every(function () {
             let column = this;
 
-            // Create select element
             let select = document.createElement('select');
             select.add(new Option(''));
             column.footer().replaceChildren(select);
 
-
-
-            // Apply listener for user change in value
             select.addEventListener('change', function () {
                 var val = DataTable.util.escapeRegex(select.value);
 
@@ -36,7 +31,6 @@ const dataTableOptions = {
                     .draw();
             });
 
-            // Add list of options
             column
                 .data()
                 .unique()
@@ -46,14 +40,21 @@ const dataTableOptions = {
                 });
         });
 
-        api.on('click', 'tbody td', function () {
-            api.search(this.innerHTML).draw();
+        // Hace un filtro al hacer clic sobre cualquier campo, menos en la columna 1
+        api.on('click', 'tbody td', function (e) {
+            let columnIndex = api.cell(this).index().column;
+
+            // Si el índice de la columna es diferente de 1, realiza la búsqueda
+            if (columnIndex !== 1) {
+                api.search(this.innerHTML).draw();
+            }
         });
+
 
     },
 
-    // BOTONES DESCARGAR
 
+    // BOTONES DESCARGAR
     buttons: [
         {
             extend: 'collection',
@@ -91,45 +92,45 @@ const dataTableOptions = {
 const initDataTable = async () => {
     if (dataTableIsInitialized) {
         dataTable.destroy();
-    };
+    }
+
     await listLeads();
 
-    dataTable = $("#datatable-leads").DataTable(dataTableOptions);
-    dataTableIsInitialized = true;
-    select: true
+    dataTable = $("#datatable-leads").DataTable({
+        ...dataTableOptions,
+        select: true  // Agrega esta línea dentro de las opciones
+    });
 
+    dataTableIsInitialized = true;
 };
+
 
 const listLeads = async () => {
     try {
-        const response = await fetch(`${BASE_URL}/leads/leads_json`);
+        const response = await fetch(`${BASE_URL}/operation/leads_json`);
         const data = await response.json();
         let content = ``;
-
+        
         data.leads.forEach((lead, index) => {
             const leadData = lead;
 
             console.log(leadData); // Agrega esta línea para imprimir leadData en la consola
 
             const createdTime = new Date(leadData.created_time).toLocaleString('es', { day: 'numeric', month: 'short', year: 'numeric' });
-            const modifiedTime = new Date(leadData.modified_time).toLocaleString('es', { day: 'numeric', month: 'short', year: 'numeric' });
+            // const modifiedTime = new Date(leadData.modified_time).toLocaleString('es', { day: 'numeric', month: 'short', year: 'numeric' });
 
             content += `
         <tr>
             <td>${index + 1}</td>
-            <td><a href="/leads/${leadData.id}/" class='table-link'>${leadData.first_name}</a></td>
+            <td><a href="/operation/${leadData.id}/" class='table-link'>${leadData.first_name}</a></td>
             <td>${leadData.last_name}</td>
             <td>${leadData.primary_email}</td>
             <td>${leadData.country}</td>
             <td>${createdTime}</td> 
-            <td>${modifiedTime}</td> 
+            <td>${leadData.last_modified_by}</td> 
             <td>${leadData.assigned_to}</td>
             <td>${leadData.created_by}</td>
-            <td>${leadData.organization}</td>
-            <td>
-                <a href="/leads/${leadData.id}/update/" class="btn btn-sm btn-secondary"><i class='fa-solid fa-pencil'></i></a>
-                <a href="/leads/${leadData.id}/delete/" class="btn btn-sm btn-danger"><i class='fa-solid fa-trash-can'></i></i></a>
-            </td>        
+            <td>${leadData.organization}</td>      
         </tr>
         `;
         });
@@ -143,7 +144,7 @@ window.addEventListener("load", async () => {
     await initDataTable();
 });
 
-// // A $( document ).ready() block.
+// A $( document ).ready() block.
 // $(document).ready(function () {
 //     console.log("ready!");
 //     // Agrega un evento de clic al enlace para limpiar el filtro de búsqueda
