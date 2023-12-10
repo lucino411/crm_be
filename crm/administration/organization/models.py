@@ -12,10 +12,11 @@ class Organization(models.Model):
     class Meta:
         ordering = ('name',)
 
+    #  Para que el nombre de la organización esté en formato de título.
     def clean(self):
         super().clean()
         self.name = self.name.title()
-        
+
     def __str__(self):
         return self.name
 

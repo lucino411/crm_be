@@ -19,7 +19,7 @@
                 
         {% if request.user.is_authenticated and request.user.agent %}
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'operation:lead-list' organization_name=organization_name %}">Leads</a>
+                <a class="nav-link" href="{% url 'lead:list' organization_name=organization_name %}">Leads</a>
             </li>      
         {% endif %}
             
@@ -51,7 +51,11 @@
                                 <ul class="dropdown-menu">
                                     <li>
                                         <a class="dropdown-item" aria-current="page"
-                                        href="{% url 'configuration:country-list' organization_name=organization_name %}">Countries</a>
+                                        href="{% url 'country:list' organization_name=organization_name %}">Countries</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" aria-current="page"
+                                            href="{% url 'stage:list' organization_name=organization_name %}">Stages</a>
                                     </li>
                                     <li><a class="dropdown-item" href="#">Action</a></li>
                                     <li><a class="dropdown-item" href="#">Another action</a></li>

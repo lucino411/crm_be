@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'administration.core',
     'administration.organization',
     'configuration.country',
+    'configuration.stage',
     'operation.dashboard',
     'operation.lead',
 ]

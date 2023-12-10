@@ -8,5 +8,6 @@ urlpatterns = [
     path('', include('operation.dashboard.urls')),
     path('<str:organization_name>/', include('operation.dashboard.urls')),
     path('<str:organization_name>/', include('configuration.country.urls')),
+    path('<str:organization_name>/', include('configuration.stage.urls')),
     path('<str:organization_name>/', include('operation.lead.urls')),
 ]

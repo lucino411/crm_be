@@ -19,8 +19,8 @@
     </ul>
 </div>
 <div class="col-md-8 mt-3">
-    <a href="{% url 'operation:lead-update' pk=lead.pk organization_name=organization_name %}" class="btn btn-primary">Update</a>
-    <a href="{% url 'operation:lead-delete' pk=lead.pk organization_name=organization_name %}" class="btn btn-danger">Delete</a>
+    <a href="{% url 'lead:update' pk=lead.pk organization_name=organization_name %}" class="btn btn-primary">Update</a>
+    <a href="{% url 'lead:delete' pk=lead.pk organization_name=organization_name %}" class="btn btn-danger">Delete</a>
 </div>
                 
 
