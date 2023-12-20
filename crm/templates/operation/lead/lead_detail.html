@@ -4,18 +4,31 @@
 
 {% block content %}
 
-<h1 class="text-xl">Lead Detail</h1>
+<h1 class="text-xl">Lead Detail {{ lead.lead_id }}</h1>
 
 <div class="card" style="width: 18rem;">
     <div class="card-header">
-        <h2>{{ lead.first_name }} {{ lead.last_name }}</h2>
+        <h2>{{ lead.lead_name }}</h2>
     </div>
     <ul class="list-group list-group-flush">
-        <li class="list-group-item">{{ lead.primary_email }}  <span class="badge bg-secondary">Email</span></li>
-        <li class="list-group-item">{{ lead.assigned_to }} <span class="badge bg-secondary">Asigned to</span></li>
-        <li class="list-group-item">{{ lead.created_by }}   <span class="badge bg-secondary">Created by</span></li>
-        <li class="list-group-item">{{ lead.created_time }}   <span class="badge bg-secondary">Created At</span></li>
-        <li class="list-group-item">{{ lead.organization }}   <span class="badge bg-secondary">Organization</span></li>
+        <li class="list-group-item">{{ lead.first_name }} {{ lead.last_name }}</li>
+        <li class="list-group-item">{{ lead.primary_email }}  
+        <li class="list-group-item">{{ lead.assigned_to }} 
+        <li class="list-group-item">{{ lead.created_by }}   
+        <li class="list-group-item">{{ lead.created_time }}   
+        <li class="list-group-item">{{ lead.start_date_time }} <span class="badge bg-primary">Start</span></li>
+        <li class="list-group-item">{{ lead.end_date_time }} <span class="badge bg-primary">End</span></li>
+        <li class="list-group-item">{{ lead.end_date_time }} <span class="badge bg-primary">End</span></li>
+        <li class="list-group-item">{{ lead.product }}   
+        {% for lead_product in lead_products %}
+            <li class="list-group-item">Product: {{ lead_product.product.name }}</li>
+            <li class="list-group-item">Category: {{ lead_product.product.category.name }}</li>
+            <li class="list-group-item">Product URL: {{ lead_product.product.url }}</li>
+            <li class="list-group-item">Cotización URL: {{ lead_product.cotizacion_url }}</li>
+        {% empty %}
+            <li class="list-group-item">No products associated with this lead.</li>
+        {% endfor %}
+        <li class="list-group-item">{{ lead.stage }}   <span class="badge bg-success">Stage</span></li>
     </ul>
 </div>
 <div class="col-md-8 mt-3">

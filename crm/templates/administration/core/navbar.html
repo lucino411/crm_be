@@ -5,7 +5,7 @@
             <span class="navbar-brand">Blasting Experts</span>
             {% else %}      
                 {% if request.user.organizer or request.user.agent %}
-                <a class="navbar-brand" href="{% url 'dashboard-home' organization_name=organization_name %}">
+                    <a class="navbar-brand" href="{% url 'dashboard-home' organization_name=organization_name %}">
                         {% if request.user.organizer %}
                             {{ request.user.organizer.organization }}
                         {% elif request.user.agent %}
@@ -55,8 +55,12 @@
                                     </li>
                                     <li>
                                         <a class="dropdown-item" aria-current="page"
-                                            href="{% url 'stage:list' organization_name=organization_name %}">Stages</a>
+                                            href="{% url 'product:list' organization_name=organization_name %}">Products</a>
                                     </li>
+                                                                        <li>
+                                                                            <a class="dropdown-item" aria-current="page"
+                                                                                href="{% url 'product:category-list' organization_name=organization_name %}">Product Categories</a>
+                                                                        </li>
                                     <li><a class="dropdown-item" href="#">Action</a></li>
                                     <li><a class="dropdown-item" href="#">Another action</a></li>
                                     <li>

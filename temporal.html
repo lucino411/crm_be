@@ -1,35 +1,91 @@
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
-    <div class="container">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo01"
-            aria-controls="navbarTogglerDemo01" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarTogglerDemo01">
-            <a class="navbar-brand" href="#">Blasting Experts</a>
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                {% if request.user.is_authenticated %}
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="{% url 'dashboard_home' %}">Home</a>
-                </li>
-                {% if request.user.organizer %}
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page"
-                        href="{% url 'configuration:country-list' %}">Country</a>
-                </li>
-                {% endif %}
-                <li class="nav-item">
-                    <span class="nav-link  ">Logged in as: {{ request.user.username }}</span>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link px-4" href="{% url 'logout' %}">Logout</a>
-                </li>
-                {% else %}
-                <li class="nav-item">
-                    <a class="nav-link px-4" href="{% url 'login' %}">Login</a>
-                </li>
-                {% endif %}
-            </ul>
+{% extends "administration/core/base.html" %}
+{% load static %}
 
+{% block title %}Leads{% endblock %}
+
+
+{% block content %}
+
+<h1 class="text-xl">Add Lead authenticated</h1>
+
+<form action="." method="post" class="">
+    {% csrf_token %}
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <label for="formGroupExampleInput2" class="form-label">Lead Nombre</label>
+            {{ form.lead_name }}
         </div>
     </div>
-</nav>
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Nombre</label>
+            {{ form.first_name }}
+        </div>
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Apellido</label>
+            {{ form.last_name }}
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Currency</label>
+            {{ form.currency }}
+        </div>
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Email</label>
+            {{ form.primary_email }}
+            {% if form.errors.primary_email %}
+            <div id="email-error" class="text-danger">{{ form.errors.primary_email }}</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label for="formGroupExampleInput2" class="form-label">Start Date</label>
+            {{ form.start_date_time }}
+        </div>
+        <div class="col-md-4">
+            <label for="formGroupExampleInput2" class="form-label">End Date</label>
+            {{ form.end_date_time }}
+        </div>
+        <div id="div_id_extended_end_date_time" style="display: none;" class="col-md-4">
+            <label for="formGroupExampleInput2" class="form-label">Extended End Date</label>
+            {{ form.extended_end_date_time }}
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label for="formGroupExampleInput2" class="form-label">Country</label>
+            {{ form.country }}
+        </div>
+
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Assigned to</label>
+            {{ form.assigned_to }}
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Product</label>
+            {{ form.product }}
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Stage</label>
+            {{ form.stage }}
+        </div>
+    </div>
+
+    <br>
+    <button type="submit" class="btn btn-primary">Create</button>
+    <br><br><br>
+</form>
+
+{% endblock %}

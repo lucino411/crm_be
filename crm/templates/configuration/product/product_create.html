@@ -1,0 +1,51 @@
+{% extends "administration/core/base.html" %}
+
+{% block title %}Leads{% endblock %}
+
+{% block content %}
+
+<h1 class="text-xl">Add Lead authenticated</h1>
+
+<form action="." method="post" class="">
+    {% csrf_token %}
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Nombre</label>
+            {{ form.first_name }}
+        </div>
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Apellido</label>
+            {{ form.last_name }}
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <label for="formGroupExampleInput2" class="form-label">Email</label>
+            {{ form.primary_email }}
+            {% if form.errors.primary_email %}
+            <div id="email-error" class="text-danger">{{ form.errors.primary_email }}</div>
+            {% endif %}
+        </div>        
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label for="formGroupExampleInput2" class="form-label">Country</label>
+            {{ form.country }}
+        </div>     
+       
+    </div>
+    
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Assigned to</label>
+            {{ form.assigned_to }}
+        </div>
+    </div>
+ 
+    <br>
+    <button type="submit" class="btn btn-primary">Create</button>
+    <br><br><br>
+</form>
+
+{% endblock %}

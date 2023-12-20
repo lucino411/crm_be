@@ -4,7 +4,7 @@ let dataOption;
 
 const dataTableOptions = {
     columnDefs: [
-        { className: 'centered', targets: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] },
+        { className: 'centered', targets: [0, 1, 2, 3, 4, 5, 6, 7, 8] },
         { orderable: false, targets: [0, 1, 2, 5, 8] },
         { searchable: false, targets: [0, 1] },
     ],
@@ -16,7 +16,7 @@ const dataTableOptions = {
     initComplete: function () {
         let api = this.api();
 
-        api.columns([4, 8, 9]).every(function () {
+        api.columns([4, 8]).every(function () {
             let column = this;
 
             let select = document.createElement('select');
@@ -40,17 +40,15 @@ const dataTableOptions = {
                 });
         });
 
-        // Hace un filtro al hacer clic sobre cualquier campo, menos en la columna 1
+        // Hace un filtro al hacer clic sobre cualquier campo, menos en la columna 0
         api.on('click', 'tbody td', function (e) {
             let columnIndex = api.cell(this).index().column;
 
-            // Si el índice de la columna es diferente de 1, realiza la búsqueda
-            if (columnIndex !== 1) {
+            // Si el índice de la columna es diferente de 0, realiza la búsqueda
+            if (columnIndex !== 0) {
                 api.search(this.innerHTML).draw();
             }
         });
-
-
     },
 
 
@@ -107,29 +105,29 @@ const initDataTable = async () => {
 
 const listLeads = async () => {
     try {
-        const response = await fetch(`${BASE_URL}/lead/leads_json`);
+        const leadListElement = document.getElementById('lead-list');
+        const organizationName = leadListElement.dataset.organizationName;
+        const response = await fetch(`${BASE_URL}/${organizationName}/lead/leads_json`);
         const data = await response.json();
         let content = ``;
         
         data.leads.forEach((lead, index) => {
             const leadData = lead;
 
-            console.log(leadData); // Agrega esta línea para imprimir leadData en la consola
-
+            // console.log(leadData); // Agrega esta línea para imprimir leadData en la consola
             const createdTime = new Date(leadData.created_time).toLocaleString('es', { day: 'numeric', month: 'short', year: 'numeric' });
             // const modifiedTime = new Date(leadData.modified_time).toLocaleString('es', { day: 'numeric', month: 'short', year: 'numeric' });
 
             content += `
         <tr>
-            <td>${index + 1}</td>
-            <td><a href="/${leadData.organization}/lead/${leadData.id}/" class='table-link'>${leadData.first_name}</a></td>
+            <td><a href="/${leadData.organization}/lead/${leadData.id}/" class='table-link'>${leadData.lead_name}</a></td>
+            <td>${leadData.first_name}</td>
             <td>${leadData.last_name}</td>
             <td>${leadData.primary_email}</td>
             <td>${leadData.country}</td>
             <td>${createdTime}</td> 
             <td>${leadData.last_modified_by}</td> 
             <td>${leadData.assigned_to}</td>
-            <td>${leadData.created_by}</td>
             <td>${leadData.organization}</td>      
         </tr>
         `;

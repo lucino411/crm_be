@@ -1,0 +1,20 @@
+{% extends "administration/core/base.html" %}
+{% load static %}
+
+{% block title %}Countries{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <h1>Lista de Monedas</h1>
+            <ul class="list-group">
+                {% for currency in currencies %}
+                    <li class="list-group-item"><a href="{% url 'currency:detail' pk=currency.pk organization_name=request.user.organizer.organization.name  %}" class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">{{ currency.name }}</a></li>
+                {% endfor %}
+            </ul>
+            <a href="{% url 'currency:create' organization_name=request.user.organizer.organization %}" class="btn btn-primary">Create</a> 
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,74 +1,78 @@
 be
-└─ crm
-   ├─ administration
-   │  ├─ organization
-   │  │  ├─ admin.py
-   │  │  ├─ apps.py
-   │  │  ├─ models.py
-   │  │  ├─ tests.py
-   │  │  └─ views.py
-   │  └─ userprofile
-   │     ├─ admin.py
-   │     ├─ apps.py
-   │     ├─ middleware.py
-   │     ├─ models.py
-   │     ├─ tests.py
-   │     └─ views.py
-   ├─ configuration
-   │  └─ option
-   │     ├─ admin.py
-   │     ├─ apps.py
-   │     ├─ forms.py
-   │     ├─ models.py
-   │     ├─ tests.py
-   │     ├─ urls.py
-   │     └─ views.py
-   ├─ core
-   │  ├─ admin.py
-   │  ├─ apps.py
-   │  ├─ models.py
-   │  ├─ tests.py
-   │  ├─ urls.py
-   │  └─ views.py
-   ├─ operation
-   │  ├─ dashboard
-   │  │  ├─ admin.py
-   │  │  ├─ apps.py
-   │  │  ├─ models.py
-   │  │  ├─ tests.py
-   │  │  ├─ urls.py
-   │  │  └─ views.py
-   │  └─ lead
-   │     ├─ admin.py
-   │     ├─ apps.py
-   │     ├─ models.py
-   │     ├─ tests.py
-   │     └─ views.py
-   ├─ project
-   │  ├─ asgi.py
-   │  ├─ settings.py
-   │  └─ urls.py
-   ├─ static
-   │  ├─ css
-   │  │  └─ be_crm.css
-   │  ├─ img
-   │  └─ js
-   │     ├─ be_crm_datatable copy.js
-   │     └─ be_crm_datatable.js
-   └─ templates
-      ├─ configuration
-      │  └─ option
-      │     ├─ country_create.html
-      │     ├─ country_detail.html
-      │     ├─ country_list copy.html
-      │     ├─ country_list.html
-      │     └─ country_update.html
-      ├─ core
-      │  ├─ 404.html
-      │  ├─ base copy.html
-      │  ├─ base.html
-      │  ├─ login_home.html
-      │  ├─ navbar copy.html
-      │  └─ navbar.html
-      └─ dashboard
-         └─ dashboard_home.html
+├─ crm│  
+│  ├─ configuration
+│  │  ├─ country
+│  │  │  ├─ admin.py
+│  │  │  ├─ apps.py
+│  │  │  ├─ forms.py
+│  │  │  ├─ models.py
+│  │  │  ├─ tests.py
+│  │  │  ├─ urls.py
+│  │  │  └─ views.py│  │  └
+│  ├─ operation
+│  │  ├─ dashboard
+│  │  │  ├─ admin.py
+│  │  │  ├─ apps.py
+│  │  │  ├─ models.py
+│  │  │  ├─ tests.py
+│  │  │  ├─ urls.py
+│  │  │  └─ views.py
+│  │  ├─ lead
+│  │  │  ├─ admin.py
+│  │  │  ├─ apps.py
+│  │  │  ├─ forms.py
+│  │  │  ├─ models.py
+│  │  │  ├─ signals.py
+│  │  │  ├─ tests.py
+│  │  │  ├─ urls.py
+│  │  │  └─ views.py
+│  │  └─ product
+│  │     ├─ admin.py
+│  │     ├─ apps.py
+│  │     ├─ models.py
+│  │     ├─ tests.py
+│  │     └─ views.py
+│  ├─ project
+│  │  ├─ asgi.py
+│  │  ├─ settings.py
+│  │  └─ urls.py
+│  ├─ static
+│  │  ├─ css
+│  │  │  └─ be_crm.css
+│  │  ├─ img
+│  │  └─ js
+│  │     ├─ be_crm_datatable copy.js
+│  │     └─ be_crm_datatable.js
+│  └─ templates
+│     ├─ administration
+│     │  └─ core
+│     │     ├─ 404.html
+│     │     ├─ base copy.html
+│     │     ├─ base.html
+│     │     ├─ navbar copy.html
+│     │     └─ navbar.html
+│     ├─ configuration
+│     │  ├─ country
+│     │  │  ├─ country_create.html
+│     │  │  ├─ country_delete.html
+│     │  │  ├─ country_detail.html
+│     │  │  ├─ country_list.html
+│     │  │  └─ country_update.html
+│     │  └─ stage
+│     │     ├─ stage_create.html
+│     │     ├─ stage_delete.html
+│     │     ├─ stage_detail.html
+│     │     ├─ stage_list.html
+│     │     └─ stage_update.html
+│     ├─ operation
+│     │  ├─ dashboard
+│     │  │  └─ dashboard_home.html
+│     │  └─ lead
+│     │     ├─ lead_create.html
+│     │     ├─ lead_delete.html
+│     │     ├─ lead_detail.html
+│     │     ├─ lead_list.html
+│     │     └─ lead_update.html
+│     └─ registration
+│        └─ login.html
+└─ tasks_records.txt

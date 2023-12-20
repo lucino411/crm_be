@@ -13,6 +13,8 @@
 {% endblock %}
 
 {% block content %}
+<!-- con este div le pasamos el nombre de la organization a JS de datatables -->
+<div id="lead-list" data-organization-name="{{ organization_name }}" class="d-none"></div> 
 <div class="container">
     <div class="row">
         <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
@@ -24,7 +26,7 @@
                     </caption>
                     <thead>
                         <tr>
-                            <th class="centered">Id</th>
+                            <th class="centered">Lead Name</th>
                             <th class="centered">First Name</th>
                             <th class="centered">Last Name</th>
                             <th class="centered">Email</th>
@@ -32,14 +34,12 @@
                             <th class="centered">Created Time</th>
                             <th class="centered">Last Modified By</th>
                             <th class="centered">Assigned to</th>
-                            <th class="centered">Created By</th>
                             <th class="centered">Organization</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody_leads"></tbody>
                     <tfoot class="text-primary">
                         <tr>
-                            <th class="centered"></th>
                             <th class="centered"></th>
                             <th class="centered"></th>
                             <th class="centered"></th>

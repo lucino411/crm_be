@@ -1,0 +1,116 @@
+Task ID: Diferente al ID de Django. Es de tipo CharField, ej: T1
+
+
+*Name 
+*Task Type: [CHOICES: Value Proposition, ]
+Source: [CHOICES: web, ]
+*Start Date and Time
+*End Date & Time
+Estimate (Time): lo saca de calcular entre Start Date and Time y End Date and Time
+Delay: El tiempo que ha transcurrido entre el primer End Date & Time y el tiempo actual.
+Actual Completion Date: Si alargan End Date and Time, aqui aparece el total del tiempo entre la creacion de la tarea y
+el ultimo End Date and Time.
+Created Time: No es el mismo de Start Date and Time, osea se puede agendar para empezar la tarea a futuro
+Modified Time
+
+
+Location [CHOICES: Online, Presencial]
+*Record Currency
+Description: Textarea
+Is Billable?
+Rate: Si es billable deben llenar Rate, si no no.
+Record Conversion Rate
+
+Related Task : Relacion con otra tarea subtask
+Parent Task
+Previous Task
+
+*Priority [CHOICES: High, Medium, Low]
+Progress %
+*Stage [CHOICES: Pending, In Progress, Completed, Canceled, Skipped]
+Skipped reason
+Cancellation Reason
+*Is closed?: Es False si stage es Pending o In Progress, de resto es True
+
+*Related To: Relacion con un Lead (Un lead puede tener muchas tareas, una tarea solo puede tener un Lead)
+Contact Name: Relacion con el contacto del Lead o Deal
+*Company: Relacion con la Empresa que esta haciendo el Lead
+
+Last Modified By
+*Assigned To
+Created By
+
+Send Notification
+Activity Type [CHOICES: Task, Visit]
+Visibility
+No Time
+Duration Days
+Section Number
+Section Name
+Agenda
+Total Estimate on Subtasks
+Time Spent
+Total Time Spent
+Total Time Spent on Subtasks
+Running Status
+Invoiced
+SLA Name
+SLA Status
+Resolution Due
+Resolution Actual
+Total Time Elapsed
+SLA Time Elapsed
+All day
+Invitation for
+Meeting Notes
+Latitude
+Longitude
+Conference Link
+Recording Link
+Event No
+Check-in Date & Time
+Check out Date & Time
+Actual Duration
+Geofence violation
+Check-in location
+Geofence violation distance
+
+
+FINAL EN EL MODELO
+Name 
+lead = models.ForeignKey(Lead, related_name='tasks', on_delete=models.CASCADE, null=True, blank=True)
+lead_product = models.ForeignKey(LeadProduct, related_name='tasks', on_delete=models.CASCADE, null=True, blank=True)
+
+Created Time: 
+Start Date and Time (No es el mismo de Create Time, osea se puede agendar para empezar la tarea a futuro)
+End Date & Time
+Last Modified Time (guarda el tiempo en el que se hecho una modificacion al Lead o a sus tareas)
+
+Created By
+Assigned To
+Last Modified By
+
+Description
+
+Stage [CHOICES: Pending, In Progress, Completed, Canceled, Skipped]
+Is closed?: Es False si stage es Pending o In Progress, de resto es True
+
+Estas son parte de tus sugerencias para crear las relaciones entre Parent Task y Subtasks:
+  def is_general_task(self):
+        return self.lead is not None and self.lead_product is None
+
+Al modelo SubTask creo necesario agregarle los campos que anoto abajo
+class SubTask(models.Model):
+    parent_task = models.ForeignKey(Task, related_name='subtasks', on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+
+    Created Time: 
+    Start Date and Time (No es el mismo de Create Time, osea se puede agendar para empezar la tarea a futuro)
+    End Date & Time
+    Last Modified Time (guarda el tiempo en el que se hecho una modificacion al Lead o a sus tareas)
+    Created By
+    Assigned To
+    Last Modified By
+
+
