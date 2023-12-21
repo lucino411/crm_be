@@ -47,7 +47,7 @@
             <label for="formGroupExampleInput2" class="form-label">End Date</label>
             {{ form.end_date_time }}
         </div>
-        <div id="div_id_extended_end_date_time" style="display: none;" class="col-md-4">
+        <div class="col-md-4">
             <label for="formGroupExampleInput2" class="form-label">Extended End Date</label>
             {{ form.extended_end_date_time }}
         </div>
@@ -80,11 +80,12 @@
         </div>
     </div>
 
-<!-- LeadProductForm oculto para crear uno nuevo con JS -->
-<span id="form-index" data-form-index="{{ formset.total_form_count }}" style="display: none;"></span>
-<div id="form-template" style="display: none;">
-    {{ formset.empty_form.as_p }}
-</div>
+    <!-- LeadProductForm oculto para crear uno nuevo con JS -->
+    <span id="lead-info" data-stage="{{ lead.stage }}" data-is-closed="{{ lead.is_closed }}" style="display: none;"></span>
+    <span id="form-index" data-form-index="{{ formset.total_form_count }}" style="display: none;"></span>
+    <div id="form-template" style="display: none;">
+        {{ formset.empty_form.as_p }}
+    </div>
 
 
     <div class="row mb-3">
@@ -104,41 +105,7 @@
 
 {% block scripts %}
 
-
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const endDateInput = document.getElementById('id_end_date_time');
-        const extendedEndDateDiv = document.getElementById('div_id_extended_end_date_time');        
-
-        function checkDates() {
-            const endDateValue = endDateInput.value;
-            
-            // Verifica si endDateInput tiene un valor válido
-            if (endDateValue) {
-                const endDate = new Date(endDateValue);                
-                const now = new Date();
-                // Comparar fechas en milisegundos
-                if (endDate.getTime() > now.getTime()) {
-                    extendedEndDateDiv.style.display = 'none';
-                } else {
-                    extendedEndDateDiv.style.display = 'block';
-                }
-
-                // Deshabilitar end_date_time si la fecha actual es mayor
-                endDateInput.disabled = now.getTime() > endDate.getTime();
-            }
-        }
-
-        // Inicializar en la carga
-        checkDates();             
-        // Cambiar visibilidad y deshabilitación en el cambio de end_date_time
-        endDateInput.addEventListener('change', checkDates);
-    });
-</script>
-
-
-<script>
+<!-- <script>
     //Boton para agregar un nuevo producto
     document.addEventListener('DOMContentLoaded', function () {
         var formIndex = document.getElementById('form-index').getAttribute('data-form-index');
@@ -162,13 +129,50 @@
             document.getElementById('id_lead_product-TOTAL_FORMS').value = ++formIndex;
         });
     });
+</script> -->
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var formIndex = document.getElementById('form-index').getAttribute('data-form-index');
+        const addMoreButton = document.getElementById('add-more');
+        const formListContainer = document.getElementById('form-list');
+        const formTemplate = document.getElementById('form-template').innerHTML;
+
+        // Leer los datos de stage y is_closed
+        const leadInfo = document.getElementById('lead-info');
+        const leadStage = leadInfo.getAttribute('data-stage');
+        const leadIsClosed = leadInfo.getAttribute('data-is-closed') === 'True';
+
+        // Ocultar el botón si el lead está cerrado o si el stage es 'close_win' o 'close_lost'
+        if (leadIsClosed || leadStage === 'close_win' || leadStage === 'close_lost') {
+            addMoreButton.style.display = 'none';
+        } else {
+            addMoreButton.addEventListener('click', function () {
+            let newFormHtml = formTemplate.replace(/__prefix__/g, formIndex);
+            formListContainer.insertAdjacentHTML('beforeend', newFormHtml);
+
+            // Oculta o elimina el checkbox de eliminación en el nuevo formulario
+            const newForm = formListContainer.lastElementChild;
+            const deleteCheckbox = newForm.querySelector('input[type="checkbox"][name$="DELETE"]');
+            const deleteLabel = deleteCheckbox ? deleteCheckbox.previousElementSibling : null;
+            if (deleteCheckbox && deleteLabel) {
+                    deleteCheckbox.style.display = 'none';
+                    deleteLabel.style.display = 'none';
+                }
+
+                document.getElementById('id_lead_product-TOTAL_FORMS').value = ++formIndex;
+            });
+        }
+    });
+
+
 </script>
 
 
 
 <script>
+    // Encuentra todas las casillas de verificación de eliminación de producto y cambia el texto de la etiqueta
     document.addEventListener('DOMContentLoaded', function () {
-        // Encuentra todas las casillas de verificación de eliminación y cambia el texto de la etiqueta
         document.querySelectorAll('#form-list input[type="checkbox"][name$="DELETE"]').forEach(function (deleteCheckbox) {
             var deleteLabel = deleteCheckbox.previousElementSibling;
             if (deleteLabel) {

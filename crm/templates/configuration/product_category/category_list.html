@@ -7,13 +7,14 @@
 <div class="container">
     <div class="row">
         <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
-            <h1>Lista de Monedas</h1>
+            <h1>Lista de Categorias de Producto</h1>
             <ul class="list-group">
-                {% for currency in currencies %}
-                    <li class="list-group-item"><a href="{% url 'currency:detail' pk=currency.pk organization_name=request.user.organizer.organization.name  %}" class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">{{ currency.name }}</a></li>
+                {% for category in categories %}
+                    <li class="list-group-item"><a href="{% url 'product:category-detail' pk=category.pk organization_name=request.user.organizer.organization.name  %}" class="">{{ category.name }}</a> - {{ category.url }}</li>
                 {% endfor %}
             </ul>
-            <a href="{% url 'currency:create' organization_name=request.user.organizer.organization %}" class="btn btn-primary">Create</a> 
+            <br>
+            <a href="{% url 'product:category-create' organization_name=request.user.organizer.organization %}" class="btn btn-primary">Create</a> 
         </div>
     </div>
 </div>

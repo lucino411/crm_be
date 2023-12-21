@@ -22,7 +22,6 @@ LeadProductFormset = inlineformset_factory(
     Lead, LeadProduct, form=LeadProductForm, extra=0, can_delete=True)
 
 
-
 class HomeLeadView(LoginRequiredMixin, TemplateView):
     template_name = 'operation/lead/lead_list.html'
 
@@ -168,67 +167,110 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
     
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
-        agent = self.request.user.agent
+        agent = self.request.user.agent      
 
         if agent:
+            # Configuración de queryset para los campos que dependen del agente
             form.fields['country'].queryset = Country.objects.filter(
                 Q(organization=agent.organization) & Q(is_selected=True)
             )
             form.fields['assigned_to'].queryset = User.objects.filter(
-                agent__organization=agent.organization)
-            
-            # Lógica para ocultar/mostrar extended_end_date_time
-            if form.instance.end_date_time and form.instance.end_date_time > timezone.now():
-                form.fields['extended_end_date_time'].widget = forms.DateTimeInput(
-                    attrs={'class': 'form-control', 'type': 'datetime-local'})
-            else:
-                form.fields['extended_end_date_time'].widget = forms.HiddenInput()
+                agent__organization=agent.organization)            
+       
+        # Obtener la instancia del lead
+        lead = self.get_object()
 
-             # Deshabilitar end_date_time si la fecha actual es mayor
-            if form.instance.end_date_time and timezone.now() > form.instance.end_date_time:
-                form.fields['end_date_time'].disabled = True
+        # Lógica para deshabilitar el formulario si el lead está en "Close Win" o "Close Lost"
+        if lead.stage in ['close_win', 'close_lost']:
+            for field in form.fields:
+                form.fields[field].disabled = True
+            return form
 
-        return form    
+        current_time = timezone.now()
+        # Lógica para habilitar/deshabilitar campos en función de las fechas y el estado del lead
+        if lead.end_date_time and lead.end_date_time < current_time:
+            form.fields['end_date_time'].disabled = True
+            form.fields['extended_end_date_time'].disabled = False
+        elif lead.end_date_time and lead.end_date_time > current_time:
+            form.fields['end_date_time'].disabled = False
+            form.fields['extended_end_date_time'].disabled = True
 
+        # Deshabilitar todos los campos si el lead está cerrado, excepto extended_end_date_time
+        if lead.is_closed:
+            for field in form.fields:
+                if field != 'extended_end_date_time':
+                    form.fields[field].disabled = True
+
+        return form
 
     def form_valid(self, form):
         agent = self.request.user.agent
         form.instance.organization = agent.organization
         form.instance.last_modified_by = agent.user
-        self.object = form.save(commit=False)
-        formset = LeadProductFormset(self.request.POST, self.request.FILES, instance=self.object)
 
-        if formset.is_valid():
-            self.object.save()
-            formset.save()
+        lead = form.save(commit=False)
+
+        # Establecer is_closed en True si el stage es "Close Win" o "Close Lost"
+        if lead.stage in ['close_win', 'close_lost']:
+            lead.is_closed = True
+            print(lead.stage)
+            print(lead.is_closed)
         else:
-            return self.render_to_response(self.get_context_data(form=form))
+            # Actualizar is_closed basado en end_date_time y extended_end_date_time
+            current_time = timezone.now()
+            if lead.end_date_time and lead.end_date_time > current_time:
+                lead.is_closed = False
+                # Si end_date_time es futuro, ocultar extended_end_date_time
+                form.fields['extended_end_date_time'].widget = forms.HiddenInput()
+            elif lead.extended_end_date_time and lead.extended_end_date_time > current_time:
+                lead.is_closed = False
+            else:
+                lead.is_closed = True
 
-        messages.success(self.request, "Lead was updated")
+        lead.save()
+
+        # Guardar los formularios de LeadProduct
+        formset = LeadProductFormset(
+            self.request.POST, self.request.FILES, instance=lead)
+        
+        if formset.is_valid():
+            formset.save()
+
+        messages.success(self.request, "Lead actualizado")
         url = reverse('lead:detail', kwargs={
-                      'organization_name': agent.organization, 'pk': self.object.pk})
-        return redirect(url)
+                      'organization_name': self.get_organization(), 'pk': self.object.pk})
+        return redirect(url)      
 
-    def form_invalid(self, form):        
+    def form_invalid(self, form):    
         print(form.errors)
         messages.error(
             self.request, "Invalid form data. Please check the entries and try again.")
-        return render(self.request, self.template_name, {'form': form})
-
-    # def get_success_url(self):
-    #     messages.success(self.request, "Lead updated.")
-    #     return reverse_lazy('lead:detail', kwargs={'organization_name': self.get_organization(), 'pk': self.object.pk})
+        return render(self.request, self.template_name, {
+            'form': form,
+            'organization_name': self.get_organization(),
+            'pk': self.object.pk
+        })
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Update Lead'
         context['organization_name'] = self.get_organization()
 
+        # Obtener la instancia del lead
+        lead = self.get_object()
+
+        # Configurar el formset
         if self.request.POST:
             context['formset'] = LeadProductFormset(
-                self.request.POST, instance=self.object)
+                self.request.POST, instance=lead)
         else:
-            context['formset'] = LeadProductFormset(instance=self.object)
+            context['formset'] = LeadProductFormset(instance=lead)
+
+        # Deshabilitar los campos del formset si el lead está cerrado
+        if lead.is_closed:
+            for form in context['formset']:
+                for field in form.fields:
+                    form.fields[field].disabled = True
 
         return context
 

@@ -1,5 +1,10 @@
+from django.http import HttpResponseRedirect
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.urls import reverse_lazy
+from django.contrib import messages
+
+from operation.lead.models import LeadProduct
+
 from .models import Product, ProductCategory
 from administration.userprofile.views import OrganizerRequiredMixin, OrganizerContextMixin
 from .forms import ProductForm, ProductCategoryForm
@@ -20,7 +25,15 @@ class ProductCreateView(OrganizerRequiredMixin, OrganizerContextMixin, CreateVie
     model = Product
     form_class = ProductForm
     template_name = 'configuration/product/product_create.html'
-    success_url = reverse_lazy('product-list')
+
+    def form_valid(self, form):
+        form.instance.organization = self.get_organization()
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        organization_name = self.get_organization()
+        messages.success(self.request, "Product created.")
+        return reverse_lazy('product:list', kwargs={'organization_name': organization_name})
 
 
 class ProductDetailView(OrganizerRequiredMixin, OrganizerContextMixin, DetailView):
@@ -37,21 +50,57 @@ class ProductDetailView(OrganizerRequiredMixin, OrganizerContextMixin, DetailVie
 
 class ProductUpdateView(OrganizerRequiredMixin, OrganizerContextMixin, UpdateView):
     model = Product
-    form_class = ProductForm
     template_name = 'configuration/product/product_update.html'
-    success_url = reverse_lazy('product-list')
+    form_class = ProductForm
+
+    def get_success_url(self):
+        pk = self.object.pk
+        messages.success(self.request, "Country updated.")
+        return reverse_lazy('product:detail', kwargs={'organization_name': self.get_organization(), 'pk': pk})
+
 
 
 class ProductDeleteView(OrganizerRequiredMixin, OrganizerContextMixin, DeleteView):
     model = Product
     context_object_name = 'product'
     template_name = 'configuration/product/product_delete.html'
-    success_url = reverse_lazy('product-list')
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if LeadProduct.objects.filter(product=self.object).exists():
+            # Si el producto está en uso, muestra un mensaje de error y redirige
+            messages.error(self.request, "Cannot delete product because it is in use.")
+            return HttpResponseRedirect(self.get_success_url())
+        else:
+            # Si el producto no está en uso, procede con la eliminación
+            response = super().delete(request, *args, **kwargs)
+            messages.success(self.request, "Product deleted.")
+            return response
+
+    def get_success_url(self):
+        organization_name = self.get_organization()
+        return reverse_lazy('product:list', kwargs={'organization_name': organization_name})
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = 'Product Delete'
+        context['organization_name'] = self.get_organization()
+        return context
+    
+
+    
+
+
+
+
+
+
+
 
 
 class ProductCategoryListView(OrganizerRequiredMixin, OrganizerContextMixin, ListView):
     model = ProductCategory
-    context_object_name = 'productCategories'
+    context_object_name = 'categories'
     template_name = 'configuration/product_category/category_list.html'
 
 
@@ -59,13 +108,27 @@ class ProductCategoryCreateView(OrganizerRequiredMixin, OrganizerContextMixin, C
     model = ProductCategory
     form_class = ProductCategoryForm
     template_name = 'configuration/product_category/category_create.html'
-    success_url = reverse_lazy('product-category-list')
 
+    def form_valid(self, form):
+        form.instance.organization = self.get_organization()
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        organization_name = self.get_organization()
+        messages.success(self.request, "Category created.")
+        return reverse_lazy('product:category-list', kwargs={'organization_name': organization_name})
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = 'Product Category Create'
+        context['organization_name'] = self.get_organization()
+        return context
+   
 
 class ProductCategoryDetailView(OrganizerRequiredMixin, OrganizerContextMixin, DetailView):
     model = ProductCategory
     template_name = 'configuration/product_category/category_detail.html'
-    context_object_name = 'productCategory'
+    context_object_name = 'category'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -78,11 +141,39 @@ class ProductCategoryUpdateView(OrganizerRequiredMixin, OrganizerContextMixin, U
     model = ProductCategory
     form_class = ProductCategoryForm
     template_name = 'configuration/product_category/category_update.html'
-    success_url = reverse_lazy('product-category-list')
+
+    def get_success_url(self):
+        pk = self.object.pk
+        messages.success(self.request, "Category updated.")
+        return reverse_lazy('product:category-detail', kwargs={'organization_name': self.get_organization(), 'pk': pk})
 
 
 class ProductCategoryDeleteView(OrganizerRequiredMixin, OrganizerContextMixin, DeleteView):
     model = ProductCategory
-    context_object_name = 'productCategory'
+    context_object_name = 'category'
     template_name = 'configuration/product_category/category_delete.html'
-    success_url = reverse_lazy('product-category-list')
+
+    def post(self, request, *args, **kwargs):
+        # Obtén la instancia de la categoría a eliminar
+        self.object = self.get_object()
+
+        # Verificar si hay productos de esta categoría en LeadProduct
+        if Product.objects.filter(category=self.object, lead_product__isnull=False).exists():
+            # Si encuentra productos asociados, mostrar mensaje de error y redirigir
+            messages.error(request, "No se puede eliminar la categoría porque tiene productos asociados en LeadProduct.")
+            return HttpResponseRedirect(self.get_success_url())
+        
+        # Si no hay productos asociados, permite la eliminación
+        response = super().post(request, *args, **kwargs)
+        messages.success(request, "Categoría eliminada con éxito.")
+        return response
+
+    def get_success_url(self):
+        organization_name = self.get_organization()
+        return reverse_lazy('product:category-list', kwargs={'organization_name': organization_name})
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['titulo'] = 'Category Delete'
+        context['organization_name'] = self.get_organization()
+        return context

@@ -27,9 +27,4 @@ class Migration(migrations.Migration):
             name='lead',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='lead_product', to='lead.lead'),
         ),
-        migrations.AlterField(
-            model_name='leadproduct',
-            name='product',
-            field=models.ForeignKey(on_delete=models.SET(operation.lead.models.get_sentinel_product), to='product.product'),
-        ),
     ]

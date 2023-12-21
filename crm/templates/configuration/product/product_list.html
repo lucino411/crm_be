@@ -10,7 +10,11 @@
             <h1>Lista de Productos</h1>
             <ul class="list-group">
                 {% for product in products %}
-                <li class="list-group-item"><a href="{% url 'product:detail' pk=product.pk organization_name=request.user.organizer.organization.name  %}" class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">{{ product.name }}</a> <br> <span class="badge bg-secondary">Category:</span> {{ product.category }} <br> <span class="badge bg-secondary">URL:</span> {{ product.url }} <br> <span class="badge bg-secondary">Cotizacion:</span> {{ product.cotizacion }}</li>
+                <li class="list-group-item">
+                    <a href="{% url 'product:detail' pk=product.pk organization_name=request.user.organizer.organization.name  %}" class="">{{ product.name }}</a> <br>
+                    {{ product.category }} <span class="badge bg-secondary">Category</span><br> 
+                    {{ product.product_url }} <span class="badge bg-secondary">URL</span><br> 
+                </li>
                 {% endfor %}
             </ul>
             <br>

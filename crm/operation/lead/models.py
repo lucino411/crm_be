@@ -7,15 +7,13 @@ from administration.organization.models import Organization
 from configuration.currency.models import Currency
 from configuration.product.models import Product
 
+
 def get_sentinel_user():
     user, created = User.objects.get_or_create(username="deleted")
     if created:
         user.set_unusable_password()
         user.save()
     return user
-
-def get_sentinel_product():
-    return Product.objects.get_or_create(name="deleted")[0]
 
 
 class Lead(models.Model):
@@ -50,27 +48,26 @@ class Lead(models.Model):
         max_length=20, choices=STAGE_CHOICES, default='new')
     is_closed = models.BooleanField(default=False)
 
-    def save(self, *args, **kwargs):
-        current_time = timezone.now()
+    # def save(self, *args, **kwargs):
+    #     current_time = timezone.now()
 
-        # Si hay una fecha extendida y es futura, reabrir el lead
-        if self.extended_end_date_time and self.extended_end_date_time > current_time:
-            self.is_closed = False
-        # Si no hay fecha extendida, pero la fecha de fin ha pasado, cerrar el lead
-        elif not self.extended_end_date_time and self.end_date_time and self.end_date_time <= current_time:
-            self.is_closed = True
-        # Si hay fecha extendida y ha pasado, cerrar el lead
-        elif self.extended_end_date_time and self.extended_end_date_time <= current_time:
-            self.is_closed = True
+    #     # Si hay una fecha extendida y es futura, reabrir el lead
+    #     if self.extended_end_date_time and self.extended_end_date_time > current_time:
+    #         self.is_closed = False
+    #     # Si no hay fecha extendida, pero la fecha de fin ha pasado, cerrar el lead
+    #     elif not self.extended_end_date_time and self.end_date_time and self.end_date_time <= current_time:
+    #         self.is_closed = True
+    #     # Si hay fecha extendida y ha pasado, cerrar el lead
+    #     elif self.extended_end_date_time and self.extended_end_date_time <= current_time:
+    #         self.is_closed = True
 
-        super().save(*args, **kwargs)
+    #     super().save(*args, **kwargs)
 
 
 class LeadProduct(models.Model):
     lead = models.ForeignKey(
         Lead, related_name='lead_product', on_delete=models.CASCADE)
-    product = models.ForeignKey(
-        Product, on_delete=models.SET(get_sentinel_product))
+    product = models.ForeignKey(Product, related_name='lead_product', on_delete=models.CASCADE)
     cotizacion_url = models.URLField(null=True, blank=True)
 
 

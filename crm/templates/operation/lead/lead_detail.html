@@ -6,19 +6,19 @@
 
 <h1 class="text-xl">Lead Detail {{ lead.lead_id }}</h1>
 
-<div class="card" style="width: 18rem;">
+<div class="card" style="width: 22rem;">
     <div class="card-header">
         <h2>{{ lead.lead_name }}</h2>
     </div>
     <ul class="list-group list-group-flush">
         <li class="list-group-item">{{ lead.first_name }} {{ lead.last_name }}</li>
         <li class="list-group-item">{{ lead.primary_email }}  
-        <li class="list-group-item">{{ lead.assigned_to }} 
-        <li class="list-group-item">{{ lead.created_by }}   
-        <li class="list-group-item">{{ lead.created_time }}   
-        <li class="list-group-item">{{ lead.start_date_time }} <span class="badge bg-primary">Start</span></li>
-        <li class="list-group-item">{{ lead.end_date_time }} <span class="badge bg-primary">End</span></li>
-        <li class="list-group-item">{{ lead.end_date_time }} <span class="badge bg-primary">End</span></li>
+        <li class="list-group-item">{{ lead.assigned_to }} <span class="badge bg-secondary">Assigned to</span></li>
+        <li class="list-group-item">{{ lead.created_by }} <span class="badge bg-secondary">Created By</span></li>
+        <li class="list-group-item">{{ lead.created_time }} <span class="badge bg-secondary">Created</span></li>
+        <li class="list-group-item">{{ lead.start_date_time }} <span class="badge bg-secondary">Start</span></li>
+        <li class="list-group-item">{{ lead.end_date_time }} <span class="badge bg-secondary">End</span></li>
+        <li class="list-group-item">{{ lead.extended_end_date_time }} <span class="badge bg-info">Extended End</span></li>
         <li class="list-group-item">{{ lead.product }}   
         {% for lead_product in lead_products %}
             <li class="list-group-item">Product: {{ lead_product.product.name }}</li>

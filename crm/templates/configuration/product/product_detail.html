@@ -1,29 +1,28 @@
 {% extends "administration/core/base.html" %}
 
-{% block title %}Leads{% endblock %}
+{% block title %}Countries{% endblock %}
 
 {% block content %}
 
-<h1 class="text-xl">Lead Detail {{ lead.lead_id }}</h1>
+<h1 class="text-xl">product {{ product.name }}</h1>
+<br><br>
 
-<div class="card" style="width: 18rem;">
-    <div class="card-header">
-        <h2>{{ lead.lead_name }}</h2>
+<div class="row mb-3">
+    <div class="col-md-4">
+        <label for="leadGroupExampleInput2" class="lead-label">Category:</label>
+        {{ product.category }}
     </div>
-    <ul class="list-group list-group-flush">
-        <li class="list-group-item">{{ lead.first_name }} {{ lead.last_name }}</li>
-        <li class="list-group-item">{{ lead.primary_email }}  
-        <li class="list-group-item">{{ lead.assigned_to }} 
-        <li class="list-group-item">{{ lead.created_by }}   
-        <li class="list-group-item">{{ lead.created_time }}   
-        <li class="list-group-item">{{ lead.organization }}   
-        <li class="list-group-item">{{ lead.stage }}   <span class="badge bg-success">Stage</span></li>
-    </ul>
+    <div class="col-md-8">
+        <label for="leadGroupExampleInput2" class="lead-label">Url:</label>
+        {{ product.product_url }}
+    </div>
+    <div class="col-md-8">
+        <a href="{% url 'product:update' pk=product.pk organization_name=request.user.organizer.organization.name %}"
+            class="btn btn-primary">Update</a>
+        <a href="{% url 'product:delete' pk=product.pk organization_name=request.user.organizer.organization.name %}"
+            class="btn btn-danger">Delete</a>
+    </div>
 </div>
-<div class="col-md-8 mt-3">
-    <a href="{% url 'lead:update' pk=lead.pk organization_name=organization_name %}" class="btn btn-primary">Update</a>
-    <a href="{% url 'lead:delete' pk=lead.pk organization_name=organization_name %}" class="btn btn-danger">Delete</a>
-</div>
-                
+
 
 {% endblock %}
