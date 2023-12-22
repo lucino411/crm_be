@@ -9,13 +9,14 @@ from django.views.generic.edit import FormView
 from django import forms
 from django.db.models import Q
 from django.utils import timezone
+from datetime import timedelta
 from django.forms import inlineformset_factory
 from django.core.exceptions import ValidationError
 
 
 from configuration.country.models import Country
 from .models import Lead, LeadProduct, Task
-from .forms import LeadForm, LeadProductForm
+from .forms import LeadForm, LeadProductForm, LeadUpdateForm
 from administration.userprofile.views import AgentRequiredMixin, AgentContextMixin
 
 
@@ -123,28 +124,37 @@ class LeadCreateView(LoginRequiredMixin, FormView, AgentRequiredMixin, AgentCont
 
         #     messages.success(self.request, "Lead was created")
         #     return redirect('operation:lead-list', organization_name=agent.organization)
-
         agent = self.request.user.agent
         form.instance.organization = agent.organization
         form.instance.created_by = agent.user
         form.instance.last_modified_by = agent.user
 
-        self.object = form.save()
+        try:
+            lead = form.save(commit=False)
+            validation_error_handled = False
+            # end_date_time no puede ser menor a start_date_time
+            if lead.end_date_time and lead.start_date_time and lead.end_date_time < lead.start_date_time:
+                raise ValidationError("La fecha de finalización no puede ser anterior a la fecha de inicio.")       
 
-        formset = LeadProductFormset(
-            self.request.POST, self.request.FILES, instance=self.object)
-        if formset.is_valid():
-            formset.save()
-        else:
-            return self.render_to_response(self.get_context_data(form=form))
+            lead.save()
 
-        messages.success(self.request, "Lead was created")
-        url = reverse('lead:list', kwargs={
+            messages.success(self.request, "Lead Creado correctamente")
+            url = reverse('lead:list', kwargs={
                       'organization_name': agent.organization})
-        return redirect(url)
+            return redirect(url)      
+
+        except ValidationError as e:
+            self.validation_error_handled = True  # Indica que se manejó un error
+             # Agrega el error de ValidationError al sistema de mensajes
+            error_message = '; '.join(e.messages) if hasattr(e, 'messages') else str(e)
+            messages.error(self.request, error_message)
+            # Agrega los errores del ValidationError al formulario y vuelve a mostrar el formulario
+            form.add_error(None, e)
+            # return self.form_invalid(form)
+            return render(self.request, self.template_name, {'form': form, 'organization_name': agent.organization})
 
     def form_invalid(self, form):
-        print(form.errors)
+        # print(form.errors)
         messages.error(
             self.request, "Invalid form data. Please check the entries and try again.")
         return render(self.request, self.template_name, {'form': form})
@@ -164,7 +174,7 @@ class LeadCreateView(LoginRequiredMixin, FormView, AgentRequiredMixin, AgentCont
 class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
     model = Lead
     template_name = 'operation/lead/lead_update.html'
-    form_class = LeadForm
+    form_class = LeadUpdateForm
     
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
@@ -189,10 +199,10 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
             return form
         
         # Aplica la lógica para habilitar/deshabilitar campos
-        if lead.end_date_time and lead.end_date_time < current_time:
+        if lead.end_date_time and lead.end_date_time < timezone.now():
             form.fields['end_date_time'].disabled = True
             form.fields['extended_end_date_time'].disabled = False
-        elif lead.end_date_time and lead.end_date_time > current_time:
+        elif lead.end_date_time and lead.end_date_time > timezone.now():
             form.fields['end_date_time'].disabled = False
             form.fields['extended_end_date_time'].disabled = True
 
@@ -206,23 +216,19 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
 
     def form_valid(self, form):
         agent = self.request.user.agent
-        # Añade un atributo para rastrear si ya se manejó un ValidationError
-        validation_error_handled = False
         form.instance.organization = agent.organization
         form.instance.last_modified_by = agent.user
 
         # Tu lógica de validación aquí...
         try:
             lead = form.save(commit=False)
-            # 1. start_date_time no puede ser menor a created_time
-            if lead.start_date_time and lead.start_date_time < lead.created_time:
-                raise ValidationError("La fecha de inicio no puede ser anterior a la fecha de creación del Lead.")
-
-            # 2. end_date_time no puede ser menor a start_date_time
+            # Añade un atributo para rastrear si ya se manejó un ValidationError
+            validation_error_handled = False
+            # end_date_time no puede ser menor a start_date_time
             if lead.end_date_time and lead.start_date_time and lead.end_date_time < lead.start_date_time:
                 raise ValidationError("La fecha de finalización no puede ser anterior a la fecha de inicio.")
 
-            # 3. end_date_time no puede ser mayor a extended_end_date_time
+            # end_date_time no puede ser mayor a extended_end_date_time
             if lead.extended_end_date_time and lead.end_date_time and lead.end_date_time > lead.extended_end_date_time:
                 raise ValidationError("La fecha de finalización extendida no puede ser anterior a la fecha de finalización original.")
             
