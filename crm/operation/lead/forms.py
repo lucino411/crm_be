@@ -1,11 +1,12 @@
+from django.utils import timezone
+from pydantic import ValidationError
+from .models import Task, User
 from django import forms
 from django.contrib.auth.models import User
-from .models import Lead, LeadProduct
-from administration.userprofile.models import Agent
+from .models import Lead, LeadProduct, Task
 from configuration.country.models import Country
 from configuration.currency.models import Currency
-from configuration.product.models import Product, ProductCategory
-
+from configuration.product.models import Product
 
 class LeadForm(forms.ModelForm):
     lead_name = forms.CharField(label="", max_length=100, widget=forms.TextInput(
@@ -41,7 +42,7 @@ class LeadForm(forms.ModelForm):
         fields = ['lead_name', 'first_name', 'last_name', 'primary_email', 'country',
                   'assigned_to', 'currency', 'start_date_time', 'end_date_time',
                   'extended_end_date_time', 'stage']
-
+        
 
 
 
@@ -57,3 +58,35 @@ class LeadProductForm(forms.ModelForm):
     class Meta:
         model = LeadProduct
         fields = ['product', 'cotizacion_url']
+
+
+class TaskForm(forms.ModelForm):
+    name = forms.CharField(label="", max_length=200, widget=forms.TextInput(
+        attrs={'class': 'form-control', 'placeholder': 'Task Name'}))
+    description = forms.CharField(widget=forms.Textarea(
+        attrs={'class': 'form-control', 'placeholder': 'Task Description'}))
+    lead = forms.ModelChoiceField(queryset=Lead.objects.all(), required=False, widget=forms.Select(
+        attrs={'class': 'form-select'}), label="Lead")
+    lead_product = forms.ModelChoiceField(queryset=LeadProduct.objects.all(), required=False, widget=forms.Select(
+        attrs={'class': 'form-select'}), label="Lead Product")
+    parent_task = forms.ModelChoiceField(queryset=Task.objects.all(), required=False, widget=forms.Select(
+        attrs={'class': 'form-select'}), label="Parent Task")
+    related_task = forms.ModelChoiceField(queryset=Task.objects.all(), required=False, widget=forms.Select(
+        attrs={'class': 'form-select'}), label="Related Task")
+    related_subtask = forms.ModelChoiceField(queryset=Task.objects.all(), required=False, widget=forms.Select(
+        attrs={'class': 'form-select'}), label="Related Subtask")
+    assigned_to = forms.ModelChoiceField(queryset=User.objects.all(), empty_label=None, widget=forms.Select(
+        attrs={'class': 'form-select'}), label="Assigned To")
+    stage = forms.ChoiceField(choices=Task.STAGE_CHOICES, widget=forms.Select(
+        attrs={'class': 'form-select'}), label="Stage")
+    start_date_time = forms.DateTimeField(widget=forms.DateTimeInput(
+        attrs={'class': 'form-control', 'type': 'datetime-local'}), label="Start Date")
+    end_date_time = forms.DateTimeField(required=False, widget=forms.DateTimeInput(
+        attrs={'class': 'form-control', 'type': 'datetime-local'}), label="End Date")
+    extended_end_date_time = forms.DateTimeField(required=False, widget=forms.DateTimeInput(
+        attrs={'class': 'form-control', 'type': 'datetime-local'}), label="Extended End Date")
+
+    class Meta:
+        model = Task
+        fields = ['name', 'description', 'lead', 'lead_product', 'parent_task', 'related_task', 'related_subtask',
+                  'assigned_to', 'stage', 'start_date_time', 'end_date_time', 'extended_end_date_time']

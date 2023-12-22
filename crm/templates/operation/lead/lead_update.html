@@ -47,7 +47,7 @@
             <label for="formGroupExampleInput2" class="form-label">End Date</label>
             {{ form.end_date_time }}
         </div>
-        <div class="col-md-4">
+        <div class="col-md-4" {% if hide_extended_end_date_time %}style="display:none;" {% endif %}>
             <label for="formGroupExampleInput2" class="form-label">Extended End Date</label>
             {{ form.extended_end_date_time }}
         </div>
