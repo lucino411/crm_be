@@ -1,12 +1,10 @@
 {% extends "administration/core/base.html" %}
-{% load static %}
 
-{% block title %}Leads{% endblock %}
-
+{% block title %} {{ titulo }} {% endblock %}
 
 {% block content %}
 
-<h1 class="text-xl">Add Lead authenticated</h1>
+<h1 class="text-xl">Update Lead {{ lead }} {{ lead.name }}</h1>
 
 <form action="." method="post" class="">
     {% csrf_token %}
@@ -49,7 +47,7 @@
             <label for="formGroupExampleInput2" class="form-label">End Date</label>
             {{ form.end_date_time }}
         </div>
-        <div id="div_id_extended_end_date_time" style="display: none;" class="col-md-4">
+        <div class="col-md-4" {% if hide_extended_end_date_time %}style="display:none;" {% endif %}>
             <label for="formGroupExampleInput2" class="form-label">Extended End Date</label>
             {{ form.extended_end_date_time }}
         </div>
@@ -69,12 +67,28 @@
             {{ form.assigned_to }}
         </div>
     </div>
+
     <div class="row mb-3">
+        {{ formset.management_form }}
+        <div id="form-list">
+            {% for form in formset %}
+            <div class="lead-product-form">{{ form.as_p }}</div>
+            {% endfor %}
+        </div>
         <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Product</label>
-            {{ form.product }}
+            <button type="button" id="add-more" class="btn btn-primary">Agregar Producto</button> {# Botón para añadir
+            más formularios #}
         </div>
     </div>
+
+    <!-- LeadProductForm oculto para crear uno nuevo con JS -->
+    <span id="lead-info" data-stage="{{ lead.stage }}" data-is-closed="{{ lead.is_closed }}"
+        style="display: none;"></span>
+    <span id="form-index" data-form-index="{{ formset.total_form_count }}" style="display: none;"></span>
+    <div id="form-template" style="display: none;">
+        {{ formset.empty_form.as_p }}
+    </div>
+
 
     <div class="row mb-3">
         <div class="col-md-5">
@@ -84,8 +98,24 @@
     </div>
 
     <br>
-    <button type="submit" class="btn btn-primary">Create</button>
+    <button type="submit" class="btn btn-primary" {% if not enable_update %}disabled{% endif %}>Update</button>
     <br><br><br>
 </form>
 
+<!-- Imprimir lead.pk y organization_name para depuración -->
+<p>Debug: Lead ID ({{ lead.pk }}), Organization Name ({{ organization_name }})</p>
+
+
+<!-- Botón para añadir una nueva task al lead -->
+<div class="row mb-3">
+    <div class="col text-end">
+        <a href="{% url 'lead:task-create' pk=lead.pk organization_name=organization_name %}"
+            class="btn btn-warning {% if not task_create %}disabled{% endif %}" {% if not task_create %}onclick="return false;" {% endif %}>Agregar Task</a>
+    </div>
+</div>
+
+
+
 {% endblock %}
+
+

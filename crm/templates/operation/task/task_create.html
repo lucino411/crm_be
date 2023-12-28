@@ -1,0 +1,85 @@
+{% extends "administration/core/base.html" %}
+{% load static %}
+
+{% block title %} {{ titulo }} {% endblock %}
+
+
+{% block content %}
+
+<h1 class="text-xl">Add Task for {{ lead_name }}</h1>
+
+<br><br>
+
+<form action="." method="post" enctype="multipart/form-data" class="row g-3">
+    {% csrf_token %}
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <label for="formGroupExampleInput2" class="form-label">Task Nombre</label>
+            {{ form.name }}
+        </div>
+    </div>
+    <div class="row mb-3">
+
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Product</label>
+            {{ form.lead_product }}
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Related Task</label>
+            {{ form.related_task }}
+        </div>
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Parent Task</label>
+            {{ form.parent_task }}
+        </div>
+        <!-- <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Related Subtask</label>
+            {{ form.related_subtask }}
+        </div> -->
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label for="formGroupExampleInput2" class="form-label">Start Date</label>
+            {{ form.start_date_time }}
+        </div>
+        <div class="col-md-4">
+            <label for="formGroupExampleInput2" class="form-label">End Date</label>
+            {{ form.end_date_time }}
+        </div>
+        <!-- <div id="div_id_extended_end_date_time" style="display: none;" class="col-md-4">
+            <label for="formGroupExampleInput2" class="form-label">Extended End Date</label>
+            {{ form.extended_end_date_time }}
+        </div> -->
+    </div>
+
+
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Assigned to</label>
+            {{ form.assigned_to }}
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Description</label>
+            {{ form.description }}
+        </div>
+    </div>
+
+
+
+    <br>
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <button type="submit" class="btn btn-primary">Create</button>
+        </div>
+    </div>
+    <br><br><br>
+</form>
+
+
+
+{% endblock %}

@@ -21,6 +21,9 @@
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'lead:list' organization_name=organization_name %}">Leads</a>
             </li>      
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'lead:task-list' organization_name=organization_name %}">Tasks</a>
+                        </li>
         {% endif %}
             
 

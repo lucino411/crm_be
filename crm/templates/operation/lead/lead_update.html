@@ -1,10 +1,10 @@
 {% extends "administration/core/base.html" %}
 
-{% block title %}Leads{% endblock %}
+{% block title %} {{ titulo }} {% endblock %}
 
 {% block content %}
 
-<h1 class="text-xl">Update Lead authenticated</h1>
+<h1 class="text-xl">Update Lead {{ lead }} {{ lead.name }}</h1>
 
 <form action="." method="post" class="">
     {% csrf_token %}
@@ -96,9 +96,21 @@
     </div>
 
     <br>
-    <button type="submit" class="btn btn-primary">Update</button>
+    <button type="submit" class="btn btn-primary" {% if not enable_update %}disabled{% endif %}>Update</button>
     <br><br><br>
 </form>
+
+
+
+<!-- Botón para añadir una nueva task al lead -->
+<div class="row mb-3">
+    <div class="col text-end">
+        <a href="{% url 'lead:task-create' pk=pk organization_name=organization_name %}"
+            class="btn btn-warning {% if not task_create %}disabled{% endif %}" {% if not task_create %}onclick="return false;" {% endif %}>Agregar Task</a>
+    </div>
+</div>
+
+
 
 {% endblock %}
 
@@ -130,6 +142,10 @@
         });
     });
 </script> -->
+
+
+
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {

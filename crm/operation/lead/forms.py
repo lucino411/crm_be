@@ -94,7 +94,7 @@ class LeadProductForm(forms.ModelForm):
         fields = ['product', 'cotizacion_url']
 
 
-class TaskForm(forms.ModelForm):
+class TaskCreateForm(forms.ModelForm):
     name = forms.CharField(label="", max_length=200, widget=forms.TextInput(
         attrs={'class': 'form-control', 'placeholder': 'Task Name'}))
     description = forms.CharField(widget=forms.Textarea(
@@ -111,16 +111,15 @@ class TaskForm(forms.ModelForm):
         attrs={'class': 'form-select'}), label="Related Subtask")
     assigned_to = forms.ModelChoiceField(queryset=User.objects.all(), empty_label=None, widget=forms.Select(
         attrs={'class': 'form-select'}), label="Assigned To")
-    stage = forms.ChoiceField(choices=Task.STAGE_CHOICES, widget=forms.Select(
-        attrs={'class': 'form-select'}), label="Stage")
     start_date_time = forms.DateTimeField(widget=forms.DateTimeInput(
         attrs={'class': 'form-control', 'type': 'datetime-local'}), label="Start Date")
     end_date_time = forms.DateTimeField(required=False, widget=forms.DateTimeInput(
         attrs={'class': 'form-control', 'type': 'datetime-local'}), label="End Date")
-    extended_end_date_time = forms.DateTimeField(required=False, widget=forms.DateTimeInput(
-        attrs={'class': 'form-control', 'type': 'datetime-local'}), label="Extended End Date")
+    # stage = forms.ChoiceField(choices=Task.STAGE_CHOICES, widget=forms.Select(
+    #     attrs={'class': 'form-select'}))
 
     class Meta:
         model = Task
-        fields = ['name', 'description', 'lead', 'lead_product', 'parent_task', 'related_task', 'related_subtask',
-                  'assigned_to', 'stage', 'start_date_time', 'end_date_time', 'extended_end_date_time']
+        fields = ['name', 'description', 'lead', 'lead_product', 'parent_task', 'related_task',
+                  'related_subtask', 'assigned_to', 'start_date_time', 'end_date_time']
+

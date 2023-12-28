@@ -37,15 +37,17 @@ class Lead(models.Model):
     last_modified_by = models.ForeignKey(User, related_name='last_modified_lead', on_delete=models.SET(get_sentinel_user))
     created_time = models.DateTimeField(auto_now_add=True)
     modified_time = models.DateTimeField(auto_now=True)
-    start_date_time = models.DateTimeField()
+    start_date_time = models.DateTimeField(null=True, blank=True)
     end_date_time = models.DateTimeField(null=True, blank=True)
     extended_end_date_time = models.DateTimeField(null=True, blank=True)    
     actual_completion_date = models.DateTimeField(null=True, blank=True)
     currency = models.ForeignKey(Currency, on_delete=models.SET_NULL, null=True)
     organization = models.ForeignKey(Organization, related_name='lead', on_delete=models.CASCADE)    
-    stage = models.CharField(
-        max_length=20, choices=STAGE_CHOICES, default='new')
+    stage = models.CharField(max_length=20, choices=STAGE_CHOICES, default='new')
     is_closed = models.BooleanField(default=False)  
+
+    def __str__(self):
+        return self.lead_name
 
 
 class LeadProduct(models.Model):
@@ -53,6 +55,10 @@ class LeadProduct(models.Model):
         Lead, related_name='lead_product', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, related_name='lead_product', on_delete=models.CASCADE)
     cotizacion_url = models.URLField(null=True, blank=True)
+
+    def __str__(self):
+        return self.product.name
+
 
 
 class Task(models.Model):
@@ -74,7 +80,7 @@ class Task(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='created_tasks', on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now_add=True)
     modified_time = models.DateTimeField(auto_now=True)
-    start_date_time = models.DateTimeField()
+    start_date_time = models.DateTimeField(null=True, blank=True)
     end_date_time = models.DateTimeField(null=True, blank=True)
     extended_end_date_time = models.DateTimeField(null=True, blank=True)    
     actual_completion_date = models.DateTimeField(null=True, blank=True)
@@ -83,6 +89,10 @@ class Task(models.Model):
     organization = models.ForeignKey(Organization, related_name='task', on_delete=models.CASCADE)    
     stage = models.CharField(max_length=20, choices=STAGE_CHOICES, default='pending')    
     is_closed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
+
 
 
 

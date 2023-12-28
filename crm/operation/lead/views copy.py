@@ -173,114 +173,31 @@ class LeadCreateView(LoginRequiredMixin, FormView, AgentRequiredMixin, AgentCont
         return context
 
 
-class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
+class LeadUpdateView(UpdateView, AgentContextMixin):
     model = Lead
     template_name = 'operation/lead/lead_update.html'
     form_class = LeadUpdateForm
-    validation_error_handled = False
-
-    def get_form(self, form_class=None):
-        form = super().get_form(form_class)
-        agent = self.request.user.agent
-        current_time = timezone.now()
-        # Obtener la instancia del lead
-        lead = self.get_object()
-
-        if agent:
-            # Configuración de queryset para los campos que dependen del agente
-            form.fields['country'].queryset = Country.objects.filter(
-                Q(organization=agent.organization) & Q(is_selected=True)
-            )
-            form.fields['assigned_to'].queryset = User.objects.filter(
-                agent__organization=agent.organization)
-
-        # Lógica para deshabilitar el formulario si el lead está en "Close Win" o "Close Lost"
-        if lead.stage in ['close_win', 'close_lost']:
-            for field in form.fields:
-                form.fields[field].disabled = True
-            return form
-
-        # Aplica la lógica para habilitar/deshabilitar campos
-        if lead.end_date_time and lead.end_date_time < timezone.now():
-            form.fields['end_date_time'].disabled = True
-            form.fields['extended_end_date_time'].disabled = False
-        elif lead.end_date_time and lead.end_date_time > timezone.now():
-            form.fields['end_date_time'].disabled = False
-            form.fields['extended_end_date_time'].disabled = True
-
-        # Deshabilitar todos los campos si el lead está cerrado, excepto extended_end_date_time
-        if lead.is_closed:
-            for field in form.fields:
-                if field != 'extended_end_date_time':
-                    form.fields[field].disabled = True
-
-        return form
 
     def form_valid(self, form):
         agent = self.request.user.agent
         form.instance.organization = agent.organization
         form.instance.last_modified_by = agent.user
 
-        # Tu lógica de validación aquí...
-        try:
-            lead = form.save(commit=False)
-            # Añade un atributo para rastrear si ya se manejó un ValidationError
-            # self.validation_error_handled = False
-            # end_date_time no puede ser menor a start_date_time
-            if lead.end_date_time and lead.start_date_time and lead.end_date_time < lead.start_date_time:
-                raise ValidationError(
-                    "La fecha de finalización no puede ser anterior a la fecha de inicio.")
+        lead = form.save(commit=False)
 
-            # end_date_time no puede ser mayor a extended_end_date_time
-            if lead.extended_end_date_time and lead.end_date_time and lead.end_date_time > lead.extended_end_date_time:
-                raise ValidationError(
-                    "La fecha de finalización extendida no puede ser anterior a la fecha de finalización original.")
+        if lead.start_date_time > lead.end_date_time:
+            raise ValidationError("La fecha de finalización no puede ser anterior a la fecha de inicio.")          
 
-             # Establecer is_closed en True si el stage es "Close Win" o "Close Lost"
-            if lead.stage in ['close_win', 'close_lost']:
-                lead.is_closed = True
-            else:
-                # Actualizar is_closed basado en end_date_time y extended_end_date_time
-                current_time = timezone.now()
-                if lead.end_date_time and lead.end_date_time > current_time:
-                    lead.is_closed = False
-                    # Si end_date_time es futuro, ocultar extended_end_date_time
-                    form.fields['extended_end_date_time'].widget = forms.HiddenInput()
-                elif lead.extended_end_date_time and lead.extended_end_date_time > current_time:
-                    lead.is_closed = False
-                else:
-                    lead.is_closed = True
+        lead.save()        
 
-            # Si todo está bien, guarda el lead
-            lead.save()
-
-            # Guardar los formularios de LeadProduct
-            formset = LeadProductFormset(
-                self.request.POST, self.request.FILES, instance=lead)
-
-            if formset.is_valid():
-                formset.save()
-
-            messages.success(self.request, "Lead actualizado")
-            url = reverse('lead:detail', kwargs={
-                'organization_name': self.get_organization(), 'pk': self.object.pk})
-            return redirect(url)
-
-        except ValidationError as e:
-            self.validation_error_handled = True  # Indica que se manejó un error
-            # Agrega el error de ValidationError al sistema de mensajes
-            error_message = '; '.join(e.messages) if hasattr(
-                e, 'messages') else str(e)
-            messages.error(self.request, error_message)
-            # Agrega los errores del ValidationError al formulario y vuelve a mostrar el formulario
-            form.add_error(None, e)
-            return self.form_invalid(form)
-
+        messages.success(self.request, "Lead actualizado")
+        return redirect(reverse('lead:detail', kwargs={'organization_name': self.get_organization(), 'pk': self.object.pk}))
+       
 
     def form_invalid(self, form):
-        # print(form.errors)
-        if not self.validation_error_handled:
-            messages.error(self.request, "Invalid form data. Please check the entries and try again.")
+        print('Lead ID:', self.object.pk)
+        print(form.errors)
+        messages.error(self.request, "Invalid form data. Please check the entries and try again.")
         return render(self.request, self.template_name, {'form': form, 'organization_name': self.get_organization(), 'pk': self.object.pk})
 
 
@@ -288,40 +205,32 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
         context = super().get_context_data(**kwargs)
         lead = self.get_object()
         context['pk'] = lead.pk
-        context['titulo'] = 'Update Lead'
         context['organization_name'] = self.get_organization()
-        current_time = timezone.now()
-
-        # Determina si deshabilitan los botones update y create task
-        context['enable_update'] = True
-        context['task_create'] = True
-        if lead.end_date_time and lead.end_date_time < current_time and not lead.extended_end_date_time:
-            context['task_create'] = False
-        if lead.extended_end_date_time and lead.extended_end_date_time < current_time:
-            context['task_create'] = False
-        if lead.stage in ['close_win', 'close_lost']:
-            context['enable_update'] = False
-            context['task_create'] = False    
-
-        # Determina si debe ocultarse el campo extended_end_date_time
-        context['hide_extended_end_date_time'] = False
-        if lead.end_date_time and lead.end_date_time > current_time:
-            context['hide_extended_end_date_time'] = True
-
-        # Configurar el formset
-        if self.request.POST:
-            context['formset'] = LeadProductFormset(
-                self.request.POST, instance=lead)
-        else:
-            context['formset'] = LeadProductFormset(instance=lead)
-
-        # Deshabilitar los campos del formset si el lead está cerrado
-        if lead.is_closed:
-            for form in context['formset']:
-                for field in form.fields:
-                    form.fields[field].disabled = True
 
         return context
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class LeadDeleteView(DeleteView, AgentRequiredMixin, AgentContextMixin):
@@ -348,12 +257,12 @@ LeadProductFormset = inlineformset_factory(
     Lead, LeadProduct, form=LeadProductForm, extra=0, can_delete=True)
 
 
-class HomeTaskView(LoginRequiredMixin, TemplateView):
-    template_name = 'operation/task/task_list.html'
+class HomeLeadView(LoginRequiredMixin, TemplateView):
+    template_name = 'operation/lead/lead_list.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Gestion de Tasks'
+        context['titulo'] = 'Gestion de Leads'
         return context
 
 
@@ -364,44 +273,21 @@ class TaskListView(ListView, AgentRequiredMixin, AgentContextMixin):
     def get_queryset(self):
         return Task.objects.filter(
             organization=self.get_organization()
-        ).select_related('assigned_to', 'last_modified_by')
-    
+        ).select_related('lead_product', 'assigned_to', 'last_modified_by')
+
     def get(self, request, *args, **kwargs):
         tasks = self.get_queryset()
-        tasks_data = list(tasks.values('id', 'name', 'last_modified_by_id',
-                          'assigned_to_id', 'organization', 'modified_time', 'end_date_time', 'extended_end_date_time', 'lead_product__product__name', 'lead__lead_name'))
-        user_names = {
-            user.id: f"{user.first_name} {user.last_name}" for user in User.objects.all()
-        }
-
-        for task in tasks_data:
-            task['assigned_to'] = user_names.get(task['assigned_to_id'])
-            task['last_modified_by'] = user_names.get(task['last_modified_by_id'])
-            task['organization'] = self.get_organization().name
-            task['product_name'] = task['lead_product__product__name']  # Asigna el nombre del producto a una nueva clave
-            task['lead_name'] = task['lead__lead_name']  # Nombre del lead
-
-
-
+        tasks_data = [
+            {
+                'id': task.id,
+                'name': task.name,
+                'task_lead_product': task.lead_product.name if task.lead_product else None,
+                'assigned_to': task.assigned_to.get_full_name() if task.assigned_to else None,
+                'start_date_time': task.start_date_time.strftime('%Y-%m-%d %H:%M:%S') if task.start_date_time else None,
+            }
+            for task in tasks
+        ]
         return JsonResponse({'tasks': tasks_data})
-
-    # def get(self, request, *args, **kwargs):
-    #     tasks = self.get_queryset()
-    #     tasks_data = [
-    #         {
-    #             'id': task.id,
-    #             'name': task.name,
-    #             'task_lead_product': task.lead.lead_product.name if task.lead_product else None,
-    #             'assigned_to': task.assigned_to.get_full_name() if task.assigned_to else None,
-    #             'start_date_time': task.start_date_time.strftime('%Y-%m-%d %H:%M:%S') if task.start_date_time else None,
-    #             'created_time': task.created_time.strftime('%Y-%m-%d %H:%M:%S') if task.created_time else None,
-    #         }
-    #         for task in tasks
-    #             print('wwwwwwwwwwwwwwwwwwwwwwwwwwwwww')
-    #             print(task.id)
-    #             print('wwwwwwwwwwwwwwwwwwwwwwwwwwwwww')
-    #     ]
-    #     return JsonResponse({'tasks': tasks_data})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -422,7 +308,6 @@ class TaskCreateView(FormView, AgentRequiredMixin, AgentContextMixin):
         agent = self.request.user.agent
         lead_id = self.kwargs.get('pk')
         lead = get_object_or_404(Lead, pk=lead_id)
-
 
         if agent:
             # Configuración de queryset para los campos que dependen del agente
@@ -453,10 +338,7 @@ class TaskCreateView(FormView, AgentRequiredMixin, AgentContextMixin):
             task.last_modified_by = agent.user
 
             # Capturar el ID del Lead desde la URL
-            lead_id = self.kwargs.get('pk')
-            print('heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
-            print(lead_id)
-            print('heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
+            lead_id = self.kwargs.get('lead_id')
             # Obtener el objeto Lead
             lead = get_object_or_404(Lead, pk=lead_id)
 

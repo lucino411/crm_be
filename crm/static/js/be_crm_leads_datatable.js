@@ -106,15 +106,18 @@ const initDataTable = async () => {
 const listLeads = async () => {
     try {
         const leadListElement = document.getElementById('lead-list');
+        console.log(leadListElement);
         const organizationName = leadListElement.dataset.organizationName;
         const response = await fetch(`${BASE_URL}/${organizationName}/lead/leads_json`);
         const data = await response.json();
+        console.log(response);
         let content = ``;
         
         data.leads.forEach((lead, index) => {
             const leadData = lead;
+            
 
-            // console.log(leadData); // Agrega esta línea para imprimir leadData en la consola
+            console.log(leadData); // Agrega esta línea para imprimir leadData en la consola
             const createdTime = new Date(leadData.created_time).toLocaleString('es', { day: 'numeric', month: 'short', year: 'numeric' });
             // const modifiedTime = new Date(leadData.modified_time).toLocaleString('es', { day: 'numeric', month: 'short', year: 'numeric' });
 

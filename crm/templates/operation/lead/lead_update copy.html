@@ -1,0 +1,49 @@
+{% extends "administration/core/base.html" %}
+
+{% block title %} {{ titulo }} {% endblock %}
+
+{% block content %}
+
+<h1 class="text-xl">Update Lead {{ lead }} {{ lead.name }}</h1>
+
+<form action="." method="post" class="">
+    {% csrf_token %}
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <label for="formGroupExampleInput2" class="form-label">Lead Nombre</label>
+            {{ form.lead_name }}
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label for="formGroupExampleInput2" class="form-label">Start Date</label>
+            {{ form.start_date_time }}
+        </div>
+        <div class="col-md-4">
+            <label for="formGroupExampleInput2" class="form-label">End Date</label>
+            {{ form.end_date_time }}
+        </div>
+      
+    </div> 
+
+    <br>
+    <button type="submit" class="btn btn-primary">Update</button>
+    <br><br><br>
+</form>
+
+<!-- Imprimir lead.pk y organization_name para depuración -->
+<p>Debug: Lead ID ({{ lead.pk }}), Organization Name ({{ organization_name }})</p>
+
+
+<!-- Botón para añadir una nueva task al lead -->
+<div class="row mb-3">
+    <div class="col text-end">
+        <a href="{% url 'lead:task-create' pk=pk organization_name=organization_name %}"
+            class="btn btn-warning {% if not task_create %}disabled{% endif %}" {% if not task_create %}onclick="return false;" {% endif %}>Agregar Task</a>
+    </div>
+</div>
+
+
+
+{% endblock %}
