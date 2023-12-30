@@ -1,0 +1,37 @@
+{% extends "administration/core/base.html" %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+
+<h1 class="text-xl">Task Detail {{ task.name }} {{ task.id }}</h1>
+
+<div class="card" style="width: 22rem;">
+    <div class="card-header">
+        <h2>{{ task.lead }}</h2>
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">{{ task.assigned_to }} <span class="badge bg-secondary">Assigned to</span></li>
+        <li class="list-group-item">{{ task.created_by }} <span class="badge bg-secondary">Created By</span></li>
+        <li class="list-group-item">{{ task.created_time }} <span class="badge bg-secondary">Created At</span></li>
+        <li class="list-group-item">{{ task.start_date_time }} <span class="badge bg-secondary">Start</span></li>
+        <li class="list-group-item">{{ task.end_date_time }} <span class="badge bg-secondary">End</span></li>
+        <li class="list-group-item">{{ task.extended_end_date_time }} <span class="badge bg-info">Extended End</span></li>
+        {% if task_product %}
+            <li class="list-group-item">{{ task_product }} <span class="badge bg-warning">Producto</span></li>            
+        {% else %}
+            <li class="list-group-item">No products associated with this task.</li>
+        {% endif %}                  
+        <li class="list-group-item">{{ task.stage }}   <span class="badge bg-success">Stage</span></li>        
+    </ul>
+</div>
+<div>
+    <a href="{% url 'lead:task-update' pk=task.pk organization_name=organization_name %}" class="btn btn-primary">Update</a>
+    <a href="{% url 'lead:task-delete' pk=task.pk organization_name=organization_name %}" class="btn btn-danger mt-3">Delete</a>
+</div>
+<div class="col-md-8 mt-3">
+
+</div>
+                
+
+{% endblock %}

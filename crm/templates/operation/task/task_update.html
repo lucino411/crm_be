@@ -1,43 +1,43 @@
 {% extends "administration/core/base.html" %}
+{% load static %}
 
 {% block title %} {{ titulo }} {% endblock %}
 
+
 {% block content %}
 
-<h1 class="text-xl">Update Lead {{ lead }} {{ lead.name }}</h1>
+<h1 class="text-xl">Update Task for {{ task.lead }}</h1>
 
-<form action="." method="post" class="">
+<br><br>
+
+<form action="." method="post" enctype="multipart/form-data" class="row g-3">
     {% csrf_token %}
     <div class="row mb-3">
         <div class="col-md-8">
-            <label for="formGroupExampleInput2" class="form-label">Lead Nombre</label>
-            {{ form.lead_name }}
+            <label for="formGroupExampleInput2" class="form-label">Task Nombre</label>
+            {{ form.name }}
         </div>
     </div>
     <div class="row mb-3">
         <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Nombre</label>
-            {{ form.first_name }}
-        </div>
-        <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Apellido</label>
-            {{ form.last_name }}
+            <label for="formGroupExampleInput2" class="form-label">Product</label>
+            {{ form.lead_product }}
         </div>
     </div>
     <div class="row mb-3">
         <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Currency</label>
-            {{ form.currency }}
+            <label for="formGroupExampleInput2" class="form-label">Related Task</label>
+            {{ form.related_task }}
         </div>
         <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Email</label>
-            {{ form.primary_email }}
-            {% if form.errors.primary_email %}
-            <div id="email-error" class="text-danger">{{ form.errors.primary_email }}</div>
-            {% endif %}
+            <label for="formGroupExampleInput2" class="form-label">Parent Task</label>
+            {{ form.parent_task }}
         </div>
+        <!-- <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Related Subtask</label>
+            {{ form.related_subtask }}
+        </div> -->
     </div>
-
     <div class="row mb-3">
         <div class="col-md-4">
             <label for="formGroupExampleInput2" class="form-label">Start Date</label>
@@ -47,18 +47,10 @@
             <label for="formGroupExampleInput2" class="form-label">End Date</label>
             {{ form.end_date_time }}
         </div>
-        <div class="col-md-4" {% if hide_extended_end_date_time %}style="display:none;" {% endif %}>
+        <div id="div_id_extended_end_date_time" class="col-md-4">
             <label for="formGroupExampleInput2" class="form-label">Extended End Date</label>
             {{ form.extended_end_date_time }}
         </div>
-    </div>
-
-    <div class="row mb-3">
-        <div class="col-md-4">
-            <label for="formGroupExampleInput2" class="form-label">Country</label>
-            {{ form.country }}
-        </div>
-
     </div>
 
     <div class="row mb-3">
@@ -66,25 +58,6 @@
             <label for="formGroupExampleInput2" class="form-label">Assigned to</label>
             {{ form.assigned_to }}
         </div>
-    </div>
-    
-    <div class="row mb-3">
-        {{ formset.management_form }}
-        <div id="form-list">
-            {% for form in formset %}
-            <div class="lead-product-form">{{ form.as_p }}</div>
-            {% endfor %}
-        </div>
-        <div class="col-md-5">
-            <button type="button" id="add-more-product" class="btn btn-primary" {% if not enable_button %}disabled{% endif %} {% if not enable_button %}onclick="return false;"{% endif %}>Agregar Producto</button> {# Botón para añadir más formularios #}
-        </div>
-    </div>
-
-    <!-- LeadProductForm oculto para crear uno nuevo con JS -->
-    <span id="lead-info" data-stage="{{ lead.stage }}" data-is-closed="{{ lead.is_closed }}" style="display: none;"></span>
-    <span id="form-index" data-form-index="{{ formset.total_form_count }}" style="display: none;"></span>
-    <div id="form-template" style="display: none;">
-        {{ formset.empty_form.as_p }}
     </div>
 
     <div class="row mb-3">
@@ -94,30 +67,64 @@
         </div>
     </div>
 
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Description</label>
+            {{ form.description }}
+        </div>
+    </div>
+
+
+
     <br>
-    <button type="submit" class="btn btn-primary" {% if not enable_update %}disabled{% endif %} {% if not enable_update %}onclick="return false;"{% endif %}>Update</button>
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <button type="submit" class="btn btn-primary" {% if not enable_update %}disabled{% endif %} {% if not enable_update %}onclick="return false;" {% endif %}>Update</button>
+        </div>
+    </div>
     <br><br><br>
 </form>
 
-<!-- Botón para añadir una nueva task al lead -->
-<div class="row mb-3">
-    <div class="col text-end">
-        <a href="{% url 'lead:task-create' pk=pk organization_name=organization_name %}" id="add-more-task"
-            class="btn btn-warning {% if not enable_button %}disabled{% endif %}" {% if not enable_button %}onclick="return false;" {% endif %}>Agregar Task</a>
-    </div>
-</div>
+
 
 {% endblock %}
 
-
-
 {% block scripts %}
+
+<!-- <script>
+    //Boton para agregar un nuevo producto
+    document.addEventListener('DOMContentLoaded', function () {
+        var formIndex = document.getElementById('form-index').getAttribute('data-form-index');
+        const addMoreButton = document.getElementById('add-more');
+        const formListContainer = document.getElementById('form-list');
+        const formTemplate = document.getElementById('form-template').innerHTML;
+
+        addMoreButton.addEventListener('click', function () {
+            let newFormHtml = formTemplate.replace(/__prefix__/g, formIndex);
+            formListContainer.insertAdjacentHTML('beforeend', newFormHtml);
+
+            // Oculta o elimina el checkbox de eliminación en el nuevo formulario
+            const newForm = formListContainer.lastElementChild;
+            const deleteCheckbox = newForm.querySelector('input[type="checkbox"][name$="DELETE"]');
+            const deleteLabel = deleteCheckbox ? deleteCheckbox.previousElementSibling : null;
+            if (deleteCheckbox && deleteLabel) {
+                deleteCheckbox.style.display = 'none'; // O usa 'deleteCheckbox.remove();' para eliminarlo
+                deleteLabel.style.display = 'none';    // O usa 'deleteLabel.remove();' para eliminarlo
+            }
+
+            document.getElementById('id_lead_product-TOTAL_FORMS').value = ++formIndex;
+        });
+    });
+</script> -->
+
+
+
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var formIndex = document.getElementById('form-index').getAttribute('data-form-index');
-        const addMoreProductButton = document.getElementById('add-more-product');
-        const addMoreTaskButton = document.getElementById('add-more-task');
+        const addMoreButton = document.getElementById('add-more');
         const formListContainer = document.getElementById('form-list');
         const formTemplate = document.getElementById('form-template').innerHTML;
 
@@ -128,11 +135,9 @@
 
         // Ocultar el botón si el lead está cerrado o si el stage es 'close_win' o 'close_lost'
         if (leadIsClosed || leadStage === 'close_win' || leadStage === 'close_lost') {
-            addMoreProductButton.style.display = 'none';
-            addMoreTaskButton.style.display = 'none';
-
+            addMoreButton.style.display = 'none';
         } else {
-            addMoreProductButton.addEventListener('click', function () {
+            addMoreButton.addEventListener('click', function () {
             let newFormHtml = formTemplate.replace(/__prefix__/g, formIndex);
             formListContainer.insertAdjacentHTML('beforeend', newFormHtml);
 
@@ -149,6 +154,7 @@
             });
         }
     });
+
 
 </script>
 

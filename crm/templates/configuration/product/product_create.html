@@ -8,11 +8,49 @@
     <div class="row">
         <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
             <h2>Create Product</h2>
-            <form method="post">
+
+            <form action="." method="post" enctype="multipart/form-data" class="row g-3">
                 {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-primary">Create</button>
+            
+                <div class="row mb-3">            
+                    <div class="col-md-5">
+                        <label for="formGroupExampleInput2" class="form-label">Product</label>
+                        {{ form.name }}
+                    </div>
+                    <div class="col-md-5">
+                        <label for="formGroupExampleInput2" class="form-label">Product URL</label>
+                        {{ form.product_url }}
+                    </div>
+            
+                    <div class="col-md-5">
+                        <label for="formGroupExampleInput2" class="form-label">Category</label>                        
+                        {{ form.category }}                                                 
+                    </div>
+                </div>
+            
+               <br>
+                <div class="row mb-3">
+                    <div class="col-md-5">
+                        <button type="submit" class="btn btn-primary">Create</button>
+                    </div>
+                </div>
+                <br><br><br>
             </form>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         </div>
     </div>
 </div>

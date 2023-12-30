@@ -78,16 +78,20 @@ class LeadUpdateForm(forms.ModelForm):
                   'extended_end_date_time', 'stage']
         
 
-
-
 class LeadProductForm(forms.ModelForm):
-    # Este campo es para seleccionar un producto existente
+    # Este campo es para seleccionar un producto existente en la organizacion
     product = forms.ModelChoiceField(queryset=Product.objects.all(
     ), widget=forms.Select(attrs={'class': 'form-select'}), label="Product")
-
     # Campo para la URL de cotización específica del LeadProduct
     cotizacion_url = forms.URLField(required=False, widget=forms.URLInput(
         attrs={'class': 'form-control', 'placeholder': 'Cotización URL'}), label="Cotización URL")
+    
+    def __init__(self, *args, **kwargs):
+        organization = kwargs.pop('organization', None)  # Extraer la organización del arumento
+        super(LeadProductForm, self).__init__(*args, **kwargs)
+        if organization:
+            # Filtrar el queryset del campo 'product' por la organización
+            self.fields['product'].queryset = Product.objects.filter(organization=organization)
 
     class Meta:
         model = LeadProduct
@@ -122,4 +126,36 @@ class TaskCreateForm(forms.ModelForm):
         model = Task
         fields = ['name', 'description', 'lead', 'lead_product', 'parent_task', 'related_task',
                   'related_subtask', 'assigned_to', 'start_date_time', 'end_date_time']
+        
+
+class TaskUpdateForm(forms.ModelForm):
+    name = forms.CharField(label="", max_length=200, widget=forms.TextInput(
+        attrs={'class': 'form-control', 'placeholder': 'Task Name'}))
+    description = forms.CharField(widget=forms.Textarea(
+        attrs={'class': 'form-control', 'placeholder': 'Task Description'}))
+    lead = forms.ModelChoiceField(queryset=Lead.objects.all(), required=False, widget=forms.Select(
+        attrs={'class': 'form-select'}), label="Lead")
+    lead_product = forms.ModelChoiceField(queryset=LeadProduct.objects.all(), required=False, widget=forms.Select(
+        attrs={'class': 'form-select'}), label="Lead Product")
+    parent_task = forms.ModelChoiceField(queryset=Task.objects.all(), required=False, widget=forms.Select(
+        attrs={'class': 'form-select'}), label="Parent Task")
+    related_task = forms.ModelChoiceField(queryset=Task.objects.all(), required=False, widget=forms.Select(
+        attrs={'class': 'form-select'}), label="Related Task")
+    related_subtask = forms.ModelChoiceField(queryset=Task.objects.all(), required=False, widget=forms.Select(
+        attrs={'class': 'form-select'}), label="Related Subtask")
+    assigned_to = forms.ModelChoiceField(queryset=User.objects.all(), empty_label=None, widget=forms.Select(
+        attrs={'class': 'form-select'}), label="Assigned To")
+    start_date_time = forms.DateTimeField(widget=forms.DateTimeInput(
+        attrs={'class': 'form-control', 'type': 'datetime-local'}), label="Start Date")
+    end_date_time = forms.DateTimeField(required=False, widget=forms.DateTimeInput(
+        attrs={'class': 'form-control', 'type': 'datetime-local'}), label="End Date")
+    extended_end_date_time = forms.DateTimeField(required=False, widget=forms.DateTimeInput(
+        attrs={'class': 'form-control', 'type': 'datetime-local'}), label="Extended End Date")
+    stage = forms.ChoiceField(choices=Task.STAGE_CHOICES, widget=forms.Select(
+        attrs={'class': 'form-select'}))
+
+    class Meta:
+        model = Task
+        fields = ['name', 'description', 'lead', 'lead_product', 'parent_task', 'related_task',
+                  'related_subtask', 'assigned_to', 'start_date_time', 'end_date_time', 'extended_end_date_time', 'stage']
 

@@ -1,4 +1,5 @@
 from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, CreateView, DetailView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.contrib import messages
@@ -20,21 +21,32 @@ class ProductListView(OrganizerRequiredMixin, OrganizerContextMixin, ListView):
         return Product.objects.filter(organization=self.get_organization())
 
 
-
 class ProductCreateView(OrganizerRequiredMixin, OrganizerContextMixin, CreateView):
     model = Product
     form_class = ProductForm
-    template_name = 'configuration/product/product_create.html'
+    template_name = 'configuration/product/product_create.html'    
 
     def form_valid(self, form):
         form.instance.organization = self.get_organization()
         return super().form_valid(form)
 
+    def get_form_kwargs(self):
+        kwargs = super(ProductCreateView, self).get_form_kwargs()
+        kwargs['organization'] = self.get_organization()
+        return kwargs
+
     def get_success_url(self):
         organization_name = self.get_organization()
         messages.success(self.request, "Product created.")
         return reverse_lazy('product:list', kwargs={'organization_name': organization_name})
-
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        organization = self.get_organization()
+        categories = ProductCategory.objects.filter(organization=organization)  # Usa filter en lugar de get
+        context['categories'] = categories
+        return context       
+    
 
 class ProductDetailView(OrganizerRequiredMixin, OrganizerContextMixin, DetailView):
     model = Product
@@ -55,9 +67,8 @@ class ProductUpdateView(OrganizerRequiredMixin, OrganizerContextMixin, UpdateVie
 
     def get_success_url(self):
         pk = self.object.pk
-        messages.success(self.request, "Country updated.")
+        messages.success(self.request, "Product updated.")
         return reverse_lazy('product:detail', kwargs={'organization_name': self.get_organization(), 'pk': pk})
-
 
 
 class ProductDeleteView(OrganizerRequiredMixin, OrganizerContextMixin, DeleteView):
@@ -102,6 +113,9 @@ class ProductCategoryListView(OrganizerRequiredMixin, OrganizerContextMixin, Lis
     model = ProductCategory
     context_object_name = 'categories'
     template_name = 'configuration/product_category/category_list.html'
+
+    def get_queryset(self):
+        return ProductCategory.objects.filter(organization=self.get_organization())
 
 
 class ProductCategoryCreateView(OrganizerRequiredMixin, OrganizerContextMixin, CreateView):
