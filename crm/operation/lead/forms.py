@@ -145,17 +145,17 @@ class TaskUpdateForm(forms.ModelForm):
         attrs={'class': 'form-select'}), label="Related Subtask")
     assigned_to = forms.ModelChoiceField(queryset=User.objects.all(), empty_label=None, widget=forms.Select(
         attrs={'class': 'form-select'}), label="Assigned To")
-    start_date_time = forms.DateTimeField(widget=forms.DateTimeInput(
-        attrs={'class': 'form-control', 'type': 'datetime-local'}), label="Start Date")
-    end_date_time = forms.DateTimeField(required=False, widget=forms.DateTimeInput(
-        attrs={'class': 'form-control', 'type': 'datetime-local'}), label="End Date")
-    extended_end_date_time = forms.DateTimeField(required=False, widget=forms.DateTimeInput(
-        attrs={'class': 'form-control', 'type': 'datetime-local'}), label="Extended End Date")
+    # start_date_time = forms.DateTimeField(widget=forms.DateTimeInput(
+    #     attrs={'class': 'form-control', 'type': 'datetime-local'}), label="Start Date")
+    # end_date_time = forms.DateTimeField(required=False, widget=forms.DateTimeInput(
+    #     attrs={'class': 'form-control', 'type': 'datetime-local'}), label="End Date")
+    # extended_end_date_time = forms.DateTimeField(required=False, widget=forms.DateTimeInput(
+    #     attrs={'class': 'form-control', 'type': 'datetime-local'}), label="Extended End Date")
     stage = forms.ChoiceField(choices=Task.STAGE_CHOICES, widget=forms.Select(
         attrs={'class': 'form-select'}))
 
     class Meta:
         model = Task
         fields = ['name', 'description', 'lead', 'lead_product', 'parent_task', 'related_task',
-                  'related_subtask', 'assigned_to', 'start_date_time', 'end_date_time', 'extended_end_date_time', 'stage']
+                  'related_subtask', 'assigned_to', 'stage']
 

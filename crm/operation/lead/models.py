@@ -60,7 +60,6 @@ class LeadProduct(models.Model):
         return self.product.name
 
 
-
 class Task(models.Model):
     STAGE_CHOICES = [
         ('pending', 'Pending'),
@@ -73,17 +72,13 @@ class Task(models.Model):
     name = models.CharField(max_length=200)
     lead = models.ForeignKey('Lead', related_name='tasks', on_delete=models.CASCADE, null=True, blank=True)
     lead_product = models.ForeignKey('LeadProduct', related_name='tasks', on_delete=models.CASCADE, null=True, blank=True)
-    parent_task = models.ForeignKey('self', null=True, blank=True, related_name='subtasks', on_delete=models.CASCADE)
+    # parent_task = models.ForeignKey('self', null=True, blank=True, related_name='subtasks', on_delete=models.CASCADE)
     related_task = models.ForeignKey('self', null=True, blank=True, related_name='related_tasks', on_delete=models.SET_NULL)
-    related_subtask = models.ForeignKey('self', null=True, blank=True, related_name='related_subtasks', on_delete=models.SET_NULL)
+    # related_subtask = models.ForeignKey('self', null=True, blank=True, related_name='related_subtasks', on_delete=models.SET_NULL)
     description = models.TextField()
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='created_tasks', on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now_add=True)
     modified_time = models.DateTimeField(auto_now=True)
-    start_date_time = models.DateTimeField(null=True, blank=True)
-    end_date_time = models.DateTimeField(null=True, blank=True)
-    extended_end_date_time = models.DateTimeField(null=True, blank=True)    
-    actual_completion_date = models.DateTimeField(null=True, blank=True)
     assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='assigned_tasks', on_delete=models.CASCADE)
     last_modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='modified_tasks', on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, related_name='task', on_delete=models.CASCADE)    

@@ -77,6 +77,10 @@ class LeadDetailView(DetailView, AgentRequiredMixin, AgentContextMixin):
         # Añadir productos asociados al Lead
         lead_products = LeadProduct.objects.filter(lead=self.object)
         context['lead_products'] = lead_products
+         # Obtener tareas asociadas al Lead
+        lead_tasks = Task.objects.filter(lead=self.object)
+        context['lead_tasks'] = lead_tasks
+
 
         return context
 
@@ -333,7 +337,6 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
 
         return context
 
-
 class LeadDeleteView(DeleteView, AgentRequiredMixin, AgentContextMixin):
     model = Lead
     template_name = 'operation/lead/lead_delete.html'
@@ -584,7 +587,7 @@ class TaskUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
         lead = get_object_or_404(Lead, pk=lead_id)
         current_task_id = self.kwargs.get('pk')  # ID de la tarea actual
         task = self.get_object()
-        print(task)
+        current_time = timezone.now()    
 
         if agent:
             # Configuración de queryset para los campos que dependen del agente
@@ -602,37 +605,29 @@ class TaskUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
                 del form.fields['related_task']
                 del form.fields['parent_task']   
 
-
-
-        # Aplica la lógica para habilitar/deshabilitar campos
-        if task.end_date_time and timezone.now() > task.end_date_time:            
-            for field in form.fields:
-                if field != 'extended_end_date_time':
-                    form.fields[field].disabled = True
-            # form.fields['extended_end_date_time'].disabled = False
-            if task.extended_end_date_time and timezone.now() < task.extended_end_date_time:                
-                for field in form.fields:
-                    if field != 'end_date_time':
-                        form.fields[field].disabled = False
-        # if lead.end_date_time and lead.end_date_time > timezone.now():
-        #     print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
-        #     form.fields['end_date_time'].disabled = False
-        #     form.fields['extended_end_date_time'].disabled = True
-
-        # Deshabilitar todos los campos si el lead está cerrado, excepto extended_end_date_time
-        # if lead.is_closed:
-        #     for field in form.fields:
-        #         if field != 'extended_end_date_time':
-        #             form.fields[field].disabled = True
-
-        # Lógica para deshabilitar el formulario si el lead está en "Close Win" o "Close Lost"
-        if lead.stage in ['close_win', 'close_lost']:
+                
+        # Validaciones basadas en el estado del Lead
+        if lead.is_closed:
+            # Deshabilitar todos los campos si el lead está cerrado
             for field in form.fields:
                 form.fields[field].disabled = True
-            return form
-                
+        # Validaciones basadas en el estado de la tarea
+        elif task.is_closed:
+            # Deshabilitar todos los campos si task está cerrado
+            for field in form.fields:
+                form.fields[field].disabled = True
+
+        # Validaciones basadas en el estado del Lead       
+        if lead.extended_end_date_time and lead.extended_end_date_time < current_time:
+            for field in form.fields:
+                form.fields[field].disabled = True 
+
+        elif lead.end_date_time and lead.end_date_time < current_time and not lead.extended_end_date_time:
+            for field in form.fields:
+                form.fields[field].disabled = True           
 
         return form
+                
 
     def form_valid(self, form):
         try:
@@ -649,31 +644,15 @@ class TaskUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
             lead = get_object_or_404(Lead, pk=lead_id)
 
             # Asegura que el Lead con este ID existe para evitar errores
-            if lead_id:
-                # task.lead = Lead.objects.get(pk=lead_id)
+            if lead:
                 task.lead = get_object_or_404(Lead, pk=lead_id)
                 lead_pk = task.lead.pk
 
-                # end_date_time no puede ser menor a lead.end_date_time
-                if lead.extended_end_date_time and task.end_date_time and task.end_date_time > lead.extended_end_date_time:
-                    raise ValidationError("La fecha de finalización de la tarea no puede ser posterior a la fecha de finalización extendida del lead (%s)." %
-                                          lead.extended_end_date_time.strftime("%Y-%m-%d"))
-
-                elif lead.end_date_time and not lead.extended_end_date_time and task.end_date_time > lead.end_date_time:
-
-                    raise ValidationError("La fecha de finalización de la tarea no puede ser posterior a la fecha de finalización del lead (%s)." %
-                                          lead.end_date_time.strftime("%Y-%m-%d"))
-                elif lead.start_date_time and task.end_date_time < lead.start_date_time:
-
-                    raise ValidationError("La fecha de finalización de la tarea no puede ser menor a la fecha de inicio del lead (%s)." %
-                                          lead.start_date_time.strftime("%Y-%m-%d"))
-                # end_date_time no puede ser menor a start_date_time
-                if task.end_date_time and task.start_date_time and task.start_date_time > task.end_date_time:
-                    raise ValidationError(
-                        "La fecha de finalización no puede ser anterior a la fecha de inicio.")
-
+                # Logica para establecer el stage is_closed"
+                if task.stage in ['completed', 'canceled', 'skipped']:
+                    task.is_closed = True 
+                    
                 messages.success(self.request, "Task editada correctamente")
-
                 # Guarda el objeto Task
                 task.save()
 
@@ -712,6 +691,8 @@ class TaskUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        task = self.get_object()
+        current_time = timezone.now()
         # Obtener el ID del Lead de los argumentos de la URL
         lead_id = self.kwargs.get('pk')
         lead = get_object_or_404(Lead, pk=lead_id)  # Obtener el objeto Lead
@@ -725,9 +706,13 @@ class TaskUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
         context['lead_name'] = lead.lead_name if lead else None
         context['organization_name'] = self.get_organization()
 
-        # Determina si deshabilitan los botones update y create task
+        # Determina si deshabilia el boton update
         context['enable_update'] = True
-        if lead.stage in ['close_win', 'close_lost']:
+
+        if lead.extended_end_date_time and lead.extended_end_date_time < current_time:
+            context['enable_update'] = False
+
+        if lead.end_date_time and not lead.extended_end_date_time and lead.end_date_time < current_time:
             context['enable_update'] = False
 
 

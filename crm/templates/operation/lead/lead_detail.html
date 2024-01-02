@@ -6,7 +6,7 @@
 
 <h1 class="text-xl">Lead Detail {{ lead.lead_id }}</h1>
 
-<div class="card" style="width: 22rem;">
+<div class="card" style="width: 42rem;">
     <div class="card-header">
         <h2>{{ lead.lead_name }}</h2>
     </div>
@@ -18,15 +18,17 @@
         <li class="list-group-item">{{ lead.created_time }} <span class="badge bg-secondary">Created</span></li>
         <li class="list-group-item">{{ lead.start_date_time }} <span class="badge bg-secondary">Start</span></li>
         <li class="list-group-item">{{ lead.end_date_time }} <span class="badge bg-secondary">End</span></li>
-        <li class="list-group-item">{{ lead.extended_end_date_time }} <span class="badge bg-info">Extended End</span></li>
-        <li class="list-group-item">{{ lead.product }}   
+        <li class="list-group-item">{{ lead.extended_end_date_time }} <span class="badge bg-info">Extended End</span></li>        
         {% for lead_product in lead_products %}
-            <li class="list-group-item">Product: {{ lead_product.product.name }}</li>
-            <li class="list-group-item">Category: {{ lead_product.product.category.name }}</li>
-            <li class="list-group-item">Product URL: {{ lead_product.product.url }}</li>
-            <li class="list-group-item">Cotización URL: {{ lead_product.cotizacion_url }}</li>
+            <li class="list-group-item">Product: {{ lead_product.product.name }} - Category: {{ lead_product.product.category.name }} - Product URL: {{ lead_product.product.url }} - Cotización URL: {{ lead_product.cotizacion_url }}</li>
         {% empty %}
             <li class="list-group-item">No products associated with this lead.</li>
+        {% endfor %}
+            
+        {% for lead_task in lead_tasks %}
+            <li class="list-group-item"> Tareas: <a href="{% url 'lead:task-detail' pk=lead_task.id organization_name=organization_name %}">{{ lead_task.name }}</a> </li>  
+        {% empty %}
+            <li class="list-group-item">No tasks associated with this lead.</li>
         {% endfor %}
         <li class="list-group-item">{{ lead.stage }}   <span class="badge bg-success">Stage</span></li>
     </ul>

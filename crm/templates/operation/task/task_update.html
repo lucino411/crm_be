@@ -38,20 +38,6 @@
             {{ form.related_subtask }}
         </div> -->
     </div>
-    <div class="row mb-3">
-        <div class="col-md-4">
-            <label for="formGroupExampleInput2" class="form-label">Start Date</label>
-            {{ form.start_date_time }}
-        </div>
-        <div class="col-md-4">
-            <label for="formGroupExampleInput2" class="form-label">End Date</label>
-            {{ form.end_date_time }}
-        </div>
-        <div id="div_id_extended_end_date_time" class="col-md-4">
-            <label for="formGroupExampleInput2" class="form-label">Extended End Date</label>
-            {{ form.extended_end_date_time }}
-        </div>
-    </div>
 
     <div class="row mb-3">
         <div class="col-md-5">
@@ -74,12 +60,10 @@
         </div>
     </div>
 
-
-
     <br>
     <div class="row mb-3">
         <div class="col-md-5">
-            <button type="submit" class="btn btn-primary" {% if not enable_update %}disabled{% endif %} {% if not enable_update %}onclick="return false;" {% endif %}>Update</button>
+            <button type="submit" class="btn btn-primary" {% if not enable_update %}disabled{% endif %} {% if not enable_update %}onclick="return false;"{% endif %}>Update</button>
         </div>
     </div>
     <br><br><br>
@@ -90,35 +74,6 @@
 {% endblock %}
 
 {% block scripts %}
-
-<!-- <script>
-    //Boton para agregar un nuevo producto
-    document.addEventListener('DOMContentLoaded', function () {
-        var formIndex = document.getElementById('form-index').getAttribute('data-form-index');
-        const addMoreButton = document.getElementById('add-more');
-        const formListContainer = document.getElementById('form-list');
-        const formTemplate = document.getElementById('form-template').innerHTML;
-
-        addMoreButton.addEventListener('click', function () {
-            let newFormHtml = formTemplate.replace(/__prefix__/g, formIndex);
-            formListContainer.insertAdjacentHTML('beforeend', newFormHtml);
-
-            // Oculta o elimina el checkbox de eliminación en el nuevo formulario
-            const newForm = formListContainer.lastElementChild;
-            const deleteCheckbox = newForm.querySelector('input[type="checkbox"][name$="DELETE"]');
-            const deleteLabel = deleteCheckbox ? deleteCheckbox.previousElementSibling : null;
-            if (deleteCheckbox && deleteLabel) {
-                deleteCheckbox.style.display = 'none'; // O usa 'deleteCheckbox.remove();' para eliminarlo
-                deleteLabel.style.display = 'none';    // O usa 'deleteLabel.remove();' para eliminarlo
-            }
-
-            document.getElementById('id_lead_product-TOTAL_FORMS').value = ++formIndex;
-        });
-    });
-</script> -->
-
-
-
 
 
 <script>
