@@ -66,15 +66,13 @@ class Task(models.Model):
         ('in_progress', 'In Progress'),
         ('completed', 'Completed'),
         ('canceled', 'Canceled'),
-        ('skipped', 'Skipped'),
     ]
 
     name = models.CharField(max_length=200)
     lead = models.ForeignKey('Lead', related_name='tasks', on_delete=models.CASCADE, null=True, blank=True)
     lead_product = models.ForeignKey('LeadProduct', related_name='tasks', on_delete=models.CASCADE, null=True, blank=True)
-    # parent_task = models.ForeignKey('self', null=True, blank=True, related_name='subtasks', on_delete=models.CASCADE)
+    parent_task = models.ForeignKey('self', null=True, blank=True, related_name='subtasks', on_delete=models.CASCADE)
     related_task = models.ForeignKey('self', null=True, blank=True, related_name='related_tasks', on_delete=models.SET_NULL)
-    # related_subtask = models.ForeignKey('self', null=True, blank=True, related_name='related_subtasks', on_delete=models.SET_NULL)
     description = models.TextField()
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='created_tasks', on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now_add=True)

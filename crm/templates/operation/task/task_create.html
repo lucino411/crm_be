@@ -27,31 +27,13 @@
     </div>
     <div class="row mb-3">
         <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Related Task</label>
+            <label id="relatedTask" for="formGroupExampleInput2" class="form-label">Related Task</label>
             {{ form.related_task }}
         </div>
         <div class="col-md-5">
             <label for="formGroupExampleInput2" class="form-label">Parent Task</label>
             {{ form.parent_task }}
         </div>
-        <!-- <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Related Subtask</label>
-            {{ form.related_subtask }}
-        </div> -->
-    </div>
-    <div class="row mb-3">
-        <div class="col-md-4">
-            <label for="formGroupExampleInput2" class="form-label">Start Date</label>
-            {{ form.start_date_time }}
-        </div>
-        <div class="col-md-4">
-            <label for="formGroupExampleInput2" class="form-label">End Date</label>
-            {{ form.end_date_time }}
-        </div>
-        <!-- <div id="div_id_extended_end_date_time" style="display: none;" class="col-md-4">
-            <label for="formGroupExampleInput2" class="form-label">Extended End Date</label>
-            {{ form.extended_end_date_time }}
-        </div> -->
     </div>
 
 
@@ -80,6 +62,27 @@
     <br><br><br>
 </form>
 
+{% endblock %}
 
+{% block scripts %}
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#id_related_task').change(function() {
+            adjustParentTaskOptions();
+        });
+
+        function adjustParentTaskOptions() {
+            var selectedRelatedTask = $('#id_related_task').val();
+            $('#id_parent_task option').each(function() {
+                if ($(this).val() === selectedRelatedTask) {
+                    $(this).hide(); // Oculta la opción que coincide
+                } else {
+                    $(this).show(); // Muestra las otras opciones
+                }
+            });
+        }
+    });
+</script>
 
 {% endblock %}

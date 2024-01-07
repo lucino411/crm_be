@@ -98,12 +98,13 @@
     <button type="submit" class="btn btn-primary" {% if not enable_update %}disabled{% endif %} {% if not enable_update %}onclick="return false;"{% endif %}>Update</button>
     <br><br><br>
 </form>
-
 <!-- Botón para añadir una nueva task al lead -->
 <div class="row mb-3">
     <div class="col text-end">
-        <a href="{% url 'lead:task-create' pk=pk organization_name=organization_name %}" id="add-more-task"
+        {% if lead %}
+            <a href="{% url 'lead:task-create' lead_pk=lead.id organization_name=organization_name %}" id="add-more-task"
             class="btn btn-warning {% if not enable_button %}disabled{% endif %}" {% if not enable_button %}onclick="return false;" {% endif %}>Agregar Task</a>
+        {% endif %}
     </div>
 </div>
 

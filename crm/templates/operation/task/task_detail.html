@@ -4,25 +4,40 @@
 
 {% block content %}
 
-<h1 class="text-xl">Task Detail {{ task.name }} {{ task.id }}</h1>
+<h1 class="text-xl">Task Detail {{ task.name }} - task id: {{ task.id }}</h1>
 
 <div class="card" style="width: 22rem;">
     <div class="card-header">
-        <h2> <a href="{% url 'lead:detail' pk=task.lead.id organization_name=organization_name %}">{{ task.lead }}</a></h2>
+        <h2> <a href="{% url 'lead:detail' pk=task.lead.id organization_name=organization_name %}">{{ task.lead }} - task lead id {{ task.lead.id }}</a></h2>
     </div>
     <ul class="list-group list-group-flush">
-        <li class="list-group-item">{{ task.assigned_to }} <span class="badge bg-secondary">Assigned to</span></li>
-        <li class="list-group-item">{{ task.created_by }} <span class="badge bg-secondary">Created By</span></li>
-        <li class="list-group-item">{{ task.created_time }} <span class="badge bg-secondary">Created At</span></li>
-        <li class="list-group-item">{{ task.start_date_time }} <span class="badge bg-secondary">Start</span></li>
-        <li class="list-group-item">{{ task.end_date_time }} <span class="badge bg-secondary">End</span></li>
-        <li class="list-group-item">{{ task.extended_end_date_time }} <span class="badge bg-info">Extended End</span></li>
+        <span class="badge bg-secondary">Assigned to</span>
+        <li class="list-group-item">{{ task.assigned_to }} </li>
+        <span class="badge bg-secondary">Created By</span>
+        <li class="list-group-item">{{ task.created_by }} </li>
+        <span class="badge bg-secondary">Created At</span>
+        <li class="list-group-item">{{ task.created_time }} </li>
         {% if task_product %}
-            <li class="list-group-item">{{ task_product }} <span class="badge bg-warning">Producto</span></li>            
+        <span class="badge bg-secondary">Producto</span>
+            <li class="list-group-item">{{ task_product }}</li>            
         {% else %}
             <li class="list-group-item">No products associated with this task.</li>
-        {% endif %}                  
-        <li class="list-group-item">{{ task.stage }}   <span class="badge bg-success">Stage</span></li>        
+        {% endif %}    
+        <span class="badge bg-success">Stage</span>     
+        <li class="list-group-item">{{ task.stage }}   </li> 
+        
+        {% if subtasks %}
+        <span class="badge bg-info">SubTareas</span>
+        {% for subtask in subtasks %}
+        <li class="list-group-item">
+                <a href="{% url 'lead:task-detail' pk=subtask.pk organization_name=organization_name %}">{{ subtask.name }}</a>
+                <!-- Agrega más detalles de cada subtask aquí si lo necesitas -->
+            </li>
+        {% endfor %}
+{% else %}
+    <p>No hay subtareas para esta tarea.</p>
+{% endif %}
+
     </ul>
 </div>
 <div>

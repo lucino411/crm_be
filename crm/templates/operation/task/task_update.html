@@ -10,7 +10,7 @@
 
 <br><br>
 
-<form action="." method="post" enctype="multipart/form-data" class="row g-3">
+<form id="taskUpdateForm" action="." method="post" enctype="multipart/form-data" class="row g-3">
     {% csrf_token %}
     <div class="row mb-3">
         <div class="col-md-8">
@@ -33,10 +33,6 @@
             <label for="formGroupExampleInput2" class="form-label">Parent Task</label>
             {{ form.parent_task }}
         </div>
-        <!-- <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Related Subtask</label>
-            {{ form.related_subtask }}
-        </div> -->
     </div>
 
     <div class="row mb-3">
@@ -63,68 +59,95 @@
     <br>
     <div class="row mb-3">
         <div class="col-md-5">
-            <button type="submit" class="btn btn-primary" {% if not enable_update %}disabled{% endif %} {% if not enable_update %}onclick="return false;"{% endif %}>Update</button>
+            <button id="buttonSubmitTaskUpdate" type="submit" class="btn btn-primary" {% if not enable_update %}disabled{% endif %} {% if not enable_update %}onclick="return false;"{% endif %}>Update</button>
         </div>
+
+       
+        <div class="col-md-5">
+            {% if lead %}
+                <a id="addSubtaskButton" href="{% url 'lead:task-create' organization_name=organization_name lead_pk=lead.id  %}?parent_task={{ pk }}" class="btn btn-success {% if not enable_update %}disabled{% endif %}" {% if not enable_update %}onclick="return false;" {% endif %}>Add Subtask</a>
+            {% endif %}              
+        </div>
+
     </div>
     <br><br><br>
 </form>
 
 
-
+<br><br>
 {% endblock %}
+
+
+
+
 
 {% block scripts %}
 
 
+
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var formIndex = document.getElementById('form-index').getAttribute('data-form-index');
-        const addMoreButton = document.getElementById('add-more');
-        const formListContainer = document.getElementById('form-list');
-        const formTemplate = document.getElementById('form-template').innerHTML;
-
-        // Leer los datos de stage y is_closed
-        const leadInfo = document.getElementById('lead-info');
-        const leadStage = leadInfo.getAttribute('data-stage');
-        const leadIsClosed = leadInfo.getAttribute('data-is-closed') === 'True';
-
-        // Ocultar el botón si el lead está cerrado o si el stage es 'close_win' o 'close_lost'
-        if (leadIsClosed || leadStage === 'close_win' || leadStage === 'close_lost') {
-            addMoreButton.style.display = 'none';
-        } else {
-            addMoreButton.addEventListener('click', function () {
-            let newFormHtml = formTemplate.replace(/__prefix__/g, formIndex);
-            formListContainer.insertAdjacentHTML('beforeend', newFormHtml);
-
-            // Oculta o elimina el checkbox de eliminación en el nuevo formulario
-            const newForm = formListContainer.lastElementChild;
-            const deleteCheckbox = newForm.querySelector('input[type="checkbox"][name$="DELETE"]');
-            const deleteLabel = deleteCheckbox ? deleteCheckbox.previousElementSibling : null;
-            if (deleteCheckbox && deleteLabel) {
-                    deleteCheckbox.style.display = 'none';
-                    deleteLabel.style.display = 'none';
+    $(document).ready(function() {
+        
+        var isLeadClosed = {{ is_lead_closed|yesno:"true,false" }};
+        var isTaskClosed = {{ is_task_closed|yesno:"true,false" }};
+        var extendedEndDate = "{{ extended_end_date_time|date:"Y-m-d H:i:s" }}";
+        var endDate = "{{ end_date_time|date:"Y-m-d H:i:s" }}";
+        var current_time = new Date();
+        
+        // Validaciones basadas en el estado del Lead
+        if (isLeadClosed) {
+            disableFormFields();
+        }
+    
+        // Validaciones basadas en el estado de la tarea
+        if (isTaskClosed) {
+            disableFormFields();
+        }
+        
+        // Validaciones basadas en las fechas de cierre del Lead
+        if (extendedEndDate && new Date(extendedEndDate) < current_time) {
+            disableFormFields();
+            console.log('inside extended end date');
+        } else if (endDate && new Date(endDate) < current_time && !extendedEndDate) {
+            disableFormFields();
+        }
+        
+        function disableFormFields() {
+            // Deshabilita todos los campos de entrada, select y textarea dentro del formulario
+            $("#taskUpdateForm input, #taskUpdateForm select, #taskUpdateForm textarea").prop('disabled', true);
+            
+            // Deshabilita el botón de submit
+            $("#buttonSubmitTaskUpdate").prop('disabled', true);
+            $("#addSubtaskButton").prop('disabled', true);
+        }          
+        
+        // evita que las tareas de related task esten en las opciones de parent task
+        $('#id_related_task').change(function() {
+            console.log('jeeeeeeeeeeeeeeeeeeeeeee')
+            adjustParentTaskOptions();
+        });
+        
+        function adjustParentTaskOptions() {
+            console.log('vaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+            var selectedRelatedTask = $('#id_related_task').val();
+            console.log('vaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+            console.log('selectedRelatedTask');
+            
+            $('#id_parent_task option').each(function() {
+                if ($(this).val() === selectedRelatedTask) {
+                    $(this).hide(); // Oculta la opción que coincide
+                } else {
+                    $(this).show(); // Muestra las otras opciones
                 }
-
-                document.getElementById('id_lead_product-TOTAL_FORMS').value = ++formIndex;
             });
         }
-    });
+
+            // Llama a adjustParentTaskOptions en la carga inicial en caso de que relatedTask tenga un valor preestablecido
+            adjustParentTaskOptions();
+
+    }); 
 
 
-</script>
-
-
-
-<script>
-    // Encuentra todas las casillas de verificación de eliminación de producto y cambia el texto de la etiqueta
-    document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('#form-list input[type="checkbox"][name$="DELETE"]').forEach(function (deleteCheckbox) {
-            var deleteLabel = deleteCheckbox.previousElementSibling;
-            if (deleteLabel) {
-                deleteLabel.textContent = 'Delete Product';
-            }
-        });
-    });
 </script>
 
     

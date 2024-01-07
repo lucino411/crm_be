@@ -126,12 +126,7 @@ const listTasks = async () => {
 
             // console.log(taskData); // Agrega esta línea para imprimir taskData en la consola
             // Procesa las fechas utilizando el método definido
-            const endTime = processDate(taskData.end_date_time);
-            const extendedEndTime = processDate(taskData.extended_end_date_time);
-            const modifiedTime = processDate(taskData.modified_time);
-
-            // Decidir cuál tiempo mostrar
-            let displayEndTime = extendedEndTime !== "Sin asignar" ? extendedEndTime : endTime; 
+            const modifiedTime = processDate(taskData.modified_time); 
 
 
             content += `
@@ -140,7 +135,7 @@ const listTasks = async () => {
             <td>${taskData.lead_name}</td>
             <td>${taskData.product_name}</td>
             <td>${modifiedTime}</td>     
-            <td>${displayEndTime}</td>
+            <td>${taskData.created_by}</td>     
             <td>${taskData.assigned_to}</td>
         </tr>
         `;

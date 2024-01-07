@@ -382,12 +382,13 @@ class TaskListView(ListView, AgentRequiredMixin, AgentContextMixin):
     def get(self, request, *args, **kwargs):
         tasks = self.get_queryset()
         tasks_data = list(tasks.values('id', 'name', 'last_modified_by_id',
-                          'assigned_to_id', 'organization', 'modified_time', 'end_date_time', 'extended_end_date_time', 'lead_product__product__name', 'lead__lead_name'))
+                          'assigned_to_id', 'organization', 'modified_time', 'created_by_id', 'lead_product__product__name', 'lead__lead_name'))
         user_names = {
             user.id: f"{user.first_name} {user.last_name}" for user in User.objects.all()
         }
 
         for task in tasks_data:
+            task['created_by'] = user_names.get(task['created_by_id'])
             task['assigned_to'] = user_names.get(task['assigned_to_id'])
             task['last_modified_by'] = user_names.get(task['last_modified_by_id'])
             task['organization'] = self.get_organization().name
@@ -407,31 +408,34 @@ class TaskCreateView(FormView, AgentRequiredMixin, AgentContextMixin):
     model = Task
     template_name = 'operation/task/task_create.html'
     form_class = TaskCreateForm
-
-
     validation_error_handled = False
 
     def get_form(self, form_class=None):
-        form = super().get_form(form_class)
+        form = super().get_form(form_class)       
         agent = self.request.user.agent
-        lead_id = self.kwargs.get('pk')
+        lead_id = self.kwargs.get('lead_pk')
         lead = get_object_or_404(Lead, pk=lead_id)
-
-
+       
         if agent:
             # Configuración de queryset para los campos que dependen del agente
             form.fields['assigned_to'].queryset = User.objects.filter(
                 agent__organization=agent.organization)
 
         if lead:
-            form.fields['lead_product'].queryset = LeadProduct.objects.filter(
-                lead=lead)
+            form.fields['lead_product'].queryset = LeadProduct.objects.filter(lead=lead)
             # Verificar si hay tareas existentes para el Lead
             lead_tasks = Task.objects.filter(lead=lead)
-            if lead_tasks.exists():  # Si hay tareas, ajustar el queryset de 'related_task'
+            if lead_tasks.exists():  # Si hay tareas, ajustar el queryset de 'related_task'                
                 form.fields['related_task'].queryset = lead_tasks
                 form.fields['parent_task'].queryset = lead_tasks
-            else:  # Si no hay tareas, eliminar el campo 'related_task' del formulario
+                 # Establecer el parent_task si se está creando una subtarea
+        parent_task_id = self.request.GET.get('parent_task')  # Obtiene el parent_task_id de la URL
+        if parent_task_id:
+            form.fields['parent_task'].initial = parent_task_id
+            # Comprueba si el campo 'related_task' existe antes de intentar desabilitarlo
+            if 'related_task' in form.fields:
+                form.fields['related_task'].disabled = True
+            else:  # Si no hay tareas, eliminar el campo 'related_task y parent_task' del formulario
                 del form.fields['related_task']
                 del form.fields['parent_task']
 
@@ -447,39 +451,21 @@ class TaskCreateView(FormView, AgentRequiredMixin, AgentContextMixin):
             task.last_modified_by = agent.user
 
             # Capturar el ID del Lead desde la URL
-            lead_id = self.kwargs.get('pk')
+            lead_id = self.kwargs.get('lead_pk')
             # Obtener el objeto Lead
             lead = get_object_or_404(Lead, pk=lead_id)
-
             # Asegura que el Lead con este ID existe para evitar errores
-            if lead_id:
+            if lead:
                 # task.lead = Lead.objects.get(pk=lead_id)
                 task.lead = get_object_or_404(Lead, pk=lead_id)
-                lead_pk = task.lead.pk
-
-                # end_date_time no puede ser menor a lead.end_date_time
-                if lead.extended_end_date_time and task.end_date_time and task.end_date_time > lead.extended_end_date_time:
-                    raise ValidationError("La fecha de finalización de la tarea no puede ser posterior a la fecha de finalización extendida del lead (%s)." %
-                                          lead.extended_end_date_time.strftime("%Y-%m-%d"))
-
-                elif lead.end_date_time and not lead.extended_end_date_time and task.end_date_time > lead.end_date_time:
-
-                    raise ValidationError("La fecha de finalización de la tarea no puede ser posterior a la fecha de finalización del lead (%s)." %
-                                          lead.end_date_time.strftime("%Y-%m-%d"))
-                elif lead.start_date_time and task.end_date_time < lead.start_date_time:
-
-                    raise ValidationError("La fecha de finalización de la tarea no puede ser menor a la fecha de inicio del lead (%s)." %
-                                          lead.start_date_time.strftime("%Y-%m-%d"))
-                # end_date_time no puede ser menor a start_date_time
-                if task.end_date_time and task.start_date_time and task.end_date_time < task.start_date_time:
-                    raise ValidationError(
-                        "La fecha de finalización no puede ser anterior a la fecha de inicio.")
+                lead_pk = task.lead.pk 
 
                 messages.success(self.request, "Task creada correctamente")
-
+                # Guardar la subtarea
+                # task = form.save(commit=False)
                 # Guarda el objeto Task
-                task.save()
-
+                task.save()                   
+                
             else:
                 # Cuando no tenga un lead asociado
                 messages.error(
@@ -487,8 +473,8 @@ class TaskCreateView(FormView, AgentRequiredMixin, AgentContextMixin):
                 return self.form_invalid(form)
 
             # Redirige a una URL específica después de la creación, como la página update del lead asociado
-            url = reverse('lead:update', kwargs={
-                'organization_name': agent.organization, 'pk': lead_pk})
+            url = reverse('lead:task-list', kwargs={
+                'organization_name': agent.organization})
             return redirect(url)
 
         except ValidationError as e:
@@ -504,33 +490,35 @@ class TaskCreateView(FormView, AgentRequiredMixin, AgentContextMixin):
 
     def form_invalid(self, form):
         # print(form.errors)
-        lead_id = self.kwargs.get('lead_id')
+        current_task_id = self.kwargs.get('pk')  # ID de la tarea actual
+        task = get_object_or_404(Task, pk=current_task_id)
+        lead = task.lead
+
         if not self.validation_error_handled:
             messages.error(
                 self.request, "Invalid form data. Please check the entries and try again.")
         return render(self.request, self.template_name, {
             'form': form,
             'organization_name': self.get_organization(),
-            'pk': lead_id
+            'lead_pk': lead.id,
         })
     
 
     def get_context_data(self, **kwargs):
         # Asegúrate de que el contexto contenga todos los datos necesarios para la plantilla
-        context = super().get_context_data(**kwargs)
-
+        context = super().get_context_data(**kwargs)        
         # Obtener el ID del Lead de los argumentos de la URL
-        lead_id = self.kwargs.get('pk')
+        lead_id = self.kwargs.get('lead_pk')
         lead = get_object_or_404(Lead, pk=lead_id)  # Obtener el objeto Lead
+
         # Componer el título y añadirlo al contexto
         if lead.lead_name:
             context['titulo'] = f"Crear Task for {lead.lead_name}"
         else:
             context['titulo'] = "Crear Task"
         context['lead'] = lead
-        context['pk'] = lead_id
-
         context['lead_name'] = lead.lead_name if lead else None
+        context['lead_pk'] = lead_id
         context['organization_name'] = self.get_organization()
 
         return context
@@ -554,6 +542,12 @@ class TaskDetailView(DetailView, AgentRequiredMixin, AgentContextMixin):
             task_product = task.lead_product.product.name  # Sigue la relación hasta llegar al nombre del producto
 
         context['task_product'] = task_product  # Agrega el producto al contexto
+
+         # Obtener todas las subtareas asociadas a esta tarea
+        subtasks = task.subtasks.all()  # Usa la relación inversa definida por 'related_name'
+
+        # Agrega las subtareas al contexto
+        context['subtasks'] = subtasks
   
         return context
     
@@ -583,77 +577,112 @@ class TaskUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
         agent = self.request.user.agent
-        lead_id = self.kwargs.get('pk')
-        lead = get_object_or_404(Lead, pk=lead_id)
         current_task_id = self.kwargs.get('pk')  # ID de la tarea actual
-        task = self.get_object()
-        current_time = timezone.now()    
+        task = get_object_or_404(Task, pk=current_task_id)
+        lead = task.lead  # Obteniendo el lead asociado a la tarea
+        current_time = timezone.now()            
 
         if agent:
             # Configuración de queryset para los campos que dependen del agente
             form.fields['assigned_to'].queryset = User.objects.filter(
-                agent__organization=agent.organization)
-
+                agent__organization=agent.organization)            
+        
         if lead:
-           # Verificar si hay tareas existentes para el Lead
-            lead_tasks = Task.objects.filter(lead=lead).exclude(pk=current_task_id)
+            # Filtra los productos del lead
+            form.fields['lead_product'].queryset = LeadProduct.objects.filter(lead=lead)
 
-            if lead_tasks.exists():  # Si hay tareas, ajustar el queryset de 'related_task'
-                form.fields['related_task'].queryset = lead_tasks
-                form.fields['parent_task'].queryset = lead_tasks
-            else:  # Si no hay tareas, eliminar el campo 'related_task' del formulario
-                del form.fields['related_task']
-                del form.fields['parent_task']   
+            # Preparando el queryset de tareas relacionadas al lead y excluyendo la tarea actual y sus sub-tareas
+            tasks_to_exclude = [task.pk] + list(task.subtasks.values_list('pk', flat=True))
+            lead_tasks = Task.objects.filter(lead=lead).exclude(pk__in=tasks_to_exclude)
 
+            if lead_tasks.exists():
+                # Preparando el queryset para 'related_task' excluyendo relaciones cíclicas
+                related_tasks_to_exclude = tasks_to_exclude + list(Task.objects.filter(related_task=task).values_list('pk', flat=True))
                 
-        # Validaciones basadas en el estado del Lead
-        if lead.is_closed:
-            # Deshabilitar todos los campos si el lead está cerrado
-            for field in form.fields:
-                form.fields[field].disabled = True
-        # Validaciones basadas en el estado de la tarea
-        elif task.is_closed:
-            # Deshabilitar todos los campos si task está cerrado
-            for field in form.fields:
-                form.fields[field].disabled = True
+                # Excluir tareas que ya son parent_task de la tarea actual para evitar ciclos en 'related_task'
+                related_tasks_to_exclude += list(Task.objects.filter(parent_task=task).values_list('pk', flat=True))
+                # Excluir la tarea actual si es una sub-task de otra tarea para 'related_task'
+                if task.parent_task:
+                    related_tasks_to_exclude.append(task.parent_task.pk)
 
-        # Validaciones basadas en el estado del Lead       
-        if lead.extended_end_date_time and lead.extended_end_date_time < current_time:
-            for field in form.fields:
-                form.fields[field].disabled = True 
+                form.fields['related_task'].queryset = lead_tasks.exclude(pk__in=related_tasks_to_exclude)
 
-        elif lead.end_date_time and lead.end_date_time < current_time and not lead.extended_end_date_time:
-            for field in form.fields:
-                form.fields[field].disabled = True           
+                # Preparando el queryset para 'parent_task' excluyendo relaciones cíclicas
+                parent_tasks_to_exclude = tasks_to_exclude + list(Task.objects.filter(parent_task=task).values_list('pk', flat=True))
+                
+                # Excluir tareas que ya son related_task de la tarea actual para evitar ciclos en 'parent_task'
+                parent_tasks_to_exclude += list(Task.objects.filter(related_task=task).values_list('pk', flat=True))
+                # Excluir la tarea actual si es una related_task de otra tarea para 'parent_task'
+                if task.related_task:
+                    parent_tasks_to_exclude.append(task.related_task.pk)
 
-        return form
+                form.fields['parent_task'].queryset = lead_tasks.exclude(pk__in=parent_tasks_to_exclude)
+            else:
+                # Si no hay tareas disponibles, eliminar los campos del formulario
+                del form.fields['related_task']
+                del form.fields['parent_task']
+
+             # Excluyes la tarea actual y sus sub-tareas del queryset del campo 'parent_task'
+            tasks_to_exclude = [task.pk]  # Comienzas con la tarea actual
+            tasks_to_exclude.extend(list(task.subtasks.values_list('pk', flat=True)))  # Añades todas sus sub-tareas
+            form.fields['parent_task'].queryset = Task.objects.exclude(pk__in=tasks_to_exclude).filter(lead=lead)
+
+            # Configurar el campo parent_task si se está creando una subtarea
+            if 'parent_task_id' in self.kwargs:
+                parent_task_id = self.kwargs['parent_task_id']
+                # Asegúrate de establecer el valor por defecto de parent_task aquí
+                form.fields['parent_task'].initial = parent_task_id              
+                  
+            return form
                 
 
     def form_valid(self, form):
         try:
             # self.validation_error_handled = False
             agent = self.request.user.agent
-            task = form.save(commit=False)
+            current_task_id = self.kwargs.get('pk')  # ID de la tarea actual
+            task = get_object_or_404(Task, pk=current_task_id)
             task.organization = agent.organization
             task.created_by = agent.user
             task.last_modified_by = agent.user
-
-            # Capturar el ID del Lead desde la URL
-            lead_id = self.kwargs.get('pk')
-            # Obtener el objeto Lead
-            lead = get_object_or_404(Lead, pk=lead_id)
-
+            lead = task.lead  # Obteniendo el lead asociado a la tarea
+            current_time = timezone.now()
+            
             # Asegura que el Lead con este ID existe para evitar errores
             if lead:
-                task.lead = get_object_or_404(Lead, pk=lead_id)
-                lead_pk = task.lead.pk
+                task = form.save(commit=False)
+                task.lead = get_object_or_404(Lead, pk=lead.id) 
 
+                if lead.is_closed:
+                    messages.error(self.request, "El Lead esta cerrado.")
+                    return self.form_invalid(form)
+                # Validaciones basadas en el estado de la tarea
+                if task.is_closed:
+                    messages.error(self.request, "La tarea esta cerrada.")
+                    return self.form_invalid(form)
+                # Validaciones basadas en las fechas de cierre del Lead
+                if lead.extended_end_date_time and lead.extended_end_date_time < current_time:
+                    # Implementa la lógica adecuada si el lead ha pasado su fecha extendida de cierre
+                    messages.error(self.request, "El Lead esta cerrado.")
+                    return self.form_invalid(form) 
+                elif lead.end_date_time and lead.end_date_time < current_time and not lead.extended_end_date_time:
+                    messages.error(self.request, "El Lead esta cerrado.")
+                    return self.form_invalid(form)  
+                
+                 # Obtiene las instancias de related_task y parent_task si están presentes
+                related_task = form.cleaned_data.get('related_task')
+                parent_task = form.cleaned_data.get('parent_task')
+                # Comprueba si una tarea es tanto related_task como parent_task de la otra
+                if related_task and parent_task and related_task == parent_task:
+                    messages.error(self.request, "Una tarea no puede ser tanto related_task como parent_task de la misma tarea.")
+                    return self.form_invalid(form)
+                
                 # Logica para establecer el stage is_closed"
-                if task.stage in ['completed', 'canceled', 'skipped']:
-                    task.is_closed = True 
-                    
+                if task.stage in ['completed', 'canceled']:
+                    task.is_closed = True
+                        
                 messages.success(self.request, "Task editada correctamente")
-                # Guarda el objeto Task
+                # Guarda el objeto Task                
                 task.save()
 
             else:
@@ -664,8 +693,9 @@ class TaskUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
 
             # Redirige a una URL específica después de editar la tarea, como la página update del lead asociado
             url = reverse('lead:task-update', kwargs={
-                'organization_name': agent.organization, 'pk': lead_pk})
+                'organization_name': agent.organization, 'pk': current_task_id})
             return redirect(url)
+
 
         except ValidationError as e:
             self.validation_error_handled = True  # Indica que se manejó un error
@@ -679,30 +709,36 @@ class TaskUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
 
     def form_invalid(self, form):
         # print(form.errors)
-        lead_id = self.kwargs.get('lead_id')
+        current_task_id = self.kwargs.get('pk')  # ID de la tarea actual
+        task = get_object_or_404(Task, pk=current_task_id)
+        lead = task.lead
         if not self.validation_error_handled:
             messages.error(
                 self.request, "Invalid form data. Please check the entries and try again.")
         return render(self.request, self.template_name, {
             'form': form,
             'organization_name': self.get_organization(),
-            'pk': lead_id
+            'lead_pk': lead.id,
         })    
+    
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        task = self.get_object()
+        context = super().get_context_data(**kwargs)        
+        # Si se está pasando un ID de tarea parent como parámetro para crear una subtarea
+        context['parent_task_id'] = self.request.GET.get('parent_task')
         current_time = timezone.now()
         # Obtener el ID del Lead de los argumentos de la URL
-        lead_id = self.kwargs.get('pk')
-        lead = get_object_or_404(Lead, pk=lead_id)  # Obtener el objeto Lead
+        current_task_id = self.kwargs.get('pk')  # ID de la tarea actual
+        task = get_object_or_404(Task, pk=current_task_id)
+        lead = task.lead  # Obteniendo el lead asociado a la tarea
         # Componer el título y añadirlo al contexto
         if lead.lead_name:
             context['titulo'] = f"Crear Task for {lead.lead_name}"
         else:
             context['titulo'] = "Crear Task"
         context['lead'] = lead
-        context['pk'] = lead_id
+        context['lead_pk'] = lead.id
+        context['pk'] = current_task_id
         context['lead_name'] = lead.lead_name if lead else None
         context['organization_name'] = self.get_organization()
 
@@ -714,6 +750,12 @@ class TaskUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
 
         if lead.end_date_time and not lead.extended_end_date_time and lead.end_date_time < current_time:
             context['enable_update'] = False
+
+        # datos para validar habilitar o deshabilitar los campos del formulario con JS de acuerdo al estado del lead y la tarea
+        context['is_lead_closed'] = lead.is_closed
+        context['is_task_closed'] = task.is_closed
+        context['extended_end_date_time'] = lead.extended_end_date_time
+        context['end_date_time'] = lead.end_date_time
 
 
         return context

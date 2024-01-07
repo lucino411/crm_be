@@ -1,64 +1,38 @@
 {% extends "administration/core/base.html" %}
+{% load static %}
 
 {% block title %} {{ titulo }} {% endblock %}
 
+
 {% block content %}
 
-<h1 class="text-xl">Update Lead {{ lead }} {{ lead.name }}</h1>
+<h1 class="text-xl">Update Task for {{ task.lead }}</h1>
 
-<form action="." method="post" class="">
+<br><br>
+
+<form id="taskUpdateForm" action="." method="post" enctype="multipart/form-data" class="row g-3">
     {% csrf_token %}
     <div class="row mb-3">
         <div class="col-md-8">
-            <label for="formGroupExampleInput2" class="form-label">Lead Nombre</label>
-            {{ form.lead_name }}
+            <label for="formGroupExampleInput2" class="form-label">Task Nombre</label>
+            {{ form.name }}
         </div>
     </div>
     <div class="row mb-3">
         <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Nombre</label>
-            {{ form.first_name }}
-        </div>
-        <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Apellido</label>
-            {{ form.last_name }}
+            <label for="formGroupExampleInput2" class="form-label">Product</label>
+            {{ form.lead_product }}
         </div>
     </div>
     <div class="row mb-3">
         <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Currency</label>
-            {{ form.currency }}
+            <label for="formGroupExampleInput2" class="form-label">Related Task</label>
+            {{ form.related_task }}
         </div>
         <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Email</label>
-            {{ form.primary_email }}
-            {% if form.errors.primary_email %}
-            <div id="email-error" class="text-danger">{{ form.errors.primary_email }}</div>
-            {% endif %}
+            <label for="formGroupExampleInput2" class="form-label">Parent Task</label>
+            {{ form.parent_task }}
         </div>
-    </div>
-
-    <div class="row mb-3">
-        <div class="col-md-4">
-            <label for="formGroupExampleInput2" class="form-label">Start Date</label>
-            {{ form.start_date_time }}
-        </div>
-        <div class="col-md-4">
-            <label for="formGroupExampleInput2" class="form-label">End Date</label>
-            {{ form.end_date_time }}
-        </div>
-        <div class="col-md-4" {% if hide_extended_end_date_time %}style="display:none;" {% endif %}>
-            <label for="formGroupExampleInput2" class="form-label">Extended End Date</label>
-            {{ form.extended_end_date_time }}
-        </div>
-    </div>
-
-    <div class="row mb-3">
-        <div class="col-md-4">
-            <label for="formGroupExampleInput2" class="form-label">Country</label>
-            {{ form.country }}
-        </div>
-
     </div>
 
     <div class="row mb-3">
@@ -69,53 +43,122 @@
     </div>
 
     <div class="row mb-3">
-        {{ formset.management_form }}
-        <div id="form-list">
-            {% for form in formset %}
-            <div class="lead-product-form">{{ form.as_p }}</div>
-            {% endfor %}
-        </div>
-        <div class="col-md-5">
-            <button type="button" id="add-more" class="btn btn-primary">Agregar Producto</button> {# Botón para añadir
-            más formularios #}
-        </div>
-    </div>
-
-    <!-- LeadProductForm oculto para crear uno nuevo con JS -->
-    <span id="lead-info" data-stage="{{ lead.stage }}" data-is-closed="{{ lead.is_closed }}"
-        style="display: none;"></span>
-    <span id="form-index" data-form-index="{{ formset.total_form_count }}" style="display: none;"></span>
-    <div id="form-template" style="display: none;">
-        {{ formset.empty_form.as_p }}
-    </div>
-
-
-    <div class="row mb-3">
         <div class="col-md-5">
             <label for="formGroupExampleInput2" class="form-label">Stage</label>
             {{ form.stage }}
         </div>
     </div>
 
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Description</label>
+            {{ form.description }}
+        </div>
+    </div>
+
     <br>
-    <button type="submit" class="btn btn-primary" {% if not enable_update %}disabled{% endif %}>Update</button>
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <button id="buttonSubmitTaskUpdate" type="submit" class="btn btn-primary" {% if not enable_update %}disabled{% endif %} {% if not enable_update %}onclick="return false;"{% endif %}>Update</button>
+        </div>
+
+
+
+        
+        <div class="col-md-5">
+            {% if lead %}
+                {% endif %}
+                <a id="addSubtaskButton" href="{% url 'lead:task-create' pk=lead.id organization_name=organization_name %}">Add Subtask</a>
+        </div>
+
+    </div>
     <br><br><br>
 </form>
 
-<!-- Imprimir lead.pk y organization_name para depuración -->
-<p>Debug: Lead ID ({{ lead.pk }}), Organization Name ({{ organization_name }})</p>
 
-
-<!-- Botón para añadir una nueva task al lead -->
-<div class="row mb-3">
-    <div class="col text-end">
-        <a href="{% url 'lead:task-create' pk=lead.pk organization_name=organization_name %}"
-            class="btn btn-warning {% if not task_create %}disabled{% endif %}" {% if not task_create %}onclick="return false;" {% endif %}>Agregar Task</a>
-    </div>
-</div>
-
+<br><br>
 
 
 {% endblock %}
 
+{% block scripts %}
+
+
+
+<script>
+    $(document).ready(function() {
+        
+        var isLeadClosed = {{ is_lead_closed|yesno:"true,false" }};
+        var isTaskClosed = {{ is_task_closed|yesno:"true,false" }};
+        var extendedEndDate = "{{ extended_end_date_time|date:"Y-m-d H:i:s" }}";
+        var endDate = "{{ end_date_time|date:"Y-m-d H:i:s" }}";
+        var current_time = new Date();
+        
+        // Validaciones basadas en el estado del Lead
+        if (isLeadClosed) {
+            disableFormFields();
+        }
+    
+        // Validaciones basadas en el estado de la tarea
+        if (isTaskClosed) {
+            disableFormFields();
+        }
+        
+        // Validaciones basadas en las fechas de cierre del Lead
+        if (extendedEndDate && new Date(extendedEndDate) < current_time) {
+            disableFormFields();
+            console.log('inside extended end date');
+        } else if (endDate && new Date(endDate) < current_time && !extendedEndDate) {
+            disableFormFields();
+        }
+        
+        function disableFormFields() {
+            // Deshabilita todos los campos de entrada, select y textarea dentro del formulario
+            $("#taskUpdateForm input, #taskUpdateForm select, #taskUpdateForm textarea").prop('disabled', true);
+            
+            // Deshabilita el botón de submit
+            $("#buttonSubmitTaskUpdate").prop('disabled', true);
+            $("#addSubtaskButton").prop('disabled', true);
+        }          
+        
+        // evita que las tareas de related task esten en las opciones de parent task
+        $('#id_related_task').change(function() {
+            console.log('jeeeeeeeeeeeeeeeeeeeeeee')
+            adjustParentTaskOptions();
+        });
+        
+        function adjustParentTaskOptions() {
+            console.log('vaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+            var selectedRelatedTask = $('#id_related_task').val();
+            console.log('vaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
+            console.log('selectedRelatedTask');
+            
+            $('#id_parent_task option').each(function() {
+                if ($(this).val() === selectedRelatedTask) {
+                    $(this).hide(); // Oculta la opción que coincide
+                } else {
+                    $(this).show(); // Muestra las otras opciones
+                }
+            });
+        }
+
+            // Llama a adjustParentTaskOptions en la carga inicial en caso de que relatedTask tenga un valor preestablecido
+            adjustParentTaskOptions();
+
+    }); 
+
+
+</script>
+
+    
+{% endblock %}
+
+
+
+
+
+
+
+
+<a id="addSubtaskButton" href="{% url 'lead:task-create' pk=lead.id organization_name=organization_name %}?parent_task={{ pk }}" class="btn btn-success {% if not enable_update %}disabled{% endif %}" {% if not enable_update %}onclick="return false;" {% endif %}>Add Subtask</a>
 
