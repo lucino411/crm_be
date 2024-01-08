@@ -6,7 +6,7 @@
 
 {% block content %}
 
-<h1 class="text-xl">Update Task for {{ task.lead }}</h1>
+<h1 class="text-xl">Update Task for {{ lead_name }}</h1>
 
 <br><br>
 
@@ -25,10 +25,6 @@
         </div>
     </div>
     <div class="row mb-3">
-        <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Related Task</label>
-            {{ form.related_task }}
-        </div>
         <div class="col-md-5">
             <label for="formGroupExampleInput2" class="form-label">Parent Task</label>
             {{ form.parent_task }}
@@ -59,15 +55,19 @@
     <br>
     <div class="row mb-3">
         <div class="col-md-5">
-            <button id="buttonSubmitTaskUpdate" type="submit" class="btn btn-primary" {% if not enable_update %}disabled{% endif %} {% if not enable_update %}onclick="return false;"{% endif %}>Update</button>
+            {% if not task.is_closed %}
+                <button id="buttonSubmitTaskUpdate" type="submit" class="btn btn-primary">Update</button>
+            {% endif %}
         </div>
 
        
-        <div class="col-md-5">
-            {% if lead %}
-                <a id="addSubtaskButton" href="{% url 'lead:task-create' organization_name=organization_name lead_pk=lead.id  %}?parent_task={{ pk }}" class="btn btn-success {% if not enable_update %}disabled{% endif %}" {% if not enable_update %}onclick="return false;" {% endif %}>Add Subtask</a>
+        {% if lead %}
+            {% if not task.is_closed %}
+                <div class="col-md-5">
+                    <a id="addSubtaskButton" href="{% url 'lead:task-create' organization_name=organization_name lead_pk=lead.id  %}?parent_task={{ pk }}" class="btn btn-success {% if not enable_button %}disabled{% endif %}" {% if not enable_button %}onclick="return false;" {% endif %}>Add Subtask</a>
+                </div>
             {% endif %}              
-        </div>
+        {% endif %}            
 
     </div>
     <br><br><br>
@@ -84,8 +84,32 @@
 {% block scripts %}
 
 
+<script>
+    //Oculta el boton Add Subtask si se tiene seleccionado una opcion del select de parent_task
+    document.addEventListener('DOMContentLoaded', function () {
+        const parentTaskSelect = document.getElementById('id_parent_task');
+        const addSubtaskButton = document.getElementById('addSubtaskButton');
+    
+        function toggleAddSubtaskButton() {
+            // Ocultar el botón si se ha seleccionado un parent task
+            if (parentTaskSelect.value) {
+                addSubtaskButton.style.display = 'none';
+            } else {
+                addSubtaskButton.style.display = 'inline-block';
+            }
+        }
+    
+        // Escuchar cambios en el campo select de parent task
+        parentTaskSelect.addEventListener('change', toggleAddSubtaskButton);
+    
+        // Llamada inicial para establecer el estado correcto del botón
+        toggleAddSubtaskButton();
+    });
+</script>
+    
 
 <script>
+    // Validaciones basadas en el estado del Lead
     $(document).ready(function() {
         
         var isLeadClosed = {{ is_lead_closed|yesno:"true,false" }};
@@ -94,7 +118,6 @@
         var endDate = "{{ end_date_time|date:"Y-m-d H:i:s" }}";
         var current_time = new Date();
         
-        // Validaciones basadas en el estado del Lead
         if (isLeadClosed) {
             disableFormFields();
         }
@@ -123,15 +146,11 @@
         
         // evita que las tareas de related task esten en las opciones de parent task
         $('#id_related_task').change(function() {
-            console.log('jeeeeeeeeeeeeeeeeeeeeeee')
             adjustParentTaskOptions();
         });
         
         function adjustParentTaskOptions() {
-            console.log('vaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
             var selectedRelatedTask = $('#id_related_task').val();
-            console.log('vaaaaaaaaaaaaaaaaaaaaaaaaaaaaa');
-            console.log('selectedRelatedTask');
             
             $('#id_parent_task option').each(function() {
                 if ($(this).val() === selectedRelatedTask) {

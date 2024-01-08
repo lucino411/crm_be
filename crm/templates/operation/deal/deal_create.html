@@ -1,0 +1,103 @@
+{% extends "administration/core/base.html" %}
+{% load static %}
+
+{% block title %}Deals{% endblock %}
+
+
+{% block content %}
+
+<h1 class="text-xl">Add Deal authenticated</h1>
+
+<br><br>
+
+<form action="." method="post" enctype="multipart/form-data" class="row g-3">
+    {% csrf_token %}
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <label for="formGroupExampleInput2" class="form-label">Deal Nombre</label>
+            {{ form.deal_name }}
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Nombre</label>
+            {{ form.first_name }}
+        </div>
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Apellido</label>
+            {{ form.last_name }}
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Currency</label>
+            {{ form.currency }}
+        </div>
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Email</label>
+            {{ form.primary_email }}
+            {% if form.errors.primary_email %}
+            <div id="email-error" class="text-danger">{{ form.errors.primary_email }}</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label for="formGroupExampleInput2" class="form-label">Start Date</label>
+            {{ form.start_date_time }}
+        </div>
+        <div class="col-md-4">
+            <label for="formGroupExampleInput2" class="form-label">End Date</label>
+            {{ form.end_date_time }}
+        </div>
+        <div id="div_id_extended_end_date_time" style="display: none;" class="col-md-4">
+            <label for="formGroupExampleInput2" class="form-label">Extended End Date</label>
+            {{ form.extended_end_date_time }}
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label for="formGroupExampleInput2" class="form-label">Country</label>
+            {{ form.country }}
+        </div>
+
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Assigned to</label>
+            {{ form.assigned_to }}
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        {{ formset.management_form }} {# Incluir el management_form aquí #}
+        {% for form in formset %}
+            <div class="col-md-5">
+                <label for="formGroupExampleInput2" class="form-label">Product</label>
+                {{ form.product }}
+            </div>
+            <div class="col-md-5">
+                <label for="formGroupExampleInput2" class="form-label">Cotizacion URL</label>
+                {{ form.cotizacion_url }}
+            </div>
+            {% endfor %}
+
+    </div>
+
+    
+    <br>
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <button type="submit" class="btn btn-primary">Create</button>
+        </div>
+    </div>
+    <br><br><br>
+</form>
+
+
+
+{% endblock %}
+

@@ -1,0 +1,171 @@
+{% extends "administration/core/base.html" %}
+
+{% block title %} {{ titulo }} {% endblock %}
+
+{% block content %}
+
+<h1 class="text-xl">Update Deal {{ deal }} {{ deal.name }}</h1>
+
+<form action="." method="post" class="">
+    {% csrf_token %}
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <label for="formGroupExampleInput2" class="form-label">Deal Nombre</label>
+            {{ form.deal_name }}
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Nombre</label>
+            {{ form.first_name }}
+        </div>
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Apellido</label>
+            {{ form.last_name }}
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Currency</label>
+            {{ form.currency }}
+        </div>
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Email</label>
+            {{ form.primary_email }}
+            {% if form.errors.primary_email %}
+            <div id="email-error" class="text-danger">{{ form.errors.primary_email }}</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label for="formGroupExampleInput2" class="form-label">Start Date</label>
+            {{ form.start_date_time }}
+        </div>
+        <div class="col-md-4">
+            <label for="formGroupExampleInput2" class="form-label">End Date</label>
+            {{ form.end_date_time }}
+        </div>
+        <div class="col-md-4" {% if hide_extended_end_date_time %}style="display:none;" {% endif %}>
+            <label for="formGroupExampleInput2" class="form-label">Extended End Date</label>
+            {{ form.extended_end_date_time }}
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label for="formGroupExampleInput2" class="form-label">Country</label>
+            {{ form.country }}
+        </div>
+
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Assigned to</label>
+            {{ form.assigned_to }}
+        </div>
+    </div>
+    
+    <div class="row mb-3">
+        {{ formset.management_form }}
+        <div id="form-list">
+            {% for form in formset %}
+            <div class="deal-product-form">{{ form.as_p }}</div>
+            {% endfor %}
+        </div>
+        <div class="col-md-5">
+            <button type="button" id="add-more-product" class="btn btn-primary" {% if not enable_button %}disabled{% endif %} {% if not enable_button %}onclick="return false;"{% endif %}>Agregar Producto</button> {# Botón para añadir más formularios #}
+        </div>
+    </div>
+
+    <!-- DealProductForm oculto para crear uno nuevo con JS -->
+    <span id="deal-info" data-stage="{{ deal.stage }}" data-is-closed="{{ deal.is_closed }}" style="display: none;"></span>
+    <span id="form-index" data-form-index="{{ formset.total_form_count }}" style="display: none;"></span>
+    <div id="form-template" style="display: none;">
+        {{ formset.empty_form.as_p }}
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Stage</label>
+            {{ form.stage }}
+        </div>
+    </div>
+
+    <br>
+    <button type="submit" class="btn btn-primary" {% if not enable_update %}disabled{% endif %} {% if not enable_update %}onclick="return false;"{% endif %}>Update</button>
+    <br><br><br>
+</form>
+<!-- Botón para añadir una nueva task al deal -->
+<div class="row mb-3">
+    <div class="col text-end">
+        {% if deal %}
+            <a href="{% url 'deal:task-create' deal_pk=deal.id organization_name=organization_name %}" id="add-more-task"
+            class="btn btn-warning {% if not enable_button %}disabled{% endif %}" {% if not enable_button %}onclick="return false;" {% endif %}>Agregar Task</a>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+
+
+{% block scripts %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var formIndex = document.getElementById('form-index').getAttribute('data-form-index');
+        const addMoreProductButton = document.getElementById('add-more-product');
+        const addMoreTaskButton = document.getElementById('add-more-task');
+        const formListContainer = document.getElementById('form-list');
+        const formTemplate = document.getElementById('form-template').innerHTML;
+
+        // Leer los datos de stage y is_closed
+        const dealInfo = document.getElementById('deal-info');
+        const dealStage = dealInfo.getAttribute('data-stage');
+        const dealIsClosed = dealInfo.getAttribute('data-is-closed') === 'True';
+
+        // Ocultar el botón si el deal está cerrado o si el stage es 'close_win' o 'close_lost'
+        if (dealIsClosed || dealStage === 'close_win' || dealStage === 'close_lost') {
+            addMoreProductButton.style.display = 'none';
+            addMoreTaskButton.style.display = 'none';
+
+        } else {
+            addMoreProductButton.addEventListener('click', function () {
+            let newFormHtml = formTemplate.replace(/__prefix__/g, formIndex);
+            formListContainer.insertAdjacentHTML('beforeend', newFormHtml);
+
+            // Oculta o elimina el checkbox de eliminación en el nuevo formulario
+            const newForm = formListContainer.lastElementChild;
+            const deleteCheckbox = newForm.querySelector('input[type="checkbox"][name$="DELETE"]');
+            const deleteLabel = deleteCheckbox ? deleteCheckbox.previousElementSibling : null;
+            if (deleteCheckbox && deleteLabel) {
+                    deleteCheckbox.style.display = 'none';
+                    deleteLabel.style.display = 'none';
+                }
+
+                document.getElementById('id_deal_product-TOTAL_FORMS').value = ++formIndex;
+            });
+        }
+    });
+
+</script>
+
+
+
+<script>
+    // Encuentra todas las casillas de verificación de eliminación de producto y cambia el texto de la etiqueta
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('#form-list input[type="checkbox"][name$="DELETE"]').forEach(function (deleteCheckbox) {
+            var deleteLabel = deleteCheckbox.previousElementSibling;
+            if (deleteLabel) {
+                deleteLabel.textContent = 'Delete Product';
+            }
+        });
+    });
+</script>
+
+    
+{% endblock %}

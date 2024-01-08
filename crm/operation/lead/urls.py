@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import HomeLeadView, LeadListView, LeadCreateView, LeadDetailView, LeadUpdateView, LeadDeleteView, TaskCreateView, HomeTaskView, TaskListView, TaskDetailView, TaskDeleteView, TaskUpdateView
+from .views import HomeLeadView, LeadListView, LeadCreateView, LeadDetailView, LeadUpdateView, LeadDeleteView, LeadTaskCreateView, LeadHomeTaskView, LeadTaskListView, LeadTaskDetailView, LeadTaskDeleteView, LeadTaskUpdateView
 
 app_name = 'lead'
 
@@ -12,11 +12,11 @@ urlpatterns = [
     path('<int:pk>/delete/', LeadDeleteView.as_view(), name='delete'),
 
 
-    path('task/list/', HomeTaskView.as_view(), name='task-list'),
-    path('tasks_json/', TaskListView.as_view(), name='task-json'),
-    path('<int:lead_pk>/task/create/', TaskCreateView.as_view(), name='task-create'),
-    path('task/<int:pk>/', TaskDetailView.as_view(), name='task-detail'),
-    path('task/<int:pk>/update/', TaskUpdateView.as_view(), name='task-update'),
-    path('task/<int:pk>/delete/', TaskDeleteView.as_view(), name='task-delete'),
+    path('task/list/', LeadHomeTaskView.as_view(), name='task-list'),
+    path('tasks_json/', LeadTaskListView.as_view(), name='task-json'),
+    path('<int:lead_pk>/task/create/', LeadTaskCreateView.as_view(), name='task-create'),
+    path('task/<int:pk>/', LeadTaskDetailView.as_view(), name='task-detail'),
+    path('task/<int:pk>/update/', LeadTaskUpdateView.as_view(), name='task-update'),
+    path('task/<int:pk>/delete/', LeadTaskDeleteView.as_view(), name='task-delete'),
 
 ]

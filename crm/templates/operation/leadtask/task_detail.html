@@ -8,7 +8,7 @@
 
 <div class="card" style="width: 22rem;">
     <div class="card-header">
-        <h2> <a href="{% url 'lead:detail' pk=task.lead.id organization_name=organization_name %}">{{ task.lead }} - task lead id {{ task.lead.id }}</a></h2>
+        <h2> <a href="{% url 'lead:detail' pk=task.lead.id organization_name=organization_name %}">{{ task.lead }} - lead id: {{ task.lead.id }}</a></h2>
     </div>
     <ul class="list-group list-group-flush">
         <span class="badge bg-secondary">Assigned to</span>

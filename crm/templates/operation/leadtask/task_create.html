@@ -25,16 +25,14 @@
             {{ form.lead_product }}
         </div>
     </div>
-    <div class="row mb-3">
-        <div class="col-md-5">
-            <label id="relatedTask" for="formGroupExampleInput2" class="form-label">Related Task</label>
-            {{ form.related_task }}
+    {% if form.parent_task %}               
+        <div class="row mb-3">
+            <div class="col-md-5">            
+                <label for="formGroupExampleInput2" class="form-label">Parent Task</label>
+                {{ form.parent_task }}
+            </div>
         </div>
-        <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Parent Task</label>
-            {{ form.parent_task }}
-        </div>
-    </div>
+    {% endif %}
 
 
     <div class="row mb-3">

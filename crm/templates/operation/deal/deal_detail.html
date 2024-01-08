@@ -1,0 +1,42 @@
+{% extends "administration/core/base.html" %}
+
+{% block title %}Deals{% endblock %}
+
+{% block content %}
+
+<h1 class="text-xl">Deal Detail {{ deal.deal_id }}</h1>
+
+<div class="card" style="width: 42rem;">
+    <div class="card-header">
+        <h2>{{ deal.deal_name }}</h2>
+    </div>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item">{{ deal.first_name }} {{ deal.last_name }}</li>
+        <li class="list-group-item">{{ deal.primary_email }}  
+        <li class="list-group-item">{{ deal.assigned_to }} <span class="badge bg-secondary">Assigned to</span></li>
+        <li class="list-group-item">{{ deal.created_by }} <span class="badge bg-secondary">Created By</span></li>
+        <li class="list-group-item">{{ deal.created_time }} <span class="badge bg-secondary">Created</span></li>
+        <li class="list-group-item">{{ deal.start_date_time }} <span class="badge bg-secondary">Start</span></li>
+        <li class="list-group-item">{{ deal.end_date_time }} <span class="badge bg-secondary">End</span></li>
+        <li class="list-group-item">{{ deal.extended_end_date_time }} <span class="badge bg-info">Extended End</span></li>        
+        {% for deal_product in deal_products %}
+            <li class="list-group-item">Product: {{ deal_product.product.name }} - Category: {{ deal_product.product.category.name }} - Product URL: {{ deal_product.product.url }} - Cotización URL: {{ deal_product.cotizacion_url }}</li>
+        {% empty %}
+            <li class="list-group-item">No products associated with this deal.</li>
+        {% endfor %}
+            
+        {% for deal_task in deal_tasks %}
+            <li class="list-group-item"> Tareas: <a href="{% url 'deal:task-detail' pk=deal_task.id organization_name=organization_name %}">{{ deal_task.name }}</a> </li>  
+        {% empty %}
+            <li class="list-group-item">No tasks associated with this deal.</li>
+        {% endfor %}
+        <li class="list-group-item">{{ deal.stage }}   <span class="badge bg-success">Stage</span></li>
+    </ul>
+</div>
+<div class="col-md-8 mt-3">
+    <a href="{% url 'deal:update' pk=deal.pk organization_name=organization_name %}" class="btn btn-primary">Update</a>
+    <a href="{% url 'deal:delete' pk=deal.pk organization_name=organization_name %}" class="btn btn-danger">Delete</a>
+</div>
+                
+
+{% endblock %}

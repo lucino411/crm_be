@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'configuration.currency',
     'operation.dashboard',
     'operation.lead',
+    'operation.deal',
 ]
 
 MIDDLEWARE = [
