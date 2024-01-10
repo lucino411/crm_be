@@ -6,10 +6,9 @@
 
 {% block content %}
 
-<h1 class="text-xl">Add Task for {{ lead_name }}</h1>
+<h1 class="text-xl">Add Task for {{ deal_name }}</h1>
 
 <br><br>
-
 <form action="." method="post" enctype="multipart/form-data" class="row g-3">
     {% csrf_token %}
     <div class="row mb-3">
@@ -22,7 +21,7 @@
 
         <div class="col-md-5">
             <label for="formGroupExampleInput2" class="form-label">Product</label>
-            {{ form.lead_product }}
+            {{ form.deal_product }}
         </div>
     </div>
     {% if form.parent_task %}               
@@ -30,7 +29,7 @@
             <div class="col-md-5">            
                 <label for="formGroupExampleInput2" class="form-label">Parent Task</label>
                 {{ form.parent_task }}
-                <input type="hidden" name="parent_task_id" value="{{ request.GET.parent_task }}"> <!-- Captura parent_task enviado por la URL desde LeadTaskUpdateView -->
+                <input type="hidden" name="parent_task_id" value="{{ request.GET.parent_task }}">
             </div>
         </div>
     {% endif %}
@@ -50,8 +49,6 @@
         </div>
     </div>
 
-
-
     <br>
     <div class="row mb-3">
         <div class="col-md-5">
@@ -64,24 +61,23 @@
 {% endblock %}
 
 {% block scripts %}
-
-<script type="text/javascript">
-    $(document).ready(function() {
-        $('#id_related_task').change(function() {
-            adjustParentTaskOptions();
-        });
-
-        function adjustParentTaskOptions() {
-            var selectedRelatedTask = $('#id_related_task').val();
-            $('#id_parent_task option').each(function() {
-                if ($(this).val() === selectedRelatedTask) {
-                    $(this).hide(); // Oculta la opción que coincide
-                } else {
-                    $(this).show(); // Muestra las otras opciones
-                }
+    <script type="text/javascript">
+        // Si selecciona un parent task, oculta el boton de Add Subtask y Viceversa
+        $(document).ready(function() {
+            $('#id_related_task').change(function() {
+                adjustParentTaskOptions();
             });
-        }
-    });
-</script>
 
+            function adjustParentTaskOptions() {
+                var selectedRelatedTask = $('#id_related_task').val();
+                $('#id_parent_task option').each(function() {
+                    if ($(this).val() === selectedRelatedTask) {
+                        $(this).hide(); // Oculta la opción que coincide
+                    } else {
+                        $(this).show(); // Muestra las otras opciones
+                    }
+                });
+            }
+        });
+    </script>
 {% endblock %}

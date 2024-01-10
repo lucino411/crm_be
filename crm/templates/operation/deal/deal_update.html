@@ -95,21 +95,20 @@
     </div>
 
     <br>
-    <button type="submit" class="btn btn-primary" {% if not enable_update %}disabled{% endif %} {% if not enable_update %}onclick="return false;"{% endif %}>Update</button>
+    <button id="updateDealFormButton" type="submit" class="btn btn-primary" {% if not enable_update %}disabled{% endif %} {% if not enable_update %}onclick="return false;"{% endif %}>Update</button>
     <br><br><br>
 </form>
 <!-- Botón para añadir una nueva task al deal -->
 <div class="row mb-3">
     <div class="col text-end">
         {% if deal %}
-            <a href="{% url 'deal:task-create' deal_pk=deal.id organization_name=organization_name %}" id="add-more-task"
-            class="btn btn-warning {% if not enable_button %}disabled{% endif %}" {% if not enable_button %}onclick="return false;" {% endif %}>Agregar Task</a>
-        {% endif %}
+        <a href="{% url 'deal:task-create' deal_pk=deal.id organization_name=organization_name %}" id="add-more-task"
+        class="btn btn-warning {% if not enable_button %}disabled{% endif %}" {% if not enable_button %}onclick="return false;" {% endif %}>Agregar Task</a>
+    {% endif %}
     </div>
 </div>
 
 {% endblock %}
-
 
 
 {% block scripts %}
@@ -119,6 +118,7 @@
         var formIndex = document.getElementById('form-index').getAttribute('data-form-index');
         const addMoreProductButton = document.getElementById('add-more-product');
         const addMoreTaskButton = document.getElementById('add-more-task');
+        const updateFormButton = document.getElementById('updateDealFormButton');
         const formListContainer = document.getElementById('form-list');
         const formTemplate = document.getElementById('form-template').innerHTML;
 
@@ -131,6 +131,7 @@
         if (dealIsClosed || dealStage === 'close_win' || dealStage === 'close_lost') {
             addMoreProductButton.style.display = 'none';
             addMoreTaskButton.style.display = 'none';
+            updateFormButton.style.display = 'none';
 
         } else {
             addMoreProductButton.addEventListener('click', function () {

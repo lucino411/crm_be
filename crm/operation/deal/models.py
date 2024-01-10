@@ -27,8 +27,7 @@ class Deal(models.Model):
     deal_name = models.CharField(max_length=100, unique=True, blank=False, null=True)
     first_name = models.CharField(max_length=100, blank=False)
     last_name = models.CharField(max_length=100, blank=False)
-    primary_email = models.EmailField(
-        blank=False, help_text="Please use the following format: <em>YYYY-MM-DD</em>.")
+    primary_email = models.EmailField(blank=False)
     country = models.ForeignKey(
         Country, on_delete=models.SET_NULL, blank=False, null=True, limit_choices_to={'is_selected': True})
     assigned_to = models.ForeignKey(User, related_name='assigned_deal', on_delete=models.SET(get_sentinel_user))
@@ -36,9 +35,9 @@ class Deal(models.Model):
     last_modified_by = models.ForeignKey(User, related_name='last_modified_deal', on_delete=models.SET(get_sentinel_user))
     created_time = models.DateTimeField(auto_now_add=True)
     modified_time = models.DateTimeField(auto_now=True)
-    start_date_time = models.DateTimeField(null=True, blank=True)
-    end_date_time = models.DateTimeField(null=True, blank=True)
-    extended_end_date_time = models.DateTimeField(null=True, blank=True)    
+    start_date_time = models.DateTimeField(null=True, blank=True, help_text="Please use the following format: <em>YYYY-MM-DD</em>.")
+    end_date_time = models.DateTimeField(null=True, blank=True, help_text="Please use the following format: <em>YYYY-MM-DD</em>.")
+    extended_end_date_time = models.DateTimeField(null=True, blank=True, help_text="Please use the following format: <em>YYYY-MM-DD</em>.")    
     actual_completion_date = models.DateTimeField(null=True, blank=True)
     currency = models.ForeignKey(Currency, on_delete=models.SET_NULL, null=True)
     organization = models.ForeignKey(Organization, related_name='deal', on_delete=models.CASCADE)    
@@ -67,7 +66,7 @@ class DealTask(models.Model):
         ('canceled', 'Canceled'),
     ]
 
-    name = models.CharField(max_length=200, blank=False, unique=True)
+    name = models.CharField(max_length=200, blank=False)
     deal = models.ForeignKey('Deal', related_name='deal_dealtask', on_delete=models.CASCADE, null=True, blank=True)
     deal_product = models.ForeignKey('DealProduct', related_name='product_dealtask', on_delete=models.CASCADE, null=True, blank=True)
     parent_task = models.ForeignKey('self', null=True, blank=True, related_name='parent_dealtask', on_delete=models.CASCADE)

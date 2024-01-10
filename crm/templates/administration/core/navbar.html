@@ -1,6 +1,7 @@
 
-<nav class="navbar bg-body-tertiary fixed-top">
+<nav class="navbar navbar-expand-sm bg-light navbar-light fixed-top">
     <div class="container-fluid">
+
         {% if not request.user.is_authenticated %}
             <span class="navbar-brand">Blasting Experts</span>
             {% else %}      
@@ -15,23 +16,45 @@
                 {% else %}
                     <span class="navbar-brand">Blasting Experts Inc.</span>
                 {% endif %}  
+            {% endif %}
 
-                
-        {% if request.user.is_authenticated and request.user.agent %}
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'lead:list' organization_name=organization_name %}">Leads</a>
-            </li>      
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'lead:task-list' organization_name=organization_name %}">Tasks</a>
-                        </li>
-        {% endif %}
-            
 
-        
-        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar"
-            aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+
+            {% if request.user.is_authenticated and request.user.agent %}
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          Tasks
+                        </a>
+                        <ul class="dropdown-menu">
+                          <li><a class="dropdown-item" href="{% url 'lead:task-list' organization_name=organization_name %}">Lead Tasks</a></li>
+                          <li><a class="dropdown-item" href="{% url 'deal:task-list' organization_name=organization_name %}">Deal Tasks</a></li>
+                        </ul>
+                      </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'lead:list' organization_name=organization_name %}">Leads</a>
+                    </li>    
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'deal:list' organization_name=organization_name %}">Deals</a>
+                    </li>     
+
+                </ul>
+            {% endif %}         
+
+            <button class="btn btn-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon link-underline-opacity-25 link-underline-opacity-100-hover"></span>
+            </button>
+
+
+
+    </div>
+</nav>
+
+
+
+
+
+
         <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
             <div class="offcanvas-header">
                 <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Settings</h5>
@@ -72,17 +95,13 @@
                                     <li><a class="dropdown-item" href="#">Something else here</a></li>
                                 </ul>
                             </li>
-                    {% endif %}
-                    
+                    {% endif %}                 
                         
-                    {% endif %}
                         
                 </ul>
-                <form class="d-flex mt-3" role="search">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-success" type="submit">Search</button>
-                </form>
             </div>
         </div>
-    </div>
-</nav>
+
+
+
+

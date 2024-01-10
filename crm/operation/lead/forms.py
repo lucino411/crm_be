@@ -109,8 +109,7 @@ class LeadTaskCreateForm(forms.ModelForm):
         attrs={'class': 'form-select'}), label="Lead Product")
     parent_task = forms.ModelChoiceField(queryset=LeadTask.objects.all(), required=False, widget=forms.Select(
         attrs={'class': 'form-select'}), label="Parent Task")
-    # related_task = forms.ModelChoiceField(queryset=LeadTask.objects.all(), required=False, widget=forms.Select(
-    #     attrs={'class': 'form-select'}), label="Related Task")
+    parent_task_id = forms.IntegerField(widget=forms.HiddenInput(), required=False) # Captura el id del parent_task que se envia por la url desde LeadTaskUpdateView
     assigned_to = forms.ModelChoiceField(queryset=User.objects.all(), empty_label=None, widget=forms.Select(
         attrs={'class': 'form-select'}), label="Assigned To")
     
@@ -135,8 +134,6 @@ class LeadTaskUpdateForm(forms.ModelForm):
         attrs={'class': 'form-select'}), label="Lead Product")
     parent_task = forms.ModelChoiceField(queryset=LeadTask.objects.all(), required=False, widget=forms.Select(
         attrs={'class': 'form-select'}), label="Parent Task")
-    # related_task = forms.ModelChoiceField(queryset=LeadTask.objects.all(), required=False, widget=forms.Select(
-    #     attrs={'class': 'form-select'}), label="Related Task")
     assigned_to = forms.ModelChoiceField(queryset=User.objects.all(), empty_label=None, widget=forms.Select(
         attrs={'class': 'form-select'}), label="Assigned To")
     stage = forms.ChoiceField(choices=LeadTask.STAGE_CHOICES, widget=forms.Select(

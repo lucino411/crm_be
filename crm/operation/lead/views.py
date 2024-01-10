@@ -12,54 +12,87 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 
-
 from administration.userprofile.views import AgentRequiredMixin, AgentContextMixin
 from configuration.country.models import Country
 from .models import Lead, LeadProduct, LeadTask
 from .forms import LeadForm, LeadProductForm, LeadUpdateForm, LeadTaskCreateForm, LeadTaskUpdateForm
 
-# from deal.models import Deal, DealProduct, DealTask  
+from operation.deal.models import Deal, DealProduct, DealTask  
 
 
 LeadProductFormset = inlineformset_factory(Lead, LeadProduct, form=LeadProductForm, extra=0, can_delete=True)
 
-# def convert_lead_to_deal(request, lead_id):
-#     lead = get_object_or_404(Lead, id=lead_id)
+def convert_lead_to_deal(request, organization_name, pk):
+    lead = get_object_or_404(Lead, id=pk)
 
-#     with transaction.atomic():
-#         # Crear una instancia de Deal con los datos de Lead
-#         deal = Deal(
-#             deal_name=lead.lead_name,
-#             # ... copiar todos los campos relevantes
-#         )
-#         deal.save()
+    with transaction.atomic():
+        # Crear una instancia de Deal con los datos de Lead
+        deal = Deal(
+            deal_name = lead.lead_name,
+            first_name = lead.first_name,
+            last_name = lead.last_name,
+            primary_email = lead.primary_email,
+            country = lead.country,                
+            assigned_to = lead.assigned_to,
+            created_by = lead.created_by,
+            last_modified_by = lead.last_modified_by,
+            created_time = lead.created_time,
+            modified_time = lead.modified_time,
+            start_date_time = lead.start_date_time,
+            end_date_time = lead.end_date_time,
+            extended_end_date_time = lead.extended_end_date_time,
+            actual_completion_date = lead.actual_completion_date,
+            currency = lead.currency,
+            organization = lead.organization,
+            stage = lead.stage,
+            is_closed = lead.is_closed,
+        )
+        deal.save()
 
-#         # Copiar relaciones, como productos y tareas
-#         for lead_product in lead.lead_product.all():
-#             DealProduct.objects.create(
-#                 deal=deal,
-#                 product=lead_product.product,
-#                 # ... otros campos
-#             )
+        # Dentro de la transacción, después de crear el Deal
+        deal_product_mapping = {}
+        for lead_product in lead.lead_product.all():
+            deal_product = DealProduct.objects.create(
+                deal=deal,
+                product=lead_product.product,
+                cotizacion_url=lead_product.cotizacion_url
+            )
+            deal_product_mapping[lead_product] = deal_product
 
-#         for task in lead.tasks.all():
-#             DealTask.objects.create(
-#                 deal=deal,
-#                 # ... otros campos
-#             )
+        deal_task_mapping = {}
+        for lead_task in lead.lead_leadtask.all():
+            deal_task = DealTask.objects.create(
+                deal=deal,
+                name=lead_task.name,
+                deal_product=deal_product_mapping.get(lead_task.lead_product),
+                # No asignar parent_task todavía
+                description=lead_task.description,
+                created_by=lead_task.created_by,
+                created_time=lead_task.created_time,
+                modified_time=lead_task.modified_time,
+                assigned_to=lead_task.assigned_to,
+                last_modified_by=lead_task.last_modified_by,
+                organization=lead_task.organization,
+                stage=lead_task.stage,
+                is_closed=lead_task.is_closed,
+            )
+            deal_task_mapping[lead_task] = deal_task
 
-#         # Eliminar el Lead original
-#         lead.delete()
+            for lead_task, deal_task in deal_task_mapping.items():
+                if lead_task.parent_task:
+                    deal_task.parent_task = deal_task_mapping.get(lead_task.parent_task)
+                    deal_task.save()
 
-#         # Opcional: agregar un mensaje para confirmar la conversión
-#         messages.success(request, "Lead converted to Deal successfully.")
+        # Eliminar el Lead original
+        lead.delete()
 
-#     # Redireccionar a la página adecuada después de la conversión
-#     return redirect('some-view-name')
+        # Opcional: agregar un mensaje para confirmar la conversión
+        messages.success(request, "Lead converted to Deal successfully.")
 
-
-
-
+    # Redireccionar a la página adecuada después de la conversión
+    url = reverse('deal:list', kwargs={
+            'organization_name': organization_name})
+    return redirect(url)
 
 class HomeLeadView(LoginRequiredMixin, TemplateView):
     template_name = 'operation/lead/lead_list.html'
@@ -400,7 +433,7 @@ class LeadHomeTaskView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Gestion de Tasks'
+        context['titulo'] = 'Gestion de Tasks Leads'
         return context
 
 
@@ -506,6 +539,19 @@ class LeadTaskCreateView(FormView, AgentRequiredMixin, AgentContextMixin):
             if lead:
                 task.lead = get_object_or_404(Lead, pk=lead_id)
 
+                 # Obtiene el ID de parent_task desde la URL (si existe)
+                parent_task_id = form.cleaned_data.get('parent_task_id')             
+                if parent_task_id:
+                    try:
+                        parent_task_id = int(parent_task_id)  # Convierte a entero
+                        # Asigna el objeto parent_task al task actual
+                        task.parent_task = LeadTask.objects.get(id=parent_task_id)
+                        # task.parent_task = parent_task_id
+                    except (ValueError, LeadTask.DoesNotExist):
+                        # Manejar el caso en que parent_task_id no sea un entero o no exista
+                        messages.error(self.request, "Parent Task inválido.")
+                        return self.form_invalid(form)
+
                 messages.success(self.request, "Task creada correctamente")
                 # Guarda el objeto Task
                 task.save()                   
@@ -575,7 +621,6 @@ class LeadTaskDetailView(DetailView, AgentRequiredMixin, AgentContextMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         context['titulo'] = 'Detail Task'
         context['organization_name'] = self.get_organization()
        # Obtener el producto asociado a la tarea
@@ -584,14 +629,19 @@ class LeadTaskDetailView(DetailView, AgentRequiredMixin, AgentContextMixin):
         # Verifica si la tarea tiene un lead_product y, por lo tanto, un producto
         if task.lead_product:
             task_product = task.lead_product.product.name  # Sigue la relación hasta llegar al nombre del producto
-
         context['task_product'] = task_product  # Agrega el producto al contexto
 
          # Obtener todas las subtareas asociadas a esta tarea
         subtasks = task.parent_leadtask.all()  # Usa la relación inversa definida por 'related_name'
-
         # Agrega las subtareas al contexto
         context['subtasks'] = subtasks
+
+        # Verifica si la tarea actual es una subtarea y tiene una tarea padre
+        if task.parent_task:
+            context['parent_task'] = task.parent_task
+        else:
+            context['parent_task'] = None  # O asignar un valor por defecto si no hay tarea padre
+
   
         return context
     

@@ -1,0 +1,172 @@
+{% extends "administration/core/base.html" %}
+{% load static %}
+
+{% block title %} {{ titulo }} {% endblock %}
+
+
+{% block content %}
+
+<h1 class="text-xl">Update Task for {{ deal_name }}</h1>
+
+<br><br>
+
+<form id="taskUpdateForm" action="." method="post" enctype="multipart/form-data" class="row g-3">
+    {% csrf_token %}
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <label for="formGroupExampleInput2" class="form-label">Task Nombre</label>
+            {{ form.name }}
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Product</label>
+            {{ form.deal_product }}
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Parent Task</label>
+            {{ form.parent_task }}
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Assigned to</label>
+            {{ form.assigned_to }}
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Stage</label>
+            {{ form.stage }}
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="formGroupExampleInput2" class="form-label">Description</label>
+            {{ form.description }}
+        </div>
+    </div>
+
+    <br>
+    <div class="row mb-3">
+        <div class="col-md-5">
+            {% if not task.is_closed %}
+                <button id="buttonSubmitTaskUpdate" type="submit" class="btn btn-primary">Update</button>
+            {% endif %}
+        </div>
+       
+        {% if deal %}
+            {% if not task.is_closed %}
+                <div class="col-md-5">
+                    <a id="addSubtaskButton" href="{% url 'deal:task-create' organization_name=organization_name deal_pk=deal.id  %}?parent_task={{ pk }}" class="btn btn-success {% if not enable_button %}disabled{% endif %}" {% if not enable_button %}onclick="return false;" {% endif %}>Add Subtask</a>
+                </div>
+            {% endif %}              
+        {% endif %}            
+
+    </div>
+    <br><br><br>
+</form>
+
+
+<br><br>
+{% endblock %}
+
+
+
+
+
+{% block scripts %}
+
+
+<script>
+    //Oculta el boton Add Subtask si se tiene seleccionado una opcion del select de parent_task
+    document.addEventListener('DOMContentLoaded', function () {
+        const parentTaskSelect = document.getElementById('id_parent_task');
+        const addSubtaskButton = document.getElementById('addSubtaskButton');
+    
+        function toggleAddSubtaskButton() {
+            // Ocultar el botón si se ha seleccionado un parent task
+            if (parentTaskSelect.value) {
+                addSubtaskButton.style.display = 'none';
+            } else {
+                addSubtaskButton.style.display = 'inline-block';
+            }
+        }
+    
+        // Escuchar cambios en el campo select de parent task
+        parentTaskSelect.addEventListener('change', toggleAddSubtaskButton);
+    
+        // Llamada inicial para establecer el estado correcto del botón
+        toggleAddSubtaskButton();
+    });
+</script>
+    
+
+<script>
+    // Validaciones basadas en el estado del Lead
+    $(document).ready(function() {
+        
+        var isLeadClosed = {{ is_deal_closed|yesno:"true,false" }};
+        var isTaskClosed = {{ is_task_closed|yesno:"true,false" }};
+        var extendedEndDate = "{{ extended_end_date_time|date:"Y-m-d H:i:s" }}";
+        var endDate = "{{ end_date_time|date:"Y-m-d H:i:s" }}";
+        var current_time = new Date();
+        
+        if (isLeadClosed) {
+            disableFormFields();
+        }
+    
+        // Validaciones basadas en el estado de la tarea
+        if (isTaskClosed) {
+            disableFormFields();
+        }
+        
+        // Validaciones basadas en las fechas de cierre del Lead
+        if (extendedEndDate && new Date(extendedEndDate) < current_time) {
+            disableFormFields();
+            console.log('inside extended end date');
+        } else if (endDate && new Date(endDate) < current_time && !extendedEndDate) {
+            disableFormFields();
+        }
+        
+        function disableFormFields() {
+            // Deshabilita todos los campos de entrada, select y textarea dentro del formulario
+            $("#taskUpdateForm input, #taskUpdateForm select, #taskUpdateForm textarea").prop('disabled', true);
+            
+            // Deshabilita el botón de submit
+            $("#buttonSubmitTaskUpdate").prop('disabled', true);
+            $("#addSubtaskButton").prop('disabled', true);
+        }          
+        
+        // evita que las tareas de related task esten en las opciones de parent task
+        $('#id_related_task').change(function() {
+            adjustParentTaskOptions();
+        });
+        
+        function adjustParentTaskOptions() {
+            var selectedRelatedTask = $('#id_related_task').val();
+            
+            $('#id_parent_task option').each(function() {
+                if ($(this).val() === selectedRelatedTask) {
+                    $(this).hide(); // Oculta la opción que coincide
+                } else {
+                    $(this).show(); // Muestra las otras opciones
+                }
+            });
+        }
+
+            // Llama a adjustParentTaskOptions en la carga inicial en caso de que relatedTask tenga un valor preestablecido
+            adjustParentTaskOptions();
+
+    }); 
+
+
+</script>
+
+    
+{% endblock %}
