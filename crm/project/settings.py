@@ -35,6 +35,8 @@ INSTALLED_APPS = [
     'operation.dashboard',
     'operation.lead',
     'operation.deal',
+    'operation.contact',
+    'operation.client',
 ]
 
 MIDDLEWARE = [

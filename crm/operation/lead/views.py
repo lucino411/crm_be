@@ -30,9 +30,17 @@ def convert_lead_to_deal(request, organization_name, pk):
         deal = Deal(
             deal_name = lead.lead_name,
             first_name = lead.first_name,
-            last_name = lead.last_name,
+            last_name = lead.last_name,            
+            title=lead.title,
             primary_email = lead.primary_email,
-            country = lead.country,                
+            phone=lead.phone,
+            mobile_phone=lead.mobile_phone,
+            company_name=lead.company_name,
+            industry=lead.industry,
+            website=lead.website,
+            country = lead.country,     
+            currency = lead.currency,
+            lead_source=lead.lead_source,
             assigned_to = lead.assigned_to,
             created_by = lead.created_by,
             last_modified_by = lead.last_modified_by,
@@ -42,10 +50,11 @@ def convert_lead_to_deal(request, organization_name, pk):
             end_date_time = lead.end_date_time,
             extended_end_date_time = lead.extended_end_date_time,
             actual_completion_date = lead.actual_completion_date,
-            currency = lead.currency,
+            description=lead.description,
             organization = lead.organization,
             stage = lead.stage,
             is_closed = lead.is_closed,
+            erased=lead.erased,
         )
         deal.save()
 
@@ -227,10 +236,11 @@ class LeadCreateView(LoginRequiredMixin, FormView, AgentRequiredMixin, AgentCont
             return render(self.request, self.template_name, {'form': form, 'organization_name': agent.organization})
 
     def form_invalid(self, form):
-        # print(form.errors)
+        print('inside form invalidddddddddddddddddddddddddddddddddddddddddddddddddddd')
+        print(form.errors)
         messages.error(
             self.request, "Invalid form data. Please check the entries and try again.")
-        return render(self.request, self.template_name, {'form': form})
+        return render(self.request, self.template_name, {'form': form, 'organization_name': self.get_organization()})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -248,7 +258,6 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
     template_name = 'operation/lead/lead_update.html'
     form_class = LeadUpdateForm
     validation_error_handled = False    
-
 
     def get_form(self, form_class=None):
         form = super().get_form(form_class)
@@ -337,7 +346,9 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
 
 
     def form_invalid(self, form):
-        # print(form.errors)
+        print('isssssssssside form invaliiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiid')
+        print(form.errors)
+
         if not self.validation_error_handled:
             messages.error(self.request, "Invalid form data. Please check the entries and try again.")
         return render(self.request, self.template_name, {'form': form, 'organization_name': self.get_organization(), 'pk': self.object.pk})
@@ -363,7 +374,6 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
             context['enable_update'] = False
             context['enable_button'] = False  
 
-
         # Determina si debe ocultarse el campo extended_end_date_time
         context['hide_extended_end_date_time'] = False
         if lead.end_date_time and lead.end_date_time > current_time:
@@ -378,8 +388,7 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
             instance=lead,
             form_kwargs={'organization': organization})  # Pasar la organización al formulario
 
-        # Validaciones para formset
-        
+        # VALIDACIONES PARA FORMSET        
         # Determinar el estado de los campos basado en las fehas de lead
         if lead.is_closed:
             # Deshabilitar todos los campos si el lead está cerrado

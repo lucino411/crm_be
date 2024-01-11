@@ -16,7 +16,7 @@ from configuration.country.models import Country
 # from .models import Deal, DealProduct, Task
 from .models import Deal, DealProduct, DealTask
 # from .forms import DealForm, DealProductForm, DealUpdateForm, TaskCreateForm, TaskUpdateForm
-from .forms import DealForm, DealProductForm, DealTaskCreateForm, DealTaskUpdateForm, DealUpdateForm
+from .forms import DealProductForm, DealTaskCreateForm, DealTaskUpdateForm, DealUpdateForm
 
 
 DealProductFormset = inlineformset_factory(Deal, DealProduct, form=DealProductForm, extra=0, can_delete=True)

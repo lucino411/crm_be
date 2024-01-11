@@ -9,26 +9,35 @@
 <form action="." method="post" class="">
     {% csrf_token %}
     <div class="row mb-3">
-        <div class="col-md-8">
+        <div class="col-md-9">
             <label for="formGroupExampleInput2" class="form-label">Deal Nombre</label>
             {{ form.deal_name }}
         </div>
+         <!-- Campo de Lead Source -->
+         <div class="col-md-3">
+            <label for="lead_source" class="form-label">Lead Source</label>
+            {{ form.lead_source }}
+        </div>
     </div>
+
     <div class="row mb-3">
         <div class="col-md-5">
             <label for="formGroupExampleInput2" class="form-label">Nombre</label>
             {{ form.first_name }}
         </div>
-        <div class="col-md-5">
+        <div class="col-md-4">
             <label for="formGroupExampleInput2" class="form-label">Apellido</label>
             {{ form.last_name }}
         </div>
-    </div>
-    <div class="row mb-3">
-        <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Currency</label>
-            {{ form.currency }}
+        <!-- Campo de Title -->
+        <div class="col-md-3">
+            <label for="title" class="form-label">Title</label>
+            {{ form.title }}
         </div>
+    </div>
+
+
+    <div class="row mb-3">
         <div class="col-md-5">
             <label for="formGroupExampleInput2" class="form-label">Email</label>
             {{ form.primary_email }}
@@ -37,6 +46,59 @@
             {% endif %}
         </div>
     </div>
+
+    <!-- Campos de Phone y Mobile Phone -->
+    <div class="row mb-3">
+        <div class="col-md-5">
+            <label for="phone" class="form-label">Phone</label>
+            {{ form.phone }}
+        </div>
+        <div class="col-md-5">
+            <label for="mobile_phone" class="form-label">Mobile Phone</label>
+            {{ form.mobile_phone }}
+        </div>
+    </div>
+
+    <!-- Campo de Company Name -->
+    <div class="row mb-3">
+        <div class="col-md-7">
+            <label for="company_name" class="form-label">Company Name</label>
+            {{ form.company_name }}
+        </div>
+        <div class="col-md-3">
+            <label for="industry" class="form-label">Industry</label>
+            {{ form.industry }}
+        </div>
+        <div class="col-md-2">
+            <label for="formGroupExampleInput2" class="form-label">Currency</label>
+            {{ form.currency }}
+        </div>   
+    </div>
+
+    <!-- Campo de Website -->
+    <div class="row mb-3">
+        <div class="col-md-8">
+            <label for="website" class="form-label">Website</label>
+            {{ form.website }}
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label for="formGroupExampleInput2" class="form-label">Country</label>
+            {{ form.country }}
+        </div>
+    </div>
+
+
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <label for="description" class="form-label">Description</label>
+            {{ form.description }}
+        </div>
+    </div>    
+
+
 
     <div class="row mb-3">
         <div class="col-md-4">
@@ -53,13 +115,6 @@
         </div>
     </div>
 
-    <div class="row mb-3">
-        <div class="col-md-4">
-            <label for="formGroupExampleInput2" class="form-label">Country</label>
-            {{ form.country }}
-        </div>
-
-    </div>
 
     <div class="row mb-3">
         <div class="col-md-5">
