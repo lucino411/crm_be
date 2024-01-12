@@ -7,6 +7,7 @@ from configuration.country.models import Country
 from administration.organization.models import Organization
 from configuration.currency.models import Currency
 from configuration.product.models import Product
+from operation.contact.models import Contact
 
 
 def get_sentinel_user():
@@ -19,6 +20,13 @@ def get_sentinel_user():
 
 class Lead(models.Model):
     lead_name = models.CharField(max_length=100, unique=True, blank=False, null=True)
+    contact = models.ForeignKey(
+        Contact, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='contact_leads'  # Permite acceder a los leads desde Contact
+    )    
     first_name = models.CharField(max_length=100, blank=False)
     last_name = models.CharField(max_length=100, blank=False)
 

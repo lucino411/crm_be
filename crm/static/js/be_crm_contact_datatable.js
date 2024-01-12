@@ -4,11 +4,11 @@ let dataOption;
 
 const dataTableOptions = {
     columnDefs: [
-        { className: 'centered', targets: [0, 1, 2, 3, 4, 5, 6, 7, 8] },
-        { orderable: false, targets: [0, 1, 2, 5, 8] },
+        { className: 'centered', targets: [0, 1, 2, 3, 4, 5, 6, 7] },
+        { orderable: false, targets: [0, 1, 2, 5] },
         { searchable: false, targets: [0, 1] },
     ],
-    pageLength: 10,
+    pageLength: 5,
     destroy: true,
     // dom: 'Bfrtip',
     dom: 'QBfrtip',
@@ -16,7 +16,7 @@ const dataTableOptions = {
     initComplete: function () {
         let api = this.api();
 
-        api.columns([4, 8]).every(function () {
+        api.columns([3, 7]).every(function () {
             let column = this;
 
             let select = document.createElement('select');
@@ -92,50 +92,47 @@ const initDataTable = async () => {
         dataTable.destroy();
     }
 
-    await listDeals();
+    await listContacts();
 
-    dataTable = $("#datatable-deals").DataTable({
+    dataTable = $("#datatable-contacts").DataTable({
         ...dataTableOptions,
         select: true  // Agrega esta línea dentro de las opciones
-    });
+    });    
 
     dataTableIsInitialized = true;
 };
 
 
-const listDeals = async () => {
+const listContacts = async () => {
     try {
-        const dealListElement = document.getElementById('deal-list');
-        console.log(dealListElement);
-        const organizationName = dealListElement.dataset.organizationName;
-        const response = await fetch(`${BASE_URL}/${organizationName}/deal/deals_json`);
+        const contactListElement = document.getElementById('contact-list');
+        const organizationName = contactListElement.dataset.organizationName;
+        const response = await fetch(`${BASE_URL}/${organizationName}/contact/contacts_json`);
         const data = await response.json();
-        console.log(response);
         let content = ``;
         
-        data.deals.forEach((deal, index) => {
-            const dealData = deal;
-            
+        data.contacts.forEach((contact, index) => {
+            const contactData = contact;         
 
-            console.log(dealData); // Agrega esta línea para imprimir dealData en la consola
-            const createdTime = new Date(dealData.created_time).toLocaleString('es', { day: 'numeric', month: 'short', year: 'numeric' });
-            // const modifiedTime = new Date(dealData.modified_time).toLocaleString('es', { day: 'numeric', month: 'short', year: 'numeric' });
+            // console.log(contactData); // Agrega esta línea para imprimir contactData en la consola
+            const createdTime = new Date(contactData.created_time).toLocaleString('es', { day: 'numeric', month: 'short', year: 'numeric' });
+            // const modifiedTime = new Date(contactData.modified_time).toLocaleString('es', { day: 'numeric', month: 'short', year: 'numeric' });
 
             content += `
         <tr>
-            <td><a href="/${dealData.organization}/deal/${dealData.id}/" class='table-link'>${dealData.deal_name}</a></td>
-            <td>${dealData.first_name}</td>
-            <td>${dealData.last_name}</td>
-            <td>${dealData.primary_email}</td>
-            <td>${dealData.country}</td>
+
+        <td><a href="/${contactData.organization}/contact/${contactData.id}/" class='table-link'>${contactData.first_name}</a></td>
+            <td>${contactData.last_name}</td>
+            <td>${contactData.primary_email}</td>
+            <td>${contactData.country}</td>
             <td>${createdTime}</td> 
-            <td>${dealData.last_modified_by}</td> 
-            <td>${dealData.assigned_to}</td>
-            <td>${dealData.organization}</td>      
+            <td>${contactData.last_modified_by}</td> 
+            <td>${contactData.organization}</td>      
+            <td>${contactData.is_client  ? 'Cliente' : 'Contacto'}</td>
         </tr>
         `;
         });
-        tableBody_deals.innerHTML = content;
+        tableBody_contacts.innerHTML = content;
     } catch (e) {
         alert(e);
     }

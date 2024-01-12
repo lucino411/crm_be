@@ -14,6 +14,8 @@ from django.core.exceptions import ValidationError
 
 from administration.userprofile.views import AgentRequiredMixin, AgentContextMixin
 from configuration.country.models import Country
+from operation.contact.models import Contact
+from operation.client.models import Client
 from .models import Lead, LeadProduct, LeadTask
 from .forms import LeadForm, LeadProductForm, LeadUpdateForm, LeadTaskCreateForm, LeadTaskUpdateForm
 
@@ -26,9 +28,42 @@ def convert_lead_to_deal(request, organization_name, pk):
     lead = get_object_or_404(Lead, id=pk)
 
     with transaction.atomic():
+
+        # Obtener el Contact asociado con el Lead
+        contact = lead.contact
+
+        if contact:
+            # Crear un nuevo Client con los mismos datos que Contact
+            client = Client.objects.create(
+                first_name=contact.first_name,
+                last_name=contact.last_name,
+                title=contact.title,
+                primary_email=contact.primary_email,
+                phone=contact.phone,
+                mobile_phone=contact.mobile_phone,
+                company_name=contact.company_name,
+                country=contact.country,
+                created_by=contact.created_by,
+                last_modified_by=contact.last_modified_by,
+                created_time=contact.created_time,
+                modified_time=contact.modified_time,
+                organization=contact.organization,
+                erased=contact.erased
+            )
+
+        # Verificar si el Contact está asociado a más Leads
+        if contact.contact_leads.count() > 1:
+            # Marcar como cliente pero no eliminar
+            contact.is_client = True
+            contact.save()
+        else:
+            # Eliminar el Contact si solo está asociado a este Lead
+            contact.delete()
+
         # Crear una instancia de Deal con los datos de Lead
         deal = Deal(
             deal_name = lead.lead_name,
+            client=client,  # Asignar el Client aquí
             first_name = lead.first_name,
             last_name = lead.last_name,            
             title=lead.title,
@@ -93,7 +128,7 @@ def convert_lead_to_deal(request, organization_name, pk):
                     deal_task.save()
 
         # Eliminar el Lead original
-        lead.delete()
+        lead.delete()     
 
         # Opcional: agregar un mensaje para confirmar la conversión
         messages.success(request, "Lead converted to Deal successfully.")
@@ -180,34 +215,21 @@ class LeadCreateView(LoginRequiredMixin, FormView, AgentRequiredMixin, AgentCont
 
             return form
 
-    def form_valid(self, form):
-        # Se verifica que el el email no este repetido, se va a usar en Company y Contact . No se usa en Leads ni Deals
-        # agent = self.request.user.agent
-        # email = form.cleaned_data['primary_email']
-        # Verificar si existe un lead con el mismo email en la misma organización
-        # if Lead.objects.filter(
-        #     primary_email=email,
-        #     organization=agent.organization
-        # ).exists():
-        #     messages.error(
-        #         self.request, "A lead with this email already exists in your organization.")
-        #     return render(self.request, self.template_name, {'form': form, 'organization_name': agent.organization})
-        # else:
-        #     # Obtener la organización del agente que está creando el lead
-        #     agent = self.request.user.agent
-        #     # Asignar la organización al lead
-        #     form.instance.organization = agent.organization
-        #     form.instance.created_by = agent.user
-        #     form.instance.last_modified_by = agent.user
-        #     # form.instance.assigned_to = agent.user
-        #     form.save()
-
-        #     messages.success(self.request, "Lead was created")
-        #     return redirect('operation:lead-list', organization_name=agent.organization)
+    def form_valid(self, form):    
         agent = self.request.user.agent
         form.instance.organization = agent.organization
         form.instance.created_by = agent.user
         form.instance.last_modified_by = agent.user
+
+        # Campos del lead para crear Contact
+        email = form.cleaned_data['primary_email']
+        first_name = form.cleaned_data['first_name']
+        last_name = form.cleaned_data['last_name']
+        title = form.cleaned_data['title']
+        phone = form.cleaned_data['phone']
+        mobile_phone = form.cleaned_data['mobile_phone']
+        company_name = form.cleaned_data['company_name']
+        country = form.cleaned_data['country']
 
         try:
             lead = form.save(commit=False)
@@ -216,6 +238,41 @@ class LeadCreateView(LoginRequiredMixin, FormView, AgentRequiredMixin, AgentCont
             if lead.end_date_time and lead.start_date_time and lead.end_date_time < lead.start_date_time:
                 raise ValidationError(
                     "La fecha de finalización no puede ser anterior a la fecha de inicio.")
+            
+            # Crea o Actualiza el contact si ya existe:
+            contact, created = Contact.objects.get_or_create(
+            primary_email=email, 
+            organization=agent.organization,
+            defaults={
+                'first_name': first_name,
+                'last_name': last_name,
+                'title': title,
+                'phone': phone,
+                'mobile_phone': mobile_phone,
+                'company_name': company_name,
+                'country': country,
+                'created_by': agent.user,
+                'last_modified_by': agent.user,
+                }
+            )
+
+            if not created:
+                # Actualiza los campos si el Contact ya existía
+                fields_to_update = []
+                for field in ['first_name', 'last_name', 'title', 'phone', 'mobile_phone', 'company_name', 'country']:
+                    if getattr(contact, field) != locals()[field]:
+                        setattr(contact, field, locals()[field])
+                        fields_to_update.append(field)
+                if fields_to_update:
+                    contact.last_modified_by = agent.user
+                    contact.save(update_fields=fields_to_update + ['last_modified_by'])  
+
+            # Verificar si el Contacto existe en Client
+            if Client.objects.filter(primary_email=email).exists():
+                contact.is_client = True
+                contact.save(update_fields=['is_client'])
+            
+            lead.contact = contact  # Asocia el Contact con el Lead
 
             lead.save()
 
@@ -319,6 +376,40 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
             if lead.stage in ['close_win', 'close_lost']:
                 lead.is_closed = True 
 
+            with transaction.atomic():
+                    new_email = form.cleaned_data.get('primary_email')
+                    first_name = form.cleaned_data.get('first_name')
+                    last_name = form.cleaned_data.get('last_name')
+                    title = form.cleaned_data.get('title')
+                    phone = form.cleaned_data.get('phone')
+                    mobile_phone = form.cleaned_data.get('mobile_phone')
+                    company_name = form.cleaned_data.get('company_name')
+                    country = form.cleaned_data.get('country')
+
+                    contact = lead.contact
+                    if contact:
+                        fields_to_update = []
+                        for field, value in [('primary_email', new_email), ('first_name', first_name), ('last_name', last_name), ('title', title), ('phone', phone), ('mobile_phone', mobile_phone), ('company_name', company_name), ('country', country)]:
+                            if getattr(contact, field) != value:
+                                setattr(contact, field, value)
+                                fields_to_update.append(field)
+
+                        if fields_to_update:
+                            contact.last_modified_by = agent.user
+                            contact.save(update_fields=fields_to_update + ['last_modified_by'])                        
+
+                            # Actualizar todos los Leads asociados con este Contact
+                            for related_lead in contact.contact_leads.all():
+                                related_lead.primary_email = new_email
+                                related_lead.first_name = first_name
+                                related_lead.last_name = last_name
+                                related_lead.title = title
+                                related_lead.phone = phone
+                                related_lead.mobile_phone = mobile_phone
+                                related_lead.company_name = company_name
+                                related_lead.country = country
+                                related_lead.save()
+
             # Si todo está bien, guarda el lead
             lead.save()
 
@@ -421,8 +512,21 @@ class LeadDeleteView(DeleteView, AgentRequiredMixin, AgentContextMixin):
     template_name = 'operation/lead/lead_delete.html'
     context_object_name = 'lead'
 
-    def get_success_url(self):
+    def form_valid(self, form):
+        with transaction.atomic():
+            self.object = self.get_object()
+            contact = self.object.contact
+
+            # Verificar si el Contact está asociado con otros Lead
+            if contact and contact.contact_leads.count() <= 1:
+                # Si solo está asociado con este Lead, eliminar el Contact
+                contact.delete()
+
+        response = super(LeadDeleteView, self).form_valid(form)
         messages.success(self.request, "Lead Deleted.")
+        return response
+
+    def get_success_url(self):  
         return reverse_lazy('lead:list', kwargs={'organization_name': self.get_organization()})
 
     def get_context_data(self, **kwargs):

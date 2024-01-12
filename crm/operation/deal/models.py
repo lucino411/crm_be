@@ -7,6 +7,8 @@ from configuration.country.models import Country
 from administration.organization.models import Organization
 from configuration.currency.models import Currency
 from configuration.product.models import Product
+from operation.client.models import Client
+
 
 
 def get_sentinel_user():
@@ -19,6 +21,15 @@ def get_sentinel_user():
 
 class Deal(models.Model):
     deal_name = models.CharField(max_length=100, unique=True, blank=False, null=True)
+     # Campo para relacionar el Client con el Deal
+    client = models.ForeignKey(
+        Client, 
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='client_leads'  # Permite acceder a los deals dede Client
+    )
+
     first_name = models.CharField(max_length=100, blank=False)
     last_name = models.CharField(max_length=100, blank=False)
 
