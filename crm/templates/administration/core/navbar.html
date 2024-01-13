@@ -21,31 +21,28 @@
 
 
             {% if request.user.is_authenticated and request.user.agent %}
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">                    
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          Tasks
+                            Leads
                         </a>
                         <ul class="dropdown-menu">
-                          <li><a class="dropdown-item" href="{% url 'lead:task-list' organization_name=organization_name %}">Lead Tasks</a></li>
-                          <li><a class="dropdown-item" href="{% url 'deal:task-list' organization_name=organization_name %}">Deal Tasks</a></li>
+                            <li><a class="dropdown-item" href="{% url 'lead:list' organization_name=organization_name %}">Leads</a></li>
+                            <li><a class="dropdown-item" href="{% url 'lead:task-list' organization_name=organization_name %}">Lead Tasks</a></li>
+                            <li><a class="dropdown-item" href="{% url 'contact:contact-list' organization_name=organization_name %}">Contacs</a></li>
                         </ul>
                     </li>
-
+                    
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          Leads
+                            Deals
                         </a>
-                        <ul class="dropdown-menu">
-                          <li><a class="dropdown-item" href="{% url 'lead:list' organization_name=organization_name %}">Leads</a></li>
-                          <li><a class="dropdown-item" href="{% url 'contact:contact-list' organization_name=organization_name %}">Contacs</a></li>
+                        <ul class="dropdown-menu">                            
+                            <li><a class="nav-link" href="{% url 'deal:list' organization_name=organization_name %}">Deals</a></li>
+                            <li><a class="dropdown-item" href="{% url 'deal:task-list' organization_name=organization_name %}">Deal Tasks</a></li>
+                            <li><a class="dropdown-item" href="{% url 'client:client-list' organization_name=organization_name %}">Clients</a></li>
                         </ul>
-                    </li>
-                      
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'deal:list' organization_name=organization_name %}">Deals</a>
-                    </li>     
+                    </li>                    
 
                 </ul>
             {% endif %}         

@@ -63,6 +63,7 @@ class DealListView(ListView, AgentRequiredMixin, AgentContextMixin):
         context['organization_name'] = self.get_organization().name
         return context
 
+
 class DealDetailView(DetailView, AgentRequiredMixin, AgentContextMixin):
     model = Deal
     template_name = 'operation/deal/deal_detail.html'
@@ -148,6 +149,36 @@ class DealUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
              # Logica para establecer el stage is_closed"
             if deal.stage in ['close_win', 'close_lost']:
                 deal.is_closed = True 
+
+
+
+
+
+                
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             # Si todo está bien, guarda el deal
             deal.save()

@@ -8,6 +8,4 @@ urlpatterns = [
     path('list/', HomeContactView.as_view(), name='contact-list'),
     path('contacts_json/', ContactListView.as_view(), name='contact-json'),
     path('<int:pk>/', ContactDetailView.as_view(), name='contact-detail'),
-    # path('<int:pk>/update/', LeadUpdateView.as_view(), name='update'),   
-
 ]

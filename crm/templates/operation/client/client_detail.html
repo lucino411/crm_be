@@ -1,0 +1,42 @@
+{% extends "administration/core/base.html" %}
+
+{% block title %}Deals{% endblock %}
+
+{% block content %}
+
+<h1 class="text-xl">Client Detail {{ client.id }}</h1>
+
+<div class="card" style="width: 22rem;">
+    <div class="card-header">
+        <h2>{{ client.first_name }} {{ client.last_name }}</h2>
+    </div>
+    <ul class="list-group list-group-flush">
+        {% if client.is_client %}
+            <span class="badge bg-success">Client</span>          
+        {% endif %}     
+        <li class="list-group-item">{{ client.primary_email }}  
+        <li class="list-group-item">{{ client.phone }}  
+        <li class="list-group-item">{{ client.mobile_phone }}  
+        <li class="list-group-item">{{ client.company_name }}  
+
+        <li class="list-group-item">{{ client.country }}  
+        <li class="list-group-item">{{ client.created_by }} <span class="badge bg-secondary">Created By</span></li>
+        <li class="list-group-item">{{ client.created_time }} <span class="badge bg-secondary">Created</span></li>
+        {% if client_leads %}
+            <span class="badge bg-warning">Leads</span>
+            {% for lead in client_leads %}
+            <li class="list-group-item">
+                <a href="{% url 'lead:detail' pk=lead.pk organization_name=organization_name %}">{{ lead.lead_name }}</a>
+            </li>
+            {% endfor %}       
+        {% endif %}     
+
+      
+    </ul>
+</div>
+<div class="col-md-8 mt-3">
+
+</div>
+                
+
+{% endblock %}
