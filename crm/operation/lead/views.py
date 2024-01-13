@@ -410,6 +410,16 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
                                 related_lead.country = country
                                 related_lead.save()
 
+                        # Buscar y actualizar el Client correspondiente
+                        try:
+                            client = Client.objects.get(primary_email=new_email)
+                            for field in fields_to_update:
+                                setattr(client, field, getattr(contact, field))
+                            client.save()
+                        except Client.DoesNotExist:
+                            # No hay un Client con este primary_email, no se necesita hacer nada más
+                            pass
+
             # Si todo está bien, guarda el lead
             lead.save()
 

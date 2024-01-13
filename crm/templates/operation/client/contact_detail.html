@@ -1,0 +1,42 @@
+{% extends "administration/core/base.html" %}
+
+{% block title %}Deals{% endblock %}
+
+{% block content %}
+
+<h1 class="text-xl">Contact Detail {{ contact.id }}</h1>
+
+<div class="card" style="width: 22rem;">
+    <div class="card-header">
+        <h2>{{ contact.first_name }} {{ contact.last_name }}</h2>
+    </div>
+    <ul class="list-group list-group-flush">
+        {% if contact.is_client %}
+            <span class="badge bg-success">Client</span>          
+        {% endif %}     
+        <li class="list-group-item">{{ contact.primary_email }}  
+        <li class="list-group-item">{{ contact.phone }}  
+        <li class="list-group-item">{{ contact.mobile_phone }}  
+        <li class="list-group-item">{{ contact.company_name }}  
+
+        <li class="list-group-item">{{ contact.country }}  
+        <li class="list-group-item">{{ contact.created_by }} <span class="badge bg-secondary">Created By</span></li>
+        <li class="list-group-item">{{ contact.created_time }} <span class="badge bg-secondary">Created</span></li>
+        {% if contact_leads %}
+            <span class="badge bg-warning">Leads</span>
+            {% for lead in contact_leads %}
+            <li class="list-group-item">
+                <a href="{% url 'lead:detail' pk=lead.pk organization_name=organization_name %}">{{ lead.lead_name }}</a>
+            </li>
+            {% endfor %}       
+        {% endif %}     
+
+      
+    </ul>
+</div>
+<div class="col-md-8 mt-3">
+
+</div>
+                
+
+{% endblock %}

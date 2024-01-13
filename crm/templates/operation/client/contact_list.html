@@ -1,0 +1,69 @@
+{% extends "administration/core/base.html" %} {% load static %}
+{% block title %}Contact{% endblock %} {% block styles %}
+<!-- Datatables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/searchbuilder/1.6.0/css/searchBuilder.dataTables.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/searchbuilder/1.6.0/css/searchBuilder.dataTables.min.css" />
+
+{% endblock %} {% block content %}
+<!-- con este div le pasamos el nombre de la organization a JS de datatables -->
+<div id="contact-list" data-organization-name="{{ organization_name }}" class="d-none"></div>
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+      <div class="table-responsive">
+        <table id="datatable-contacts" class="table table-striped table_contacts" style="width: 100%">
+          <caption>
+            {{ titulo }}
+          </caption>
+          <thead>
+            <tr>
+              <th class="centered">First Name</th>
+              <th class="centered">Last Name</th>
+              <th class="centered">Email</th>
+              <th class="centered">Country</th>
+              <th class="centered">Created Time</th>
+              <th class="centered">Last Modified By</th>
+              <th class="centered">Organization</th>
+              <th class="centered"></th>
+            </tr>
+          </thead>
+          <tbody id="tableBody_contacts"></tbody>
+          <tfoot class="text-primary">
+            <tr>
+              <th class="centered"></th>
+              <th class="centered"></th>
+              <th class="centered"></th>
+              <th class="centered"></th>
+              <th class="centered"></th>
+              <th class="centered"></th>
+              <th class="centered"></th>
+              <th class="centered"></th>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<!-- Datatables -->
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<!-- datatable file buttons -->
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/searchbuilder/1.6.0/js/dataTables.searchBuilder.min.js"></script>
+<script src="https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js"></script>
+<!-- datatable buttons collection -->
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
+
+<!-- Custom Datatable JS -->
+<script src="{% static 'js/be_crm_contact_datatable.js' %}"></script>
+
+{% endblock %}
