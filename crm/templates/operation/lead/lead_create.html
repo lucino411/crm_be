@@ -81,10 +81,13 @@
 <!-- Campo de Website -->
 <div class="row mb-3">
     <div class="col-md-8">
-        <label for="website" class="form-label">Website</label>
+        <label for="id_website" class="form-label">Website</label>
         {{ form.website }}
+        {% if form.errors.website %}
+            <div id="email-error" class="text-danger">{{ form.errors.website }}</div>
+        {% endif %}
     </div>
-</div>
+</div> 
 
 <div class="row mb-3">
     <div class="col-md-4">

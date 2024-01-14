@@ -201,8 +201,11 @@ class DealUpdateForm(forms.ModelForm):
     )
     website = forms.URLField(
         label="Website",
-        widget=forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'example.com'}),
-        required=False
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'example.com'}),
+        required=False,
+        error_messages={
+            'invalid': 'Por favor, introduce una URL válida, ej. pagina.com',
+        }
     )
     def clean_website(self):
         website = self.cleaned_data.get('website')

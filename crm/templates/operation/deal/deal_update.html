@@ -78,10 +78,13 @@
     <!-- Campo de Website -->
     <div class="row mb-3">
         <div class="col-md-8">
-            <label for="website" class="form-label">Website</label>
+            <label for="id_website" class="form-label">Website</label>
             {{ form.website }}
+            {% if form.errors.website %}
+                <div id="email-error" class="text-danger">{{ form.errors.website }}</div>
+            {% endif %}
         </div>
-    </div>
+    </div> 
 
     <div class="row mb-3">
         <div class="col-md-4">
@@ -90,15 +93,12 @@
         </div>
     </div>
 
-
     <div class="row mb-3">
         <div class="col-md-12">
             <label for="description" class="form-label">Description</label>
             {{ form.description }}
         </div>
     </div>    
-
-
 
     <div class="row mb-3">
         <div class="col-md-4">
@@ -114,7 +114,6 @@
             {{ form.extended_end_date_time }}
         </div>
     </div>
-
 
     <div class="row mb-3">
         <div class="col-md-5">
@@ -169,6 +168,7 @@
 {% block scripts %}
 
 <script>
+    // Oculta botones segun el stage del Lead
     document.addEventListener('DOMContentLoaded', function () {
         var formIndex = document.getElementById('form-index').getAttribute('data-form-index');
         const addMoreProductButton = document.getElementById('add-more-product');

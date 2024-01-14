@@ -132,7 +132,7 @@ const listTasks = async () => {
             content += `
         <tr>
             <td><a href="/${taskData.organization}/deal/task/${taskData.id}/" class='table-link'>${taskData.name}</a></td>
-            <td>${taskData.lead_name}</td>
+            <td>${taskData.deal_name}</td>
             <td>${taskData.product_name}</td>
             <td>${modifiedTime}</td>     
             <td>${taskData.created_by}</td>     

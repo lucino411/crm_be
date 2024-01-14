@@ -22,11 +22,11 @@
         <li class="list-group-item">{{ client.country }}  
         <li class="list-group-item">{{ client.created_by }} <span class="badge bg-secondary">Created By</span></li>
         <li class="list-group-item">{{ client.created_time }} <span class="badge bg-secondary">Created</span></li>
-        {% if client_leads %}
-            <span class="badge bg-warning">Leads</span>
-            {% for lead in client_leads %}
+        {% if client_deals %}
+            <span class="badge bg-warning">Deals</span>
+            {% for deal in client_deals %}
             <li class="list-group-item">
-                <a href="{% url 'lead:detail' pk=lead.pk organization_name=organization_name %}">{{ lead.lead_name }}</a>
+                <a href="{% url 'deal:detail' pk=deal.pk organization_name=organization_name %}">{{ deal.deal_name }}</a>
             </li>
             {% endfor %}       
         {% endif %}     

@@ -1,5 +1,27 @@
 be
-├─ crm│  
+├─ crm
+│  ├─ administration
+│  │  ├─ core
+│  │  │  ├─ admin.py
+│  │  │  ├─ apps.py
+│  │  │  ├─ middleware1.py
+│  │  │  ├─ models.py
+│  │  │  ├─ tests.py
+│  │  │  ├─ urls.py
+│  │  │  └─ views.py
+│  │  ├─ organization
+│  │  │  ├─ admin.py
+│  │  │  ├─ apps.py
+│  │  │  ├─ models.py
+│  │  │  ├─ tests.py
+│  │  │  └─ views.py
+│  │  └─ userprofile
+│  │     ├─ admin.py
+│  │     ├─ apps.py
+│  │     ├─ models.py
+│  │     ├─ tests.py
+│  │     └─ views.py
+│  ├─ ai.py
 │  ├─ configuration
 │  │  ├─ country
 │  │  │  ├─ admin.py
@@ -8,8 +30,44 @@ be
 │  │  │  ├─ models.py
 │  │  │  ├─ tests.py
 │  │  │  ├─ urls.py
-│  │  │  └─ views.py│  │  └
+│  │  │  └─ views.py
+│  │  ├─ currency
+│  │  │  ├─ admin.py
+│  │  │  ├─ apps.py
+│  │  │  ├─ forms.py
+│  │  │  ├─ models.py
+│  │  │  ├─ tests.py
+│  │  │  ├─ urls.py
+│  │  │  └─ views.py
+│  │  └─ product
+│  │     ├─ admin.py
+│  │     ├─ apps.py
+│  │     ├─ forms.py
+│  │     ├─ models.py
+│  │     ├─ tests.py
+│  │     ├─ urls.py
+│  │     └─ views.py
 │  ├─ operation
+│  │  ├─ client
+│  │  │  ├─ admin.py
+│  │  │  ├─ apps.py
+│  │  │  ├─ models.py
+│  │  │  ├─ tests.py
+│  │  │  ├─ urls.py
+│  │  │  └─ views.py
+│  │  ├─ company
+│  │  │  ├─ admin.py
+│  │  │  ├─ apps.py
+│  │  │  ├─ models.py
+│  │  │  ├─ tests.py
+│  │  │  └─ views.py
+│  │  ├─ contact
+│  │  │  ├─ admin.py
+│  │  │  ├─ apps.py
+│  │  │  ├─ models.py
+│  │  │  ├─ tests.py
+│  │  │  ├─ urls.py
+│  │  │  └─ views.py
 │  │  ├─ dashboard
 │  │  │  ├─ admin.py
 │  │  │  ├─ apps.py
@@ -17,7 +75,7 @@ be
 │  │  │  ├─ tests.py
 │  │  │  ├─ urls.py
 │  │  │  └─ views.py
-│  │  ├─ lead
+│  │  ├─ deal
 │  │  │  ├─ admin.py
 │  │  │  ├─ apps.py
 │  │  │  ├─ forms.py
@@ -26,11 +84,14 @@ be
 │  │  │  ├─ tests.py
 │  │  │  ├─ urls.py
 │  │  │  └─ views.py
-│  │  └─ product
+│  │  └─ lead
 │  │     ├─ admin.py
 │  │     ├─ apps.py
+│  │     ├─ forms.py
 │  │     ├─ models.py
+│  │     ├─ signals.py
 │  │     ├─ tests.py
+│  │     ├─ urls.py
 │  │     └─ views.py
 │  ├─ project
 │  │  ├─ asgi.py
@@ -41,8 +102,14 @@ be
 │  │  │  └─ be_crm.css
 │  │  ├─ img
 │  │  └─ js
+│  │     ├─ ai.js
+│  │     ├─ be_crm_client_datatable.js
+│  │     ├─ be_crm_contact_datatable.js
 │  │     ├─ be_crm_datatable copy.js
-│  │     └─ be_crm_datatable.js
+│  │     ├─ be_crm_deals_datatable.js
+│  │     ├─ be_crm_dealtask_datatable.js
+│  │     ├─ be_crm_leads_datatable.js
+│  │     └─ be_crm_task_datatable.js
 │  └─ templates
 │     ├─ administration
 │     │  └─ core
@@ -58,21 +125,59 @@ be
 │     │  │  ├─ country_detail.html
 │     │  │  ├─ country_list.html
 │     │  │  └─ country_update.html
-│     │  └─ stage
-│     │     ├─ stage_create.html
-│     │     ├─ stage_delete.html
-│     │     ├─ stage_detail.html
-│     │     ├─ stage_list.html
-│     │     └─ stage_update.html
+│     │  ├─ currency
+│     │  │  ├─ currency_create.html
+│     │  │  ├─ currency_delete.html
+│     │  │  ├─ currency_detail.html
+│     │  │  ├─ currency_list.html
+│     │  │  └─ currency_update.html
+│     │  ├─ product
+│     │  │  ├─ product_create.html
+│     │  │  ├─ product_delete.html
+│     │  │  ├─ product_detail.html
+│     │  │  ├─ product_list.html
+│     │  │  └─ product_update.html
+│     │  └─ product_category
+│     │     ├─ category_create.html
+│     │     ├─ category_delete.html
+│     │     ├─ category_detail.html
+│     │     ├─ category_list.html
+│     │     └─ category_update.html
 │     ├─ operation
+│     │  ├─ client
+│     │  │  ├─ client_detail.html
+│     │  │  ├─ client_list.html
+│     │  │  └─ client_update.html
+│     │  ├─ contact
+│     │  │  ├─ contact_detail.html
+│     │  │  ├─ contact_list.html
+│     │  │  └─ contact_update.html
 │     │  ├─ dashboard
 │     │  │  └─ dashboard_home.html
-│     │  └─ lead
-│     │     ├─ lead_create.html
-│     │     ├─ lead_delete.html
-│     │     ├─ lead_detail.html
-│     │     ├─ lead_list.html
-│     │     └─ lead_update.html
+│     │  ├─ deal
+│     │  │  ├─ deal_create.html
+│     │  │  ├─ deal_delete.html
+│     │  │  ├─ deal_detail.html
+│     │  │  ├─ deal_list.html
+│     │  │  └─ deal_update.html
+│     │  ├─ dealtask
+│     │  │  ├─ task_create.html
+│     │  │  ├─ task_delete.html
+│     │  │  ├─ task_detail.html
+│     │  │  ├─ task_list.html
+│     │  │  └─ task_update.html
+│     │  ├─ lead
+│     │  │  ├─ lead_create.html
+│     │  │  ├─ lead_delete.html
+│     │  │  ├─ lead_detail.html
+│     │  │  ├─ lead_list.html
+│     │  │  └─ lead_update.html
+│     │  └─ leadtask
+│     │     ├─ task_create.html
+│     │     ├─ task_delete.html
+│     │     ├─ task_detail.html
+│     │     ├─ task_list.html
+│     │     └─ task_update.html
 │     └─ registration
 │        └─ login.html
 └─ tasks_records.txt

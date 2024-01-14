@@ -2,6 +2,7 @@
 # # from pydantic import ValidationError
 # import re  # Importa el módulo re para trabajar con expresiones regulares
 # from django.core.validators import RegexValidator
+
 from django import forms
 from django.contrib.auth.models import User
 
@@ -90,8 +91,22 @@ class LeadForm(forms.ModelForm):
     website = forms.URLField(
         label="Website",
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'example.com'}),
-        required=False
+        required=False,
+        error_messages={
+            'invalid': 'Por favor, introduce una URL válida, ej. pagina.com',
+        }
     )
+    def clean_website(self):
+        website = self.cleaned_data.get('website')
+        if website:
+            if website.startswith('http://'):
+                # Reemplazar http:// por https://
+                website = 'https://' + website[len('http://'):]
+            elif not website.startswith('https://'):
+                # Añadir https:// si no comienza con http:// o https://
+                website = 'https://' + website
+        return website
+    
     lead_source = forms.ChoiceField(
         choices=Lead.LEAD_SOURCE_CHOICES,
         widget=forms.Select(attrs={'class': 'form-select'}),
@@ -197,8 +212,11 @@ class LeadUpdateForm(forms.ModelForm):
     )
     website = forms.URLField(
         label="Website",
-        widget=forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'example.com'}),
-        required=False
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'example.com'}),
+        required=False,
+        error_messages={
+            'invalid': 'Por favor, introduce una URL válida, ej. pagina.com',
+        }
     )
     def clean_website(self):
         website = self.cleaned_data.get('website')

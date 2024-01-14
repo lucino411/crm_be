@@ -78,10 +78,13 @@
     <!-- Campo de Website -->
     <div class="row mb-3">
         <div class="col-md-8">
-            <label for="website" class="form-label">Website</label>
+            <label for="id_website" class="form-label">Website</label>
             {{ form.website }}
+            {% if form.errors.website %}
+                <div id="email-error" class="text-danger">{{ form.errors.website }}</div>
+            {% endif %}
         </div>
-    </div>
+    </div> 
 
     <div class="row mb-3">
         <div class="col-md-4">
@@ -107,7 +110,7 @@
             <label for="id_end_date_time" class="form-label">End Date</label>
             {{ form.end_date_time }}
         </div>
-        <div id="div_id_extended_end_date_time" style="display: none;" class="col-md-4">
+        <div class="col-md-4" {% if hide_extended_end_date_time %}style="display:none;" {% endif %}>
             <label for="formGroupExampleInput2" class="form-label">Extended End Date</label>
             {{ form.extended_end_date_time }}
         </div>
@@ -164,7 +167,7 @@
         {% if lead %}           
         
             <!-- Button trigger modal -->
-            <button id="ConvertLeadToDeal" type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#LeadToDealModal">
+            <button id="ConvertLeadToDeal" type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#LeadToDealModal" {% if not enable_button %}disabled{% endif %} {% if not enable_button %}onclick="return false;"{% endif %}>
                 Convert to Deal
             </button>
             
@@ -214,7 +217,7 @@
         const leadIsClosed = leadInfo.getAttribute('data-is-closed') === 'True';
 
         // Ocultar el botón si el lead está cerrado o si el stage es 'close_win' o 'close_lost'
-        if (leadIsClosed || leadStage === 'close_win' || leadStage === 'close_lost') {
+        if (leadIsClosed || leadStage === 'close_lost') {
             addMoreProductButton.style.display = 'none';
             addMoreTaskButton.style.display = 'none';
             convertLeadToDealButton.style.display = 'none';

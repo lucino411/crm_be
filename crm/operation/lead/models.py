@@ -80,18 +80,20 @@ class Lead(models.Model):
         ('new', 'New'),
         ('in_progress', 'In Progress'),
         ('dorman', 'Dorman'),
-        ('close_win', 'Close Win'),
         ('close_lost', 'Close Lost'),
     ]  
     stage = models.CharField(max_length=20, choices=STAGE_CHOICES, default='new')
     is_closed = models.BooleanField(default=False) 
     erased = models.BooleanField(default=False)
 
-    def __str__(self):
-        return self.lead_name
+    def __str__(self):       
+        return self.lead_name  
     
     def save(self, *args, **kwargs):
+        print('heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeer')
+        print(self.website)
         if self.website:
+            print(self.website)
             if self.website.startswith('http://'):
                 # Reemplazar http:// por https://
                 self.website = 'https://' + self.website[len('http://'):]
@@ -99,8 +101,8 @@ class Lead(models.Model):
                 # Añadir https:// si no comienza con http:// o https://
                 self.website = 'https://' + self.website
 
-        # if self.website and not self.website.startswith('https://'):
-        #     self.website = 'https://' + self.website
+        if self.website and not self.website.startswith('https://'):
+            self.website = 'https://' + self.website
         super().save(*args, **kwargs)
 
 

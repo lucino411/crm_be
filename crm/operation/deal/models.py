@@ -27,7 +27,7 @@ class Deal(models.Model):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name='client_leads'  # Permite acceder a los deals dede Client
+        related_name='client_deals'  # Permite acceder a los deals dede Client
     )
 
     first_name = models.CharField(max_length=100, blank=False)

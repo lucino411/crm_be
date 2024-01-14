@@ -14,10 +14,10 @@
         {% if contact.is_client %}
             <span class="badge bg-success">Client</span>          
         {% endif %}     
-        <li class="list-group-item">{{ contact.primary_email }}  
-        <li class="list-group-item">{{ contact.phone }}  
-        <li class="list-group-item">{{ contact.mobile_phone }}  
-        <li class="list-group-item">{{ contact.company_name }}  
+        <li class="list-group-item">Email: {{ contact.primary_email }}  
+        <li class="list-group-item">Phone: {{ contact.phone }}  
+        <li class="list-group-item">Mobile: {{ contact.mobile_phone }}  
+        <li class="list-group-item">Company: {{ contact.company_name }}  
 
         <li class="list-group-item">{{ contact.country }}  
         <li class="list-group-item">{{ contact.created_by }} <span class="badge bg-secondary">Created By</span></li>

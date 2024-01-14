@@ -60,8 +60,8 @@ class ClientDetailView(DetailView, AgentRequiredMixin, AgentContextMixin):
         # Obtener el objeto Client actual
         client = self.get_object()
         # Obtener los leads relacionados
-        client_leads = client.client_leads.all()  # Utiliza el related_name aquí
+        client_deals = client.client_deals.all()  # Utiliza el related_name aquí
         # Agregar los leads al contexto
-        context['client_leads'] = client_leads
+        context['client_deals'] = client_deals
 
         return context
