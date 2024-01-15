@@ -240,10 +240,10 @@ class LeadCreateView(LoginRequiredMixin, FormView, AgentRequiredMixin, AgentCont
         form.instance.organization = agent.organization
         form.instance.created_by = agent.user
         form.instance.last_modified_by = agent.user
+        validation_error_handled = False
 
         try:
             lead = form.save(commit=False)
-            validation_error_handled = False
             # end_date_time no puede ser menor a start_date_time
             if lead.end_date_time and lead.start_date_time and lead.end_date_time < lead.start_date_time:
                 raise ValidationError(
@@ -261,12 +261,25 @@ class LeadCreateView(LoginRequiredMixin, FormView, AgentRequiredMixin, AgentCont
             country = form.cleaned_data.get('country')
             assigned_to = form.cleaned_data.get('assigned_to')
             currency = form.cleaned_data.get('currency')
+            website = form.cleaned_data.get('website')
             
             with transaction.atomic():
                 # Verificar si ya existe un Contact con el mismo primary_email
                 contact, created = Contact.objects.get_or_create(
                     primary_email=new_email,
-                    defaults={'first_name': first_name, 'last_name': last_name, 'title': title, 'phone': phone, 'mobile_phone': mobile_phone, 'company_name': company_name, 'country': country}
+                    defaults={
+                        'first_name': first_name, 
+                        'last_name': last_name, 
+                        'title': title, 
+                        'phone': phone, 
+                        'mobile_phone': mobile_phone, 
+                        'company_name': company_name, 
+                        'website': website, 
+                        'country': country,  
+                        'created_by': agent.user,
+                        'last_modified_by': agent.user,
+                        'organization': agent.organization,
+                    }
                 )
 
                 if not created:
@@ -277,6 +290,7 @@ class LeadCreateView(LoginRequiredMixin, FormView, AgentRequiredMixin, AgentCont
                     contact.phone = phone
                     contact.mobile_phone = mobile_phone
                     contact.company_name = company_name
+                    contact.website = website
                     contact.country = country
                     contact.save()
 
@@ -289,7 +303,7 @@ class LeadCreateView(LoginRequiredMixin, FormView, AgentRequiredMixin, AgentCont
                         related_lead.mobile_phone = mobile_phone
                         related_lead.company_name = company_name
                         related_lead.country = country
-                        # ... actualizar otros campos aquí ...
+                        related_lead.website = website
                         related_lead.save()
 
                     # Actualizar el Client asociado, si existe
@@ -301,6 +315,7 @@ class LeadCreateView(LoginRequiredMixin, FormView, AgentRequiredMixin, AgentCont
                         client.phone = phone
                         client.mobile_phone = mobile_phone
                         client.company_name = company_name
+                        client.website = website
                         client.country = country
                         client.save()
 
@@ -312,6 +327,7 @@ class LeadCreateView(LoginRequiredMixin, FormView, AgentRequiredMixin, AgentCont
                             deal.phone = phone
                             deal.mobile_phone = mobile_phone
                             deal.company_name = company_name
+                            deal.website = website
                             deal.country = country
                             deal.last_modified_by = agent.user
                             deal.save()
@@ -331,6 +347,7 @@ class LeadCreateView(LoginRequiredMixin, FormView, AgentRequiredMixin, AgentCont
                     phone = phone,
                     mobile_phone = mobile_phone,
                     company_name = company_name,
+                    website = website,
                     country = country,
                     created_by = agent.user,
                     last_modified_by = agent.user,
@@ -461,11 +478,22 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
                     mobile_phone = form.cleaned_data.get('mobile_phone')
                     company_name = form.cleaned_data.get('company_name')
                     country = form.cleaned_data.get('country')
+                    website = form.cleaned_data.get('website')
 
                     contact = lead.contact
                     if contact:
                         fields_to_update = []
-                        for field, value in [('primary_email', new_email), ('first_name', first_name), ('last_name', last_name), ('title', title), ('phone', phone), ('mobile_phone', mobile_phone), ('company_name', company_name), ('country', country)]:
+                        for field, value in [
+                                                ('primary_email', new_email), 
+                                                ('first_name', first_name), 
+                                                ('last_name', last_name), 
+                                                ('title', title), 
+                                                ('phone', phone), 
+                                                ('mobile_phone', mobile_phone), 
+                                                ('company_name', company_name), 
+                                                ('website', website), 
+                                                ('country', country)
+                                            ]:
                             if getattr(contact, field) != value:
                                 setattr(contact, field, value)
                                 fields_to_update.append(field)
@@ -484,6 +512,7 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
                                 related_lead.mobile_phone = mobile_phone
                                 related_lead.company_name = company_name
                                 related_lead.country = country
+                                related_lead.website = website
                                 related_lead.save()
 
                         # Buscar y actualizar el Client correspondiente

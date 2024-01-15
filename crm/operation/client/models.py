@@ -27,6 +27,7 @@ class Client(models.Model):
     phone = models.CharField(max_length=20, blank=True)
     mobile_phone = models.CharField(max_length=20, blank=True)
     company_name = models.CharField(max_length=255)
+    website = models.URLField(blank=True)
     country = models.ForeignKey(
             Country, on_delete=models.SET_NULL, blank=False, null=True, limit_choices_to={'is_selected': True})
     created_by = models.ForeignKey(User, related_name='created_client', on_delete=models.SET(get_sentinel_user))

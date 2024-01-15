@@ -165,7 +165,17 @@ class DealUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
                 client = deal.client
                 if client:
                     fields_to_update = []
-                    for field, value in [('primary_email', new_email), ('first_name', first_name), ('last_name', last_name), ('title', title), ('phone', phone), ('mobile_phone', mobile_phone), ('company_name', company_name), ('country', country)]:
+                    for field, value in [
+                                            ('primary_email', new_email), 
+                                            ('first_name', first_name), 
+                                            ('last_name', last_name), 
+                                            ('title', title), 
+                                            ('phone', phone), 
+                                            ('mobile_phone', mobile_phone), 
+                                            ('company_name', company_name), 
+                                            ('website', website), 
+                                            ('country', country)
+                                        ]:
                         if getattr(client, field) != value:
                             setattr(client, field, value)
                             fields_to_update.append(field)
@@ -183,8 +193,8 @@ class DealUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
                             related_deal.phone = phone
                             related_deal.mobile_phone = mobile_phone
                             related_deal.company_name = company_name
+                            related_deal.website = website
                             related_deal.country = country
-                            related_deal.websitecountry = website
                             related_deal.save()
 
                     # Buscar y actualizar el Contact correspondiente
@@ -196,8 +206,7 @@ class DealUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
 
                         # Actualizar todos los Leads asociados con este Client
                         for lead in contact.contact_leads.all():
-                            for field in fields_to_update:
-                                setattr(lead, field, getattr(contact, field))
+                            setattr(lead, field, getattr(contact, field))
                             lead.save()
 
                     except Contact.DoesNotExist:
