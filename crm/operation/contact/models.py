@@ -26,7 +26,7 @@ class Contact(models.Model):
     primary_email = models.EmailField(unique=True, blank=False)
     phone = models.CharField(max_length=20, blank=True)
     mobile_phone = models.CharField(max_length=20, blank=True)
-    company_name = models.CharField(max_length=255)
+    company_name = models.CharField(max_length=255, blank=True)
     website = models.URLField(blank=True)
     country = models.ForeignKey(
             Country, on_delete=models.SET_NULL, blank=False, null=True, limit_choices_to={'is_selected': True})

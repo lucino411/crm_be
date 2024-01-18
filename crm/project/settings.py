@@ -76,7 +76,7 @@ WSGI_APPLICATION = 'project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-      		'NAME': 'be',
+      		'NAME': 'be_clone',
       		'USER': 'postgres',
       		'PASSWORD': 'postgres',
       		'HOST': 'localhost',

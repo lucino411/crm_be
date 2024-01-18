@@ -34,8 +34,9 @@ def convert_lead_to_deal(request, organization_name, pk):
 
         if contact:
             # Crear un nuevo Client con los mismos datos que Contact
+            print('heeeeeeeeeeeeeeeeeeeere')
+            print(contact.country.code)
             client, created = Client.objects.get_or_create(
-            # client = Client.objects.create(
                 primary_email=contact.primary_email,
                 defaults={
                     'first_name': contact.first_name,
@@ -54,20 +55,24 @@ def convert_lead_to_deal(request, organization_name, pk):
                 }           
             )
 
+            # Para asignar el objeto Country por el campo code de Country
+            country_code = contact.country.code
+            country_instance = Country.objects.get(code=country_code)
+            
             if created:
-                client.first_name=contact.first_name,
-                client.last_name=contact.last_name,
-                client.title=contact.title,
-                client.primary_email=contact.primary_email,
-                client.phone=contact.phone,
-                client.mobile_phone=contact.mobile_phone,
-                client.company_name=contact.company_name,
-                client.country=contact.country,
-                client.created_by=contact.created_by,
-                client.last_modified_by=contact.last_modified_by,
-                client.created_time=contact.created_time,
-                client.modified_time=contact.modified_time,
-                client.organization=contact.organization,
+                client.first_name=contact.first_name
+                client.last_name=contact.last_name
+                client.title=contact.title
+                client.primary_email=contact.primary_email
+                client.phone=contact.phone
+                client.mobile_phone=contact.mobile_phone
+                client.company_name=contact.company_name
+                client.country=country_instance
+                client.created_by=contact.created_by
+                client.last_modified_by=contact.last_modified_by
+                client.created_time=contact.created_time
+                client.modified_time=contact.modified_time
+                client.organization=contact.organization
                 client.erased=contact.erased
                 client.save()
 
@@ -258,10 +263,14 @@ class LeadCreateView(LoginRequiredMixin, FormView, AgentRequiredMixin, AgentCont
             phone = form.cleaned_data.get('phone')
             mobile_phone = form.cleaned_data.get('mobile_phone')
             company_name = form.cleaned_data.get('company_name')
+            website = form.cleaned_data.get('website')
+            industry = form.cleaned_data.get('industry')
             country = form.cleaned_data.get('country')
             assigned_to = form.cleaned_data.get('assigned_to')
             currency = form.cleaned_data.get('currency')
-            website = form.cleaned_data.get('website')
+            description = form.cleaned_data.get('description')
+            start_date_time = form.cleaned_data.get('start_date_time')
+            end_date_time = form.cleaned_data.get('end_date_time')
             
             with transaction.atomic():
                 # Verificar si ya existe un Contact con el mismo primary_email
@@ -338,8 +347,8 @@ class LeadCreateView(LoginRequiredMixin, FormView, AgentRequiredMixin, AgentCont
 
                 # Crear el nuevo Lead
                 lead = Lead.objects.create(
-                    lead_name=lead_name,
                     contact=contact,
+                    lead_name=lead_name,
                     primary_email=new_email,
                     first_name=first_name,
                     last_name=last_name,
@@ -348,11 +357,15 @@ class LeadCreateView(LoginRequiredMixin, FormView, AgentRequiredMixin, AgentCont
                     mobile_phone = mobile_phone,
                     company_name = company_name,
                     website = website,
+                    industry = industry,
                     country = country,
                     created_by = agent.user,
                     last_modified_by = agent.user,
                     assigned_to = assigned_to,
                     currency = currency,
+                    description = description,
+                    start_date_time = start_date_time,
+                    end_date_time = end_date_time,
                     organization = agent.organization,
                 )
 
@@ -479,6 +492,11 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
                     company_name = form.cleaned_data.get('company_name')
                     country = form.cleaned_data.get('country')
                     website = form.cleaned_data.get('website')
+                    assigned_to = form.cleaned_data.get('assigned_to')
+                    currency = form.cleaned_data.get('currency')
+                    description = form.cleaned_data.get('description')
+                    start_date_time = form.cleaned_data.get('start_date_time')
+                    end_date_time = form.cleaned_data.get('end_date_time')
 
                     contact = lead.contact
                     if contact:
@@ -491,7 +509,6 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
                                                 ('phone', phone), 
                                                 ('mobile_phone', mobile_phone), 
                                                 ('company_name', company_name), 
-                                                ('website', website), 
                                                 ('country', country)
                                             ]:
                             if getattr(contact, field) != value:
@@ -510,9 +527,14 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
                                 related_lead.title = title
                                 related_lead.phone = phone
                                 related_lead.mobile_phone = mobile_phone
+
                                 related_lead.company_name = company_name
-                                related_lead.country = country
                                 related_lead.website = website
+
+                                related_lead.country = country
+                                related_lead.start_date_time = start_date_time
+                                related_lead.end_date_time = end_date_time
+
                                 related_lead.save()
 
                         # Buscar y actualizar el Client correspondiente

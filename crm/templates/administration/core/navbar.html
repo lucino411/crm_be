@@ -19,7 +19,6 @@
             {% endif %}
 
 
-
             {% if request.user.is_authenticated and request.user.agent %}
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">                    
                     <li class="nav-item dropdown">
@@ -89,10 +88,14 @@
                                         <a class="dropdown-item" aria-current="page"
                                             href="{% url 'product:list' organization_name=organization_name %}">Products</a>
                                     </li>
-                                                                        <li>
-                                                                            <a class="dropdown-item" aria-current="page"
-                                                                                href="{% url 'product:category-list' organization_name=organization_name %}">Product Categories</a>
-                                                                        </li>
+                                    <li>
+                                        <a class="dropdown-item" aria-current="page"
+                                            href="{% url 'product:category-list' organization_name=organization_name %}">Product Categories</a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" aria-current="page"
+                                            href="{% url 'currency:list' organization_name=organization_name %}">Currency</a>
+                                    </li>
                                     <li><a class="dropdown-item" href="#">Action</a></li>
                                     <li><a class="dropdown-item" href="#">Another action</a></li>
                                     <li>

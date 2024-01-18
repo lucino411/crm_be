@@ -42,8 +42,8 @@ class Lead(models.Model):
     primary_email = models.EmailField(blank=False)
     phone = models.CharField(max_length=20, blank=True)
     mobile_phone = models.CharField(max_length=20, blank=True)
-    company_name = models.CharField(max_length=255)
 
+    company_name = models.CharField(max_length=255)
     INDUSTRY_CHOICES = [
         ('public', 'Public'),
         ('private', 'Private'),
@@ -51,6 +51,7 @@ class Lead(models.Model):
     ]
     industry = models.CharField(max_length=20, choices=INDUSTRY_CHOICES)
     website = models.URLField(blank=True)
+    
     country = models.ForeignKey(
         Country, on_delete=models.SET_NULL, blank=False, null=True, limit_choices_to={'is_selected': True})
     currency = models.ForeignKey(Currency, on_delete=models.SET_NULL, null=True)
