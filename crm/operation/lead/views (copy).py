@@ -582,7 +582,7 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
 
              # Logica para establecer el stage is_closed"
             if lead.stage == 'close_lost':
-                lead.is_closed = True 
+                lead.is_closed = True                        
 
             # Guardar los formularios de LeadProduct
             formset = LeadProductFormset(
@@ -615,7 +615,25 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
                 assigned_to = form.cleaned_data.get('assigned_to')
                 last_modified_by = agent.user
                 start_date_time = form.cleaned_data.get('start_date_time')
-                end_date_time = form.cleaned_data.get('end_date_time')
+                end_date_time = form.cleaned_data.get('end_date_time')  
+
+                # Actualizar otros Leads relacionados con Company (companyp_email)
+                related_company_leads = Lead.objects.filter(company_email=new_company_email).exclude(pk=lead.pk) 
+                for company_lead in related_company_leads:
+                    lead_fields_to_update = []
+                    for field, value in [                       
+                        ('company_name', company_name),
+                        ('company_email', new_company_email),
+                        ('company_phone', company_phone),
+                        ('website', website),
+                        ('industry', industry),                     
+                    ]:
+                        if getattr(company_lead, field) != value:
+                            setattr(company_lead, field, value)
+                            lead_fields_to_update.append(field)
+
+                    if lead_fields_to_update:
+                        company_lead.save(update_fields=lead_fields_to_update)   
 
                 # Actualizar campos en el Lead
                 lead_fields_to_update = [
@@ -644,11 +662,9 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
                 ]
 
                 if existing_company:
-                    print('insiddddddddddddddddddddddddddddd3')
                     # Si la Company existe, asignar esta Company al Lead actual
                     lead.company = existing_company                  
                 else:
-                    print('elseeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
                     # Si no existe, crear una nueva Company
                     new_company=Company.objects.create(
                         company_email=new_company_email,
@@ -662,25 +678,28 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
                         modified_time=current_time,
                         organization=agent.organization,
                     )
-                    lead.company = new_company
+                    lead.company = new_company               
                 
-                  # Asegurarse de incluir 'company' en la lista de campos a actualizar
-                    if 'company' not in lead_fields_to_update:
-                        lead_fields_to_update.append('company')
-
-                # Actualizar Contact si es necesario (ejemplo, si tienes un nuevo_contacto para asociar)
-                # new_contact sería el objeto Contact actualizado o recién creado
-                if new_contact:
-                    lead.contact = new_contact
-                    if 'contact' not in lead_fields_to_update:
-                        lead_fields_to_update.append('contact')
-
-                lead.save(update_fields=lead_fields_to_update)
-
-                # Buscar todas las Company que no tienen Leads asociados
+                # Buscar para eliminar todas las Company que no tienen Leads asociados
                 companies_without_leads = Company.objects.annotate(num_leads=Count('leads_company')).filter(num_leads=0)
-                # Eliminar estas Company
-                companies_without_leads.delete()
+                companies_without_leads.delete()       
+
+                # Incluir 'company' en la lista de campos a actualizar
+                if 'company' not in lead_fields_to_update:
+                    lead_fields_to_update.append('company')    
+                    
+                if new_contact:
+                    # Si el Contact existe, asignar esta Contact al Lead actual
+                    lead.contact = new_contact                       
+                else:
+                    pass
+
+                if 'contact' not in lead_fields_to_update:
+                    lead_fields_to_update.append('contact')                
+                        
+                # Actualiza el Lead    
+                if lead_fields_to_update:
+                    lead.save(update_fields=lead_fields_to_update)
 
                 # Actualizar Compañías relacionadas (company_email)
                 related_companies = Company.objects.filter(company_email=new_company_email).exclude(pk=lead.pk)            
@@ -702,27 +721,10 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
                     if company_fields_to_update:
                         company.save(update_fields=company_fields_to_update)   
 
-                        # Actualizar otros Leads relacionados con Company (companyp_email)
-                        related_company_leads = Lead.objects.filter(company_email=new_company_email).exclude(pk=lead.pk) 
-                        for lead in related_company_leads:
-                            lead_fields_to_update = []
-                            for field, value in [                       
-                                ('company_name', company_name),
-                                ('company_email', new_company_email),
-                                ('company_phone', company_phone),
-                                ('website', website),
-                                ('industry', industry),                     
-                            ]:
-                                if getattr(lead, field) != value:
-                                    setattr(lead, field, value)
-                                    lead_fields_to_update.append(field)
-
-                            if lead_fields_to_update:
-                                lead.save(update_fields=lead_fields_to_update)
-
                 # Actualizar el company_id del Contact asociado con este Lead específico
                 contact = lead.contact 
-                if contact:
+                if contact and existing_company:
+                    print('insideeeeeeeeeeeeeeeeeeeeeeeeeee contact: %s' % contact)
                     contact.company = lead.company
                     contact.save(update_fields=['company'])
 
@@ -792,7 +794,7 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
                             lead_fields_to_update.append(field)
 
                     if lead_fields_to_update:
-                        lead.save(update_fields=lead_fields_to_update)                  
+                        lead.save(update_fields=lead_fields_to_update)        
 
             messages.success(self.request, "Lead actualizado")
             url = reverse('lead:update', kwargs={
@@ -809,7 +811,7 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
             form.add_error(None, e)
             return self.form_invalid(form)
         
-
+         
     def form_invalid(self, form):  
         # print(form.errors)
         lead = self.get_object()

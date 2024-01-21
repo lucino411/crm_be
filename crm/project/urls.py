@@ -12,6 +12,7 @@ urlpatterns = [
     path('<str:organization_name>/lead/', include('operation.lead.urls')),
     path('<str:organization_name>/deal/', include('operation.deal.urls')),
     path('<str:organization_name>/contact/', include('operation.contact.urls')),
+    # path('<str:organization_name>/company/', include('operation.company.urls')),
     path('<str:organization_name>/client/', include('operation.client.urls')),
     path('<str:organization_name>/product/', include('configuration.product.urls')),
 ]

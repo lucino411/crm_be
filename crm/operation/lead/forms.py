@@ -17,6 +17,19 @@ class LeadForm(forms.ModelForm):
         max_length=100, 
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Lead Name'})
     )
+    lead_source = forms.ChoiceField(
+        choices=Lead.LEAD_SOURCE_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label="Lead Source",
+        required=False
+    )
+    primary_email = forms.EmailField(
+        label="Email", 
+        widget=forms.EmailInput(attrs={'id': "addLeadUnregisterEmail", 'class': 'form-control', 'placeholder': 'Email'}),
+        error_messages={
+            'unique': 'Este email ya está en uso. Por favor, proporciona un email diferente.',
+            'invalid': 'Por favor, introduce un email válido.'
+    })
     first_name = forms.CharField(
         label="First Name", 
         max_length=100, 
@@ -28,46 +41,10 @@ class LeadForm(forms.ModelForm):
         max_length=100, 
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'})
     )
-    primary_email = forms.EmailField(
-        label="Email", 
-        widget=forms.EmailInput(attrs={'id': "addLeadUnregisterEmail", 'class': 'form-control', 'placeholder': 'Email'}),
-        error_messages={
-            'unique': 'Este email ya está en uso. Por favor, proporciona un email diferente.',
-            'invalid': 'Por favor, introduce un email válido.'
-    })
-    country = forms.ModelChoiceField(
-        queryset=Country.objects.all(), 
-        widget=forms.Select(
-        attrs={'class': 'form-select'})
-    )
-    assigned_to = forms.ModelChoiceField(
-        queryset=User.objects.all(), 
-        empty_label=None, 
-        widget=forms.Select(attrs={'class': 'form-select'})
-    )
-    currency = forms.ModelChoiceField(
-        queryset=Currency.objects.all(), 
-        empty_label=None, 
-        widget=forms.Select(attrs={'class': 'form-select'})
-    )
-    start_date_time = forms.DateTimeField(
-        widget=forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'})
-    )
-    end_date_time = forms.DateTimeField(
-        required=False, 
-        widget=forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'})
-    )    
-    # Nuevos campos agregados
-    company_name = forms.CharField(
-        label="Company Name",
-        max_length=255,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Company Name'}),
-        required=False
-    )
-    industry = forms.ChoiceField(
-        choices=Lead.INDUSTRY_CHOICES,
+    title = forms.ChoiceField(
+        choices=Lead.TITLE_CHOICES,
         widget=forms.Select(attrs={'class': 'form-select'}),
-        label="Industry",
+        label="Title",
         required=False
     )
     phone = forms.CharField(
@@ -82,10 +59,24 @@ class LeadForm(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Mobile Phone Number'}),
         required=False
     )
-    title = forms.ChoiceField(
-        choices=Lead.TITLE_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-select'}),
-        label="Title",
+    # Nuevos campos agregados
+    company_name = forms.CharField(
+        label="Company Name",
+        max_length=255,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Company Name'}),
+        required=False
+    )
+    company_email = forms.EmailField(
+        label="Company Email", 
+        widget=forms.EmailInput(attrs={'id': "addLeadCompanyEmail", 'class': 'form-control', 'placeholder': 'Company Email'}),
+        error_messages={
+            'unique': 'Este email ya está en uso. Por favor, proporciona un email diferente.',
+            'invalid': 'Por favor, introduce un email válido.'
+    })
+    company_phone = forms.CharField(
+        label="Company Phone",
+        max_length=20,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Company Phone'}),
         required=False
     )
     website = forms.URLField(
@@ -105,26 +96,47 @@ class LeadForm(forms.ModelForm):
             elif not website.startswith('https://'):
                 # Añadir https:// si no comienza con http:// o https://
                 website = 'https://' + website
-        return website
-    
-    lead_source = forms.ChoiceField(
-        choices=Lead.LEAD_SOURCE_CHOICES,
+        return website    
+    industry = forms.ChoiceField(
+        choices=Lead.INDUSTRY_CHOICES,
         widget=forms.Select(attrs={'class': 'form-select'}),
-        label="Lead Source",
+        label="Industry",
         required=False
     )
+    country = forms.ModelChoiceField(
+        queryset=Country.objects.all(), 
+        widget=forms.Select(
+        attrs={'class': 'form-select'})
+    )
+    currency = forms.ModelChoiceField(
+        queryset=Currency.objects.all(), 
+        empty_label=None, 
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )    
     description = forms.CharField(
         label="Description",
         widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Description', 'rows': 3}),
         required=False,
         max_length=280  # Asumiendo que es la misma longitud que Twitter
     )  
+    assigned_to = forms.ModelChoiceField(
+        queryset=User.objects.all(), 
+        empty_label=None, 
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    start_date_time = forms.DateTimeField(
+        widget=forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'})
+    )
+    end_date_time = forms.DateTimeField(
+        required=False, 
+        widget=forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'})
+    )   
 
     class Meta:
         model = Lead        
         fields = [
-                    'lead_name', 'first_name', 'last_name', 'primary_email', 'country', 'assigned_to', 'currency', 'start_date_time', 'end_date_time', 
-                    'company_name', 'industry', 'phone', 'mobile_phone', 'title', 'website', 'lead_source', 'description'
+                    'lead_name', 'lead_source', 'primary_email', 'first_name', 'last_name', 'title', 'phone', 'mobile_phone', 'company_name', 'company_email', 
+                    'company_phone', 'website', 'industry', 'country', 'currency', 'description', 'assigned_to', 'start_date_time', 'end_date_time'
                 ]
         
          
@@ -134,6 +146,19 @@ class LeadUpdateForm(forms.ModelForm):
         max_length=100, 
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Lead Name'})
     )
+    lead_source = forms.ChoiceField(
+        choices=Lead.LEAD_SOURCE_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label="Lead Source",
+        required=False
+    )
+    primary_email = forms.EmailField(
+        label="Email", 
+        widget=forms.EmailInput(attrs={'id': "addLeadUnregisterEmail", 'class': 'form-control', 'placeholder': 'Email'}),
+        error_messages={
+            'unique': 'Este email ya está en uso. Por favor, proporciona un email diferente.',
+            'invalid': 'Por favor, introduce un email válido.'
+    })
     first_name = forms.CharField(
         label="First Name", 
         max_length=100, 
@@ -145,51 +170,10 @@ class LeadUpdateForm(forms.ModelForm):
         max_length=100, 
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'})
     )
-    primary_email = forms.EmailField(
-        label="Email", 
-        widget=forms.EmailInput(attrs={'id': "addLeadUnregisterEmail", 'class': 'form-control', 'placeholder': 'Email'}),
-        error_messages={
-            'unique': 'Este email ya está en uso. Por favor, proporciona un email diferente.',
-            'invalid': 'Por favor, introduce un email válido.'
-    })
-    country = forms.ModelChoiceField(
-        queryset=Country.objects.all(), 
-        widget=forms.Select(
-        attrs={'class': 'form-select'})
-    )
-    assigned_to = forms.ModelChoiceField(
-        queryset=User.objects.all(), 
-        empty_label=None, 
-        widget=forms.Select(attrs={'class': 'form-select'})
-    )
-    currency = forms.ModelChoiceField(
-        queryset=Currency.objects.all(), 
-        empty_label=None, 
-        widget=forms.Select(attrs={'class': 'form-select'})
-    )
-    start_date_time = forms.DateTimeField(
-        widget=forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'})
-    )
-    end_date_time = forms.DateTimeField(
-        required=False, 
-        widget=forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'})
-    )
-    extended_end_date_time = forms.DateTimeField(
-        required=False, 
-        widget=forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'})
-    )
-    
-    # Nuevos campos agregados
-    company_name = forms.CharField(
-        label="Company Name",
-        max_length=255,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Company Name'}),
-        required=False
-    )
-    industry = forms.ChoiceField(
-        choices=Lead.INDUSTRY_CHOICES,
+    title = forms.ChoiceField(
+        choices=Lead.TITLE_CHOICES,
         widget=forms.Select(attrs={'class': 'form-select'}),
-        label="Industry",
+        label="Title",
         required=False
     )
     phone = forms.CharField(
@@ -204,10 +188,24 @@ class LeadUpdateForm(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Mobile Phone Number'}),
         required=False
     )
-    title = forms.ChoiceField(
-        choices=Lead.TITLE_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-select'}),
-        label="Title",
+    # Nuevos campos agregados
+    company_name = forms.CharField(
+        label="Company Name",
+        max_length=255,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Company Name'}),
+        required=False
+    )
+    company_email = forms.EmailField(
+        label="Company Email", 
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Company Email'}),
+        error_messages={
+            'unique': 'Este email ya está en uso. Por favor, proporciona un email diferente.',
+            'invalid': 'Por favor, introduce un email válido.'
+    })
+    company_phone = forms.CharField(
+        label="Company Phone",
+        max_length=20,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Company Phone'}),
         required=False
     )
     website = forms.URLField(
@@ -227,19 +225,44 @@ class LeadUpdateForm(forms.ModelForm):
             elif not website.startswith('https://'):
                 # Añadir https:// si no comienza con http:// o https://
                 website = 'https://' + website
-        return website
-
-    lead_source = forms.ChoiceField(
-        choices=Lead.LEAD_SOURCE_CHOICES,
+        return website    
+    industry = forms.ChoiceField(
+        choices=Lead.INDUSTRY_CHOICES,
         widget=forms.Select(attrs={'class': 'form-select'}),
-        label="Lead Source",
+        label="Industry",
         required=False
     )
+    country = forms.ModelChoiceField(
+        queryset=Country.objects.all(), 
+        widget=forms.Select(
+        attrs={'class': 'form-select'})
+    )
+    currency = forms.ModelChoiceField(
+        queryset=Currency.objects.all(), 
+        empty_label=None, 
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )    
     description = forms.CharField(
         label="Description",
         widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Description', 'rows': 3}),
         required=False,
         max_length=280  # Asumiendo que es la misma longitud que Twitter
+    )  
+    assigned_to = forms.ModelChoiceField(
+        queryset=User.objects.all(), 
+        empty_label=None, 
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+    start_date_time = forms.DateTimeField(
+        widget=forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'})
+    )
+    end_date_time = forms.DateTimeField(
+        required=False, 
+        widget=forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'})
+    )  
+    extended_end_date_time = forms.DateTimeField(
+        required=False, 
+        widget=forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'})
     )
     stage = forms.ChoiceField(
         choices=Lead.STAGE_CHOICES, 
@@ -249,8 +272,8 @@ class LeadUpdateForm(forms.ModelForm):
     class Meta:
         model = Lead
         fields = [
-                    'lead_name', 'first_name', 'last_name', 'primary_email', 'country', 'assigned_to', 'currency', 'start_date_time', 'end_date_time', 
-                    'extended_end_date_time', 'company_name', 'industry', 'phone', 'mobile_phone', 'title', 'website', 'lead_source', 'description', 'stage'
+                    'lead_name', 'lead_source', 'primary_email', 'first_name', 'last_name', 'title', 'phone', 'mobile_phone', 'company_name', 'company_email', 
+                    'company_phone', 'website', 'industry', 'country', 'currency', 'description', 'assigned_to', 'start_date_time', 'end_date_time', 'extended_end_date_time', 'stage'
                 ]
         
 

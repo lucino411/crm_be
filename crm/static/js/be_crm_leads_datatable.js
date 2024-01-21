@@ -8,7 +8,7 @@ const dataTableOptions = {
         { orderable: false, targets: [0, 1, 2, 5, 8] },
         { searchable: false, targets: [0, 1] },
     ],
-    pageLength: 5,
+    pageLength: 15,
     destroy: true,
     // dom: 'Bfrtip',
     dom: 'QBfrtip',

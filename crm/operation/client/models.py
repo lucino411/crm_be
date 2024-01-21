@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 
 from configuration.country.models import Country
 from administration.organization.models import Organization
+from operation.company.models import Company
 
 
 def get_sentinel_user():
@@ -26,8 +27,7 @@ class Client(models.Model):
     primary_email = models.EmailField(unique=True, blank=False)
     phone = models.CharField(max_length=20, blank=True)
     mobile_phone = models.CharField(max_length=20, blank=True)
-    company_name = models.CharField(max_length=255)
-    website = models.URLField(blank=True)
+    company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, related_name='clients_company')
     country = models.ForeignKey(
             Country, on_delete=models.SET_NULL, blank=False, null=True, limit_choices_to={'is_selected': True})
     created_by = models.ForeignKey(User, related_name='created_client', on_delete=models.SET(get_sentinel_user))

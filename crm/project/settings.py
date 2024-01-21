@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'operation.deal',
     'operation.contact',
     'operation.client',
+    'operation.company',
 ]
 
 MIDDLEWARE = [

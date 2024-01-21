@@ -7,6 +7,7 @@ from configuration.country.models import Country
 from administration.organization.models import Organization
 from configuration.currency.models import Currency
 from configuration.product.models import Product
+from operation.company.models import Company
 from operation.contact.models import Contact
 
 
@@ -20,13 +21,7 @@ def get_sentinel_user():
 
 class Lead(models.Model):
     lead_name = models.CharField(max_length=100, unique=True, blank=False, null=True)
-    contact = models.ForeignKey(
-        Contact, 
-        on_delete=models.SET_NULL, 
-        null=True, 
-        blank=True,
-        related_name='contact_leads'  # Permite acceder a los leads desde Contact
-    )    
+    contact = models.ForeignKey(Contact, on_delete=models.SET_NULL, null=True, blank=True, related_name='contact_leads')    
     first_name = models.CharField(max_length=100, blank=False)
     last_name = models.CharField(max_length=100, blank=False)
 
@@ -43,14 +38,18 @@ class Lead(models.Model):
     phone = models.CharField(max_length=20, blank=True)
     mobile_phone = models.CharField(max_length=20, blank=True)
 
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='leads_company', null=True, blank=True)
     company_name = models.CharField(max_length=255)
+    company_email = models.EmailField(blank=False)
+    company_phone = models.CharField(max_length=20, blank=True)
+    website = models.URLField(blank=True)
+
     INDUSTRY_CHOICES = [
         ('public', 'Public'),
         ('private', 'Private'),
         ('non_profit', 'Non-Profit'),
     ]
     industry = models.CharField(max_length=20, choices=INDUSTRY_CHOICES)
-    website = models.URLField(blank=True)
     
     country = models.ForeignKey(
         Country, on_delete=models.SET_NULL, blank=False, null=True, limit_choices_to={'is_selected': True})
@@ -91,10 +90,7 @@ class Lead(models.Model):
         return self.lead_name  
     
     def save(self, *args, **kwargs):
-        print('heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeer')
-        print(self.website)
         if self.website:
-            print(self.website)
             if self.website.startswith('http://'):
                 # Reemplazar http:// por https://
                 self.website = 'https://' + self.website[len('http://'):]

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import HomeLeadView, LeadListView, LeadCreateView, LeadDetailView, LeadUpdateView, LeadDeleteView, LeadTaskCreateView, LeadHomeTaskView, LeadTaskListView, LeadTaskDetailView, LeadTaskDeleteView, LeadTaskUpdateView, convert_lead_to_deal
+from .views import HomeLeadView, LeadListView, LeadCreateView, LeadUpdateView, LeadDetailView, LeadDeleteView, LeadTaskCreateView, LeadHomeTaskView, LeadTaskListView, LeadTaskDetailView, LeadTaskDeleteView, LeadTaskUpdateView, convert_lead_to_deal
 
 app_name = 'lead'
 

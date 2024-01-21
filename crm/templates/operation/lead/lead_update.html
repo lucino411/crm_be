@@ -61,18 +61,26 @@
 
     <!-- Campo de Company Name -->
     <div class="row mb-3">
-        <div class="col-md-7">
+        <div class="col-md-8">
             <label for="company_name" class="form-label">Company Name</label>
             {{ form.company_name }}
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <label for="industry" class="form-label">Industry</label>
             {{ form.industry }}
+        </div> 
+    </div>
+
+    <!-- Campo de Company Email -->
+    <div class="row mb-3">
+        <div class="col-md-7">
+            <label for="company_email" class="form-label">Company Email</label>
+            {{ form.company_email }}
         </div>
-        <div class="col-md-2">
-            <label for="formGroupExampleInput2" class="form-label">Currency</label>
-            {{ form.currency }}
-        </div>   
+        <div class="col-md-3">
+            <label for="company_phone" class="form-label">Company Phone</label>
+            {{ form.company_phone }}
+        </div>
     </div>
 
     <!-- Campo de Website -->
@@ -91,6 +99,10 @@
             <label for="formGroupExampleInput2" class="form-label">Country</label>
             {{ form.country }}
         </div>
+        <div class="col-md-2">
+            <label for="formGroupExampleInput2" class="form-label">Currency</label>
+            {{ form.currency }}
+        </div>  
     </div>
 
 
