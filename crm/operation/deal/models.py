@@ -21,15 +21,7 @@ def get_sentinel_user():
 
 class Deal(models.Model):
     deal_name = models.CharField(max_length=100, unique=True, blank=False, null=True)
-     # Campo para relacionar el Client con el Deal
-    client = models.ForeignKey(
-        Client, 
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='client_deals'  # Permite acceder a los deals dede Client
-    )
-
+    client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True, blank=True, related_name='client_deals')
     first_name = models.CharField(max_length=100, blank=False)
     last_name = models.CharField(max_length=100, blank=False)
 

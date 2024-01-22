@@ -174,108 +174,142 @@
 
 ### TEmporal
 
-
             with transaction.atomic():
                 new_email = form.cleaned_data.get('primary_email')
                 # Verificar si existe un Contact con el nuevo primary_email
-                new_contact = Contact.objects.filter(primary_email=new_email).first()
-                lead_name = form.cleaned_data.get('lead_name')
-                lead_source = form.cleaned_data.get('lead_source')
-                first_name = form.cleaned_data.get('first_name')
-                last_name = form.cleaned_data.get('last_name')
-                title = form.cleaned_data.get('title')
-                phone = form.cleaned_data.get('phone')
-                mobile_phone = form.cleaned_data.get('mobile_phone')
-                company_name = form.cleaned_data.get('company_name')
-                new_company_email = form.cleaned_data.get('company_email')
-                # Verificar si existe una Company con el nuevo company_email
-                existing_company = Company.objects.filter(company_email=new_company_email).first()
-                company_phone = form.cleaned_data.get('company_phone')
-                website = form.cleaned_data.get('website')
-                industry = form.cleaned_data.get('industry')
+                existing_contact = Contact.objects.filter(primary_email=new_email).first()
 
 
-                # Actualizar campos en el Lead
-                lead_fields_to_update = [
-                    'mobile_phone', 
-                    'company_name',
-                    'company_email',
-                    'company_phone', 
-                    'website', 
-                    'industry',
-                    # otros campos          
-                ]
+                # Captura la antigua Company asociada al Lead, antes de cualquier cambio
+                old_contact = lead.contact
 
-                if existing_company:
-                    # Si la Company existe, asignar esta Company al Lead actual
-                    lead.company = existing_company                  
+                # Si existe Contact, relacionamos Contact con el Lead, sino creamos Contact y lo relacionamos con el Lead
+                if existing_contact:
+                    # Si Contact existe, asignar este Contact al Lead actual
+                    lead.contact = existing_contact
                 else:
-                    # Si no existe, crear una nueva Company
-                    new_company=Company.objects.create(
-                        company_email=new_company_email,
-                        company_name=company_name,
-                        company_phone=company_phone,
-                        website=website,
-                        industry=industry,
+                    # Si no existe, crear un nuev Contact
+                    new_contact=Contact.objects.create(
+                        primary_email=new_email,
+                        first_name=first_name,
+                        last_name=last_name,
+                        title=title,
+                        phone=phone,
+                        mobile_phone=mobile_phone,
+                        country=country,                       
                         created_by=agent.user,
                         last_modified_by=last_modified_by,
                         created_time=current_time,                        
                         modified_time=current_time,
                         organization=agent.organization,
                     )
-                    lead.company = new_company
+                    # Asociar la nueva o existente Company con el nuevo Contact
+                    new_contact.company = lead.company
+                    new_contact.save(update_fields=['company'])
+
+                    lead.contact = new_contact
                 
-                  # Asegurarse de incluir 'company' en la lista de campos a actualizar
-                    if 'company' not in lead_fields_to_update:
-                        lead_fields_to_update.append('company')       
+                # Asegurarse de incluir 'contact' en la lista de campos a actualizar del lead
+                if 'contact' not in lead_fields_to_update:
+                    lead_fields_to_update.append('contact')
 
-                lead.save(update_fields=lead_fields_to_update)
+                lead.save(update_fields=lead_fields_to_update)   
+              
+                if existing_contact:
+                    # Actualizar Contacts relacionados (primary_email)
+                    related_contacts = Contact.objects.filter(primary_email=new_email).exclude(pk=lead.pk)
+                    for contact in related_contacts:
+                        contact_fields_to_update = []
+                        for field, value in [
+                            ('primary_email', new_email), 
+                            ('first_name', first_name), 
+                            ('last_name', last_name), 
+                            ('title', title), 
+                            ('phone', phone), 
+                            ('mobile_phone', mobile_phone), 
+                            ('country', country),
+                            ('last_modified_by', last_modified_by),
+                            ('modified_time', current_time),
+                        ]:                
+                            if getattr(contact, field) != value:
+                                setattr(contact, field, value)
+                                contact_fields_to_update.append(field)                  
 
-                # Buscar para eliminar todas las Company que no tienen Leads asociados
-                companies_without_leads = Company.objects.annotate(num_leads=Count('leads_company')).filter(num_leads=0)
-                companies_without_leads.delete()
+                        if contact_fields_to_update:
+                            contact.save(update_fields=contact_fields_to_update)          
 
-                # Actualizar Compañías relacionadas (company_email)
-                related_companies = Company.objects.filter(company_email=new_company_email).exclude(pk=lead.pk)            
-                for company in related_companies:
-                    company_fields_to_update = []
-                    for field, value in [
-                        ('company_name', company_name),
-                        ('company_email', new_company_email),
-                        ('company_phone', company_phone),
-                        ('website', website),
-                        ('industry', industry),
-                        ('last_modified_by', last_modified_by),
-                        ('modified_time', current_time),
-                    ]:
-                        if getattr(company, field) != value:
-                            setattr(company, field, value)
-                            company_fields_to_update.append(field)
+                            # Buscar y actualizar el Client correspondiente
+                            try:
+                                client = Client.objects.get(primary_email=new_email)
+                                for field in contact_fields_to_update:
+                                    if existing_company:
+                                        # Si la Company existe, asignar esta Company al Lead actual
+                                        field.company = existing_company
+                                        # Asegurarse de incluir 'company' en la lista de campos a actualizar
+                                        if 'company' not in contact_fields_to_update:
+                                            contact_fields_to_update.append('company')
+                                    setattr(client, field, getattr(contact, field))
+                                client.save()
 
-                    if company_fields_to_update:
-                        company.save(update_fields=company_fields_to_update)   
+                                # Actualizar todos los Deals asociados con este Client
+                                for deal in client.client_deals.all():
+                                    for field in contact_fields_to_update:
+                                        setattr(deal, field, getattr(client, field))
+                                    deal.save()
 
-                        # Actualizar otros Leads relacionados con Company (companyp_email)
-                        related_company_leads = Lead.objects.filter(company_email=new_company_email).exclude(pk=lead.pk) 
-                        for lead in related_company_leads:
-                            lead_fields_to_update = []
-                            for field, value in [                       
-                                ('company_name', company_name),
-                                ('company_email', new_company_email),
-                                ('company_phone', company_phone),
-                                ('website', website),
-                                ('industry', industry),                     
-                            ]:
-                                if getattr(lead, field) != value:
-                                    setattr(lead, field, value)
-                                    lead_fields_to_update.append(field)
+                            except Client.DoesNotExist:
+                                # No hay un Client con este primary_email, no se necesita hacer nada más
+                                pass        
 
-                            if lead_fields_to_update:
-                                lead.save(update_fields=lead_fields_to_update)
+                            # Actualizar otros Leads relacionados (primary_email)
+                            related_leads = Lead.objects.filter(primary_email=new_email).exclude(pk=lead.pk) 
+                            for lead in related_leads:
+                                lead_fields_to_update = []
+                                for field, value in [
+                                    ('primary_email', new_email),
+                                    ('first_name', first_name),
+                                    ('last_name', last_name),
+                                    ('title', title),
+                                    ('phone', phone),
+                                    ('mobile_phone', mobile_phone),                      
+                                    ('country', country),
+                                    ('currency', currency),
+                                    ('last_modified_by', last_modified_by),
+                                    ('modified_time', current_time),
+                                ]:
+                                    if getattr(lead, field) != value:
+                                        setattr(lead, field, value)
+                                        lead_fields_to_update.append(field)
 
-                # Actualizar el company_id del Contact asociado con este Lead específico
-                contact = lead.contact 
-                if contact and existing_company:
-                    print('insideeeeeeeeeeeeeeeeeeeeeeeeeee contact: %s' % contact)
-                    contact.company = lead.company
-                    contact.save(update_fields=['company'])
+                                if lead_fields_to_update:
+                                    lead.save(update_fields=lead_fields_to_update)
+
+                else: 
+                    # old_primary_email_leads = Lead.objects.filter(contact=old_contact).exclude(pk=lead.pk)   
+                    old_primary_email_leads = Lead.objects.filter(contact=old_contact)
+                    for lead in old_primary_email_leads:
+                        # Actualizar el company_id del Contact asociado con este Lead específico  
+                        lead_fields_to_update = []
+                        for field, value in [
+                            ('primary_email', new_email),
+                            ('first_name', first_name),
+                            ('last_name', last_name),
+                            ('title', title),
+                            ('phone', phone),
+                            ('mobile_phone', mobile_phone),                      
+                            ('country', country),
+                            ('currency', currency),
+                            ('last_modified_by', last_modified_by),
+                            ('modified_time', current_time),
+                        ]:
+                            if getattr(lead, field) != value:
+                                setattr(lead, field, value)
+                                lead_fields_to_update.append(field)
+
+                        if lead_fields_to_update:
+                            contact = lead.contact 
+                            if contact:
+                                contact.company = lead.company
+                                contact.save(update_fields=['company'])   
+                                
+                            lead.save(update_fields=lead_fields_to_update)

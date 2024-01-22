@@ -38,7 +38,7 @@ class Lead(models.Model):
     phone = models.CharField(max_length=20, blank=True)
     mobile_phone = models.CharField(max_length=20, blank=True)
 
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='leads_company', null=True, blank=True)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='company_leads', null=True, blank=True)
     company_name = models.CharField(max_length=255)
     company_email = models.EmailField(blank=False)
     company_phone = models.CharField(max_length=20, blank=True)
