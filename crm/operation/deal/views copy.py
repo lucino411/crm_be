@@ -168,6 +168,8 @@ class DealUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
                 new_email = form.cleaned_data.get('primary_email')
                 # Verificar si existe un Client con el nuevo primary_email
                 existing_client = Client.objects.filter(primary_email=new_email).first()
+                existing_contact = Contact.objects.filter(primary_email=new_email).first()
+
                 deal_name = form.cleaned_data.get('deal_name')
                 deal_source = form.cleaned_data.get('deal_source')
                 first_name = form.cleaned_data.get('first_name')
@@ -248,6 +250,7 @@ class DealUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
                 if 'company' not in deal_fields_to_update:
                     deal_fields_to_update.append('company')
 
+                # Si existe Client, relacionamos Client con el Deal, sino creamos Client y relacionamos el nuevo Client con el Deal
                 if existing_client:
                     # Si Client existe, asignar este Client al Deal actual
                     deal.client = existing_client
@@ -283,7 +286,7 @@ class DealUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
                 # Actualizar Companies y Deals relacionados (company_email)
                 if existing_company:
                     # Actualizamos los campos de la Company si company_email existe
-                    related_companies = Company.objects.filter(company_email=old_company.company_email)    
+                    related_companies = Company.objects.filter(company_email=new_company_email).exclude(pk=deal.pk)    
                     for company in related_companies:
                         company_fields_to_update = []
                         for field, value in [
@@ -303,10 +306,9 @@ class DealUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
                             company.save(update_fields=company_fields_to_update)   
 
                             # Actualizar otros Deals relacionados con Company si company_email existe
-                            related_company_deals = Deal.objects.filter(company_email=old_company.company_email) 
+                            related_company_deals = Deal.objects.filter(company_email=new_company_email).exclude(pk=deal.pk) 
                             for deal in related_company_deals:
-                                deal.company = deal.company
-                                deal_fields_to_update = ['company'] # Inicializamos en 'company'
+                                deal_fields_to_update = []
                                 for field, value in [                       
                                     ('company_email', new_company_email),
                                     ('company_name', company_name),
@@ -329,10 +331,9 @@ class DealUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
                                     deal.save(update_fields=deal_fields_to_update)
 
                             # Actualizar otros Leads relacionados con Company si company_email existe
-                            related_company_leads = Lead.objects.filter(company_email=old_company.company_email) 
+                            related_company_leads = Lead.objects.filter(company_email=new_company_email)
                             for lead in related_company_leads:
-                                lead.company = deal.company
-                                lead_fields_to_update = ['company'] # Inicializamos en 'company'
+                                lead_fields_to_update = []
                                 for field, value in [                       
                                     ('company_email', new_company_email),
                                     ('company_name', company_name),
@@ -354,10 +355,10 @@ class DealUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
 
                                     lead.save(update_fields=lead_fields_to_update)       
 
-                # Actualiza los otros Deals relacionados con la nueva Company si no existing_company
+                # Actualiza los otros Deals relacionados con la nueva Company
                 else: 
                     # Encuentra todos los Deals que tenían el antiguo company_email
-                    old_company_email_deals = Deal.objects.filter(company_email=old_company.company_email)
+                    old_company_email_deals = Deal.objects.filter(company=old_company)
 
                     for deal in old_company_email_deals:
                         deal.company = new_company
@@ -371,43 +372,18 @@ class DealUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
                             if getattr(deal, field) != value:
                                 setattr(deal, field, value)
                                 if field not in deal_fields_to_update:
-                                    deal_fields_to_update.append(field)                      
-
-                            deal.save(update_fields=deal_fields_to_update)
+                                    deal_fields_to_update.append(field)
                         
-                    # Actualizar el company_id del Client asociado con este Deal específico
-                    client = deal.client 
-                    if client:
-                        client.company = deal.company
-                        client.save(update_fields=['company'])  
+                        if deal_fields_to_update:
+                            # Actualizar el company_id del Client asociado con este Deal específico
+                            client = deal.client 
+                            if client:
+                                client.company = deal.company
+                                client.save(update_fields=['company'])     
 
-                    # Actualizar Leads relacionados con la nueva Company
-                    old_company_email_leads = Lead.objects.filter(company_email=old_company.company_email)
-                    for lead in old_company_email_leads:
-                        lead.company = new_company
-                        lead_fields_to_update = ['company'] # Inicializamos con 'company'
-                        for field, value in [
-                            ('company_name', company_name),
-                            ('company_email', new_company_email),
-                            ('company_phone', company_phone),
-                            ('website', website),
-                            ('industry', industry),
-                        ]:
-                            if getattr(lead, field) != value:
-                                setattr(lead, field, value)
-                                if field not in lead_fields_to_update:
-                                    lead_fields_to_update.append(field)
-                        
-                        if lead_fields_to_update:
-                            # Actualizar el company_id del Contact asociado con este Lead específico
-                            contact = lead.contact 
-                            if contact:
-                                contact.company = lead.company
-                                contact.save(update_fields=['company'])     
+                            deal.save(update_fields=deal_fields_to_update)     
 
-                            lead.save(update_fields=lead_fields_to_update)         
-
-               # EXISTING OR NOT CLIENTS AND CONTACTS (primary_email)
+               # EXISTING OR NOT CLIENTS AND CONTACTS
                             
                 # Actualizar Contacts, Clients, Deals y Leads relacionados (primary_email)
                 if existing_client:
@@ -485,8 +461,14 @@ class DealUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
                             deal.save(update_fields=deal_fields_to_update)
 
                 # Actualiza los otros Deals relacionados con el nuevo Client
-                else:                      
+                else:
+                    
+                     
+
+
+
                     old_primary_email_deals = Deal.objects.filter(primary_email=old_client.primary_email)
+
                     for deal in old_primary_email_deals:
                         # Actualizar el company_id del Client asociado con este Deal específico  
                         deal.client = new_client
@@ -510,80 +492,6 @@ class DealUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
 
                         if deal_fields_to_update:
                             deal.save(update_fields=deal_fields_to_update)
-
-                    # Comprobar si el nuevo email ya existe en Contact o Lead
-                    email_exists_in_contact = Contact.objects.filter(primary_email=new_email).exists()
-                    email_exists_in_lead = Lead.objects.filter(primary_email=new_email).exists()
-                    
-                    if email_exists_in_contact or email_exists_in_lead:
-                        # Buscar y actualizar los Contact correspondientes
-                        try:
-                            related_contacts = Contact.objects.filter(primary_email=new_email)
-                            for contact in related_contacts:
-                                contact_fields_to_update = []    
-                                for field, value in [
-                                    ('primary_email', new_email), 
-                                    ('first_name', first_name), 
-                                    ('last_name', last_name), 
-                                    ('title', title), 
-                                    ('phone', phone), 
-                                    ('mobile_phone', mobile_phone), 
-                                    ('country', country),
-                                    ('last_modified_by', last_modified_by),
-                                    ('modified_time', current_time),
-                                ]:                
-                                    if getattr(contact, field) != value:
-                                        setattr(contact, field, value)
-                                        contact_fields_to_update.append(field)                  
-
-                                if contact_fields_to_update:
-                                    contact.save(update_fields=contact_fields_to_update)                          
-
-                                # Actualizar todos los Leads relacionados con este Contact
-                                related_leads = contact.contact_leads.all()
-                                for lead in related_leads:
-                                    for field in contact_fields_to_update:
-                                        setattr(lead, field, getattr(contact, field))
-                                    lead.save()
-
-                        except Contact.DoesNotExist:
-                            # No hay un Client con este primary_email, no se necesita hacer nada más
-                            pass     
-
-                    else: 
-                        try:
-                            # Filtrar Contacts que tienen el nuevo email o el email antiguo del Client
-                            related_contacts = Contact.objects.filter(Q(primary_email=new_email) | Q(primary_email=old_client.primary_email))
-                            for contact in related_contacts:
-                                contact_fields_to_update = []    
-                                for field, value in [
-                                    ('primary_email', new_email), 
-                                    ('first_name', first_name), 
-                                    ('last_name', last_name), 
-                                    ('title', title), 
-                                    ('phone', phone), 
-                                    ('mobile_phone', mobile_phone), 
-                                    ('country', country),
-                                    ('last_modified_by', last_modified_by),
-                                    ('modified_time', current_time),
-                                ]:                
-                                    if getattr(contact, field) != value:
-                                        setattr(contact, field, value)
-                                        contact_fields_to_update.append(field)                  
-
-                                if contact_fields_to_update:
-                                    contact.save(update_fields=contact_fields_to_update)                          
-
-                                # Actualizar todos los Leads relacionados con este Contact
-                                related_leads = contact.contact_leads.all()
-                                for lead in related_leads:
-                                    for field in contact_fields_to_update:
-                                        setattr(lead, field, getattr(contact, field))
-                                    lead.save()
-
-                        except Contact.DoesNotExist:
-                            # No hay un Client con este primary_email, no se necesita hacer nada más
-                            pass                      
 
                 # ELIMINA Company Y Client QUE NO TENGAN DEALS RELACIONADOS
 
@@ -640,7 +548,7 @@ class DealUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
         deal = self.get_object()
         organization = self.get_organization()
         context['pk'] = deal.pk
-        context['titulo'] = 'Update Deal'
+        context['titulo'] = 'Update Lead'
         context['organization_name'] = self.get_organization()
         current_time = timezone.now()
 
@@ -699,67 +607,28 @@ class DealUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
 
 
 
+
+
+
+
+
   
-
-# class DealDeleteView(DeleteView, AgentRequiredMixin, AgentContextMixin):
-#     model = Deal
-#     template_name = 'operation/deal/deal_delete.html'
-#     context_object_name = 'deal'
-
-#     def get_success_url(self):
-#         messages.success(self.request, "Deal Deleted.")
-#         return reverse_lazy('deal:list', kwargs={'organization_name': self.get_organization()})
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['titulo'] = 'Delete Deal'
-#         context['organization_name'] = self.get_organization()
-#         return context
 
 class DealDeleteView(DeleteView, AgentRequiredMixin, AgentContextMixin):
     model = Deal
     template_name = 'operation/deal/deal_delete.html'
     context_object_name = 'deal'
 
-    def form_valid(self, form):
-        with transaction.atomic():
-            self.object = self.get_object()
-            client = self.object.client
-
-            # Verificar si el Contact está asociado con otros Lead
-            if client and client.client_leads.count() <= 1:
-                # Si solo está asociado con este Lead, eliminar el Contact
-                client.delete()
-
-            # ELIMINA Company Y Client QUE NO TENGAN DEALS RELACIONADOS
-
-            # Buscar todas las Company que no tienen Leads ni Deals relacionados
-            companies_to_check = Company.objects.annotate(
-                num_leads=Count('company_leads'),
-                num_deals=Count('company_deals')
-            )
-            # Filtra las Company que no tienen ni Leads ni Deals
-            companies_without_leads_and_deals = companies_to_check.filter(num_leads=0, num_deals=0)
-            # Elimina las Company que cumplen con la condición
-            companies_without_leads_and_deals.delete()
-
-            # Buscar todos los Contact que no tienen Leads asociados
-            contacts_without_deals = Contact.objects.annotate(num_leads=Count('contact_leads')).filter(num_leads=0)
-            # Eliminar estos Contacts
-            contacts_without_deals.delete()
-
-        response = super(DealDeleteView, self).form_valid(form)
+    def get_success_url(self):
         messages.success(self.request, "Deal Deleted.")
-        return response
-
-    def get_success_url(self):  
-        return reverse_lazy('lead:list', kwargs={'organization_name': self.get_organization()})
+        return reverse_lazy('deal:list', kwargs={'organization_name': self.get_organization()})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Delete Lead'
+        context['titulo'] = 'Delete Deal'
         context['organization_name'] = self.get_organization()
         return context
+
 
 
 

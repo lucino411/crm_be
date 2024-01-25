@@ -188,7 +188,6 @@ class LeadUpdateForm(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Mobile Phone Number'}),
         required=False
     )
-    # Nuevos campos agregados
     company_name = forms.CharField(
         label="Company Name",
         max_length=255,

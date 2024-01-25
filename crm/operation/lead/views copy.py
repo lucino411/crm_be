@@ -810,15 +810,16 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
                             if getattr(lead, field) != value:
                                 setattr(lead, field, value)
                                 if field not in lead_fields_to_update:
-                                    lead_fields_to_update.append(field)                      
+                                    lead_fields_to_update.append(field)
+                        
+                        if lead_fields_to_update:
+                            # Actualizar el company_id del Contact asociado con este Lead específico
+                            contact = lead.contact 
+                            if contact:
+                                contact.company = lead.company
+                                contact.save(update_fields=['company'])     
 
                             lead.save(update_fields=lead_fields_to_update)
-
-                    # Actualizar el company_id del Contact asociado con este Lead específico
-                    contact = lead.contact 
-                    if contact:
-                        contact.company = lead.company
-                        contact.save(update_fields=['company'])     
 
                     # Actualizar Deals relacionados con la nueva Company
                     old_company_email_deals = Deal.objects.filter(company_email=old_company.company_email)
@@ -1020,7 +1021,7 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
                                         setattr(deal, field, getattr(client, field))
                                     deal.save()
 
-                        except Client.DoesNotExist:
+                        except Contact.DoesNotExist:
                             # No hay un Client con este primary_email, no se necesita hacer nada más
                             pass   
 
