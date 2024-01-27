@@ -29,11 +29,12 @@ LeadProductFormset = inlineformset_factory(Lead, LeadProduct, form=LeadProductFo
 def convert_lead_to_deal(request, organization_name, pk):
     lead = get_object_or_404(Lead, id=pk)
 
+    print('lead_source = %s' % lead.lead_source)
+
     with transaction.atomic():
 
         # Obtener el Contact asociado con el Lead
         contact = lead.contact
-
         if contact:
             # Actualiza el Client con los mismos datos que Contact, si existe (primary_email)
             client, created = Client.objects.get_or_create(
@@ -129,6 +130,7 @@ def convert_lead_to_deal(request, organization_name, pk):
         )
         deal.save()
 
+
         # Dentro de la transacción, después de crear el Deal
         deal_product_mapping = {}
         for lead_product in lead.lead_product.all():
@@ -166,7 +168,7 @@ def convert_lead_to_deal(request, organization_name, pk):
         # Eliminar el Lead original
         lead.delete()     
 
-        # Opcional: agregar un mensaje para confirmar la conversión
+        # Agregar un mensaje para confirmar la conversión
         messages.success(request, "Lead converted to Deal successfully.")
 
     # Redireccionar a la página adecuada después de la conversión
