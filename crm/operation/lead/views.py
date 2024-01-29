@@ -29,7 +29,6 @@ LeadProductFormset = inlineformset_factory(Lead, LeadProduct, form=LeadProductFo
 def convert_lead_to_deal(request, organization_name, pk):
     lead = get_object_or_404(Lead, id=pk)
 
-    print('lead_source = %s' % lead.lead_source)
 
     with transaction.atomic():
 
@@ -1068,7 +1067,6 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
             'form': form,  # Asegurarse de pasar el formulario inválido
             'lead_pk': lead.id,  # ID del lead
             'organization_name': self.get_organization(),
-            # Aquí puedes agregar cualquier otro dato específico necesario
         })
         if not self.validation_error_handled:
             messages.error(

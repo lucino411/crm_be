@@ -79,7 +79,7 @@
                                 aria-expanded="false">
                                 Configuration
                             </a>
-                                <ul class="dropdown-menu">
+                                <ul class="dropdown-menu">                                    
                                     <li>
                                         <a class="dropdown-item" aria-current="page"
                                         href="{% url 'country:list' organization_name=organization_name %}">Countries</a>
@@ -95,6 +95,15 @@
                                     <li>
                                         <a class="dropdown-item" aria-current="page"
                                             href="{% url 'currency:list' organization_name=organization_name %}">Currency</a>
+                                    </li>
+
+                                    <li>  
+                                        <a class="dropdown-item" aria-current="page"
+                                            href="{% url 'organization:upload-file' organization_name=organization_name %}">Images</a>                                     
+                                    </li>
+                                    <li>  
+                                        <a class="dropdown-item" aria-current="page"
+                                            href="{% url 'organization:media-library' organization_name=organization_name %}">Media Library</a>                                     
                                     </li>
                                     <li><a class="dropdown-item" href="#">Action</a></li>
                                     <li><a class="dropdown-item" href="#">Another action</a></li>

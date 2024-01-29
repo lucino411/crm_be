@@ -1,0 +1,23 @@
+{% extends "administration/core/base.html" %} {% load static %}
+
+{% block content %}
+  <h2>Subir Archivo</h2>
+  <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-group">
+        {% if form.image.errors %}
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Danger:</strong>{{ form.image.errors }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>        
+        {% endif %}
+        
+        {{ form.non_field_errors }}
+        {{ form.image.label_tag }}
+        {{ form.image }}
+        
+      </div>
+
+      <button type="submit">Subir</button>
+  </form>
+{% endblock %}

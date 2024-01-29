@@ -170,9 +170,7 @@ class DealUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
                 existing_client = Client.objects.filter(primary_email=new_email).first()
                 deal_name = form.cleaned_data.get('deal_name')
                 deal_source = form.cleaned_data.get('deal_source')
-                print('heeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
-                print('deal_name =', deal_name)
-                print('deal_source =', deal_source)
+
                 first_name = form.cleaned_data.get('first_name')
                 last_name = form.cleaned_data.get('last_name')
                 title = form.cleaned_data.get('title')
@@ -701,24 +699,6 @@ class DealUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
         return context
 
 
-
-  
-
-# class DealDeleteView(DeleteView, AgentRequiredMixin, AgentContextMixin):
-#     model = Deal
-#     template_name = 'operation/deal/deal_delete.html'
-#     context_object_name = 'deal'
-
-#     def get_success_url(self):
-#         messages.success(self.request, "Deal Deleted.")
-#         return reverse_lazy('deal:list', kwargs={'organization_name': self.get_organization()})
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['titulo'] = 'Delete Deal'
-#         context['organization_name'] = self.get_organization()
-#         return context
-
 class DealDeleteView(DeleteView, AgentRequiredMixin, AgentContextMixin):
     model = Deal
     template_name = 'operation/deal/deal_delete.html'
@@ -729,9 +709,9 @@ class DealDeleteView(DeleteView, AgentRequiredMixin, AgentContextMixin):
             self.object = self.get_object()
             client = self.object.client
 
-            # Verificar si el Contact está asociado con otros Lead
-            if client and client.client_leads.count() <= 1:
-                # Si solo está asociado con este Lead, eliminar el Contact
+            # Verificar si el Client está asociado con otros Lead
+            if client and client.client_deals.count() <= 1:
+                # Si solo está asociado con este Lead, eliminar el Client
                 client.delete()
 
             # ELIMINA Company Y Client QUE NO TENGAN DEALS RELACIONADOS
@@ -756,11 +736,11 @@ class DealDeleteView(DeleteView, AgentRequiredMixin, AgentContextMixin):
         return response
 
     def get_success_url(self):  
-        return reverse_lazy('lead:list', kwargs={'organization_name': self.get_organization()})
+        return reverse_lazy('deal:list', kwargs={'organization_name': self.get_organization()})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Delete Lead'
+        context['titulo'] = 'Delete Deal'
         context['organization_name'] = self.get_organization()
         return context
 

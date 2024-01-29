@@ -6,7 +6,6 @@ from django.urls import reverse_lazy
 class CustomLoginView(LoginView):
     def form_valid(self, form):
         response = super().form_valid(form)
-        print(response)
         success_url = reverse_lazy('dashboard-home')
         if hasattr(self.request.user, 'organizer'):
             organization_name = self.request.user.organizer.organization.name        

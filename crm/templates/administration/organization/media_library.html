@@ -1,0 +1,25 @@
+<!-- media_library.html -->
+
+{% extends "administration/core/base.html" %} {% load static %}
+
+{% block content %}
+<div class="container mt-3">
+    <h2>Biblioteca de Medios</h2>
+    <div class="row">
+        {% for media in media_list %}
+        <div class="col-md-4 mb-3">
+            <div class="card">
+                <img src="{{ media.image.url }}" class="card-img-top" alt="Media Image">
+                <div class="card-body">
+                    <h5 class="card-title">{{ media.organization.name }}</h5>
+                    <p class="card-text">Tamaño: {{ media.image_size }} bytes</p>
+                    <!-- Puedes añadir más detalles aquí si lo necesitas -->
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p>No se encontraron medios para esta organización.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
