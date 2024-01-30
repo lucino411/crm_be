@@ -7,7 +7,7 @@
 <div class="container">
     <div class="row">
         <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
-            <h2>Are you sure you want to delete {{ currency.name }}?</h2>
+            <h2>Are you sure you want to delete {{ currency.code }}?</h2>
             <form method="post">
                 {% csrf_token %}
                 {{ form.as_p }}

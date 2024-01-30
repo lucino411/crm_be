@@ -31,7 +31,7 @@
         {% endfor %}
             
         {% for lead_task in lead_tasks %}
-            <li class="list-group-item"> Tareas: <a href="{% url 'lead:task-detail' pk=lead_task.id organization_name=organization_name %}">{{ lead_task.name }}</a> </li>  
+            <li class="list-group-item"> Tareas: <a href="{% url 'lead:task-detail' pk=lead_task.id organization_slug=organization_slug %}">{{ lead_task.name }}</a> </li>  
         {% empty %}
             <li class="list-group-item">No tasks associated with this lead.</li>
         {% endfor %}
@@ -39,8 +39,8 @@
     </ul>
 </div>
 <div class="col-md-8 mt-3">
-    <a href="{% url 'lead:update' pk=lead.pk organization_name=organization_name %}" class="btn btn-primary">Update</a>
-    <a href="{% url 'lead:delete' pk=lead.pk organization_name=organization_name %}" class="btn btn-danger">Delete</a>
+    <a href="{% url 'lead:update' pk=lead.pk organization_slug=organization_slug %}" class="btn btn-primary">Update</a>
+    <a href="{% url 'lead:delete' pk=lead.pk organization_slug=organization_slug %}" class="btn btn-danger">Delete</a>
 </div>
                 
 

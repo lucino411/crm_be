@@ -107,8 +107,8 @@ const initDataTable = async () => {
 const listTasks = async () => {
     try {
         const taskListElement = document.getElementById('task-list');
-        const organizationName = taskListElement.dataset.organizationName;
-        const response = await fetch(`${BASE_URL}/${organizationName}/deal/tasks_json`);
+        const organizationSlug = taskListElement.dataset.organizationSlug;
+        const response = await fetch(`${BASE_URL}/${organizationSlug}/deal/tasks_json`);
         const data = await response.json();
         let content = ``;
         

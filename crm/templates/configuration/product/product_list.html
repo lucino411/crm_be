@@ -11,14 +11,14 @@
             <ul class="list-group">
                 {% for product in products %}
                 <li class="list-group-item">
-                    <a href="{% url 'product:detail' pk=product.pk organization_name=request.user.organizer.organization.name  %}" class="">{{ product.name }}</a> <br>
+                    <a href="{% url 'product:detail' pk=product.pk organization_slug=organization_slug  %}" class="">{{ product.name }}</a> <br>
                     {{ product.category }} <span class="badge bg-secondary">Category</span><br> 
                     {{ product.product_url }} <span class="badge bg-secondary">URL</span><br> 
                 </li>
                 {% endfor %}
             </ul>
             <br>
-            <a href="{% url 'product:create' organization_name=request.user.organizer.organization.name %}"
+            <a href="{% url 'product:create' organization_slug=organization_slug %}"
                 class="btn btn-primary">Create</a>
         </div>
     </div>

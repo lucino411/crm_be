@@ -8,7 +8,7 @@
 
 <div class="card" style="width: 22rem;">
     <div class="card-header">
-        <h2> <a href="{% url 'lead:detail' pk=task.lead.id organization_name=organization_name %}">{{ task.lead }} - lead id: {{ task.lead.id }}</a></h2>
+        <h2> <a href="{% url 'lead:detail' pk=task.lead.id organization_slug=organization_slug %}">{{ task.lead }} - lead id: {{ task.lead.id }}</a></h2>
     </div>
     <ul class="list-group list-group-flush">
         <span class="badge bg-secondary">Assigned to</span>
@@ -30,21 +30,21 @@
             <span class="badge bg-info">SubTareas</span>
             {% for subtask in subtasks %}
             <li class="list-group-item">
-                <a href="{% url 'lead:task-detail' pk=subtask.pk organization_name=organization_name %}">{{ subtask.name }}</a>
+                <a href="{% url 'lead:task-detail' pk=subtask.pk organization_slug=organization_slug %}">{{ subtask.name }}</a>
             </li>
             {% endfor %}
         {% elif parent_task %}
             <span class="badge bg-warning">Parent Task</span>
             <li class="list-group-item">
-                <a href="{% url 'lead:task-detail' pk=parent_task.pk organization_name=organization_name %}">{{ parent_task.name }}</a>
+                <a href="{% url 'lead:task-detail' pk=parent_task.pk organization_slug=organization_slug %}">{{ parent_task.name }}</a>
             </li>
         {% endif %}
 
     </ul>
 </div>
 <div>
-    <a href="{% url 'lead:task-update' pk=task.pk organization_name=organization_name %}" class="btn btn-primary">Update</a>
-    <a href="{% url 'lead:task-delete' pk=task.pk organization_name=organization_name %}" class="btn btn-danger mt-3">Delete</a>
+    <a href="{% url 'lead:task-update' pk=task.pk organization_slug=organization_slug %}" class="btn btn-primary">Update</a>
+    <a href="{% url 'lead:task-delete' pk=task.pk organization_slug=organization_slug %}" class="btn btn-danger mt-3">Delete</a>
 </div>
 <div class="col-md-8 mt-3">
 

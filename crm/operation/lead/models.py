@@ -87,6 +87,12 @@ class Lead(models.Model):
     is_closed = models.BooleanField(default=False) 
     erased = models.BooleanField(default=False)
 
+    def clean(self):
+        super().clean()
+        self.lead_name = self.lead_name.title()
+        self.first_name = self.first_name.title()
+        self.last_name = self.last_name.title()
+
     def __str__(self):       
         return self.lead_name  
     
@@ -135,6 +141,10 @@ class LeadTask(models.Model):
     organization = models.ForeignKey(Organization, related_name='organization_leadtask', on_delete=models.CASCADE)    
     stage = models.CharField(max_length=20, choices=STAGE_CHOICES, default='pending')    
     is_closed = models.BooleanField(default=False)
+
+    def clean(self):
+        super().clean()
+        self.name = self.name.title()
 
     def __str__(self):
         return self.name

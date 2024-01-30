@@ -1,6 +1,7 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.messages.views import SuccessMessageMixin
-# from django.contrib import messages
+from django.contrib import messages
+
 from django.urls import reverse_lazy
 from .models import Country
 from .forms import CountryForm
@@ -26,14 +27,15 @@ class CountryCreateView(OrganizerRequiredMixin, OrganizerContextMixin, SuccessMe
     model = Country
     template_name = 'configuration/country/country_create.html'
     form_class = CountryForm
-    success_message = "Country created successfully."
+    # success_message = "Country created successfully."
 
     def form_valid(self, form):
         form.instance.organization = self.get_organization()
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy('country:list', kwargs={'organization_name': self.get_organization()})
+        messages.success(self.request, "Currency Created.")
+        return reverse_lazy('country:list', kwargs={'organization_slug': self.get_organization().slug})
 
 
 class CountryUpdateView(OrganizerRequiredMixin, OrganizerContextMixin, SuccessMessageMixin, UpdateView):
@@ -45,7 +47,7 @@ class CountryUpdateView(OrganizerRequiredMixin, OrganizerContextMixin, SuccessMe
     def get_success_url(self):
         pk = self.object.pk
         # messages.success(self.request, "Country updated.")
-        return reverse_lazy('country:detail', kwargs={'organization_name': self.get_organization(), 'pk': pk})
+        return reverse_lazy('country:detail', kwargs={'organization_slug': self.get_organization().slug, 'pk': pk})
 
 
 
@@ -56,7 +58,7 @@ class CountryDeleteView(OrganizerRequiredMixin, OrganizerContextMixin, SuccessMe
 
     def get_success_url(self):
         # messages.success(self.request, "Country deleted.")
-        return reverse_lazy('country:list', kwargs={'organization_name': self.get_organization()})
+        return reverse_lazy('country:list', kwargs={'organization_slug': self.get_organization().slug})
     
 
 

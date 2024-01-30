@@ -63,7 +63,7 @@
         {% if deal %}
             {% if not task.is_closed %}
                 <div class="col-md-5">
-                    <a id="addSubtaskButton" href="{% url 'deal:task-create' organization_name=organization_name deal_pk=deal.id  %}?parent_task={{ pk }}" class="btn btn-success {% if not enable_button %}disabled{% endif %}" {% if not enable_button %}onclick="return false;" {% endif %}>Add Subtask</a>
+                    <a id="addSubtaskButton" href="{% url 'deal:task-create' organization_slug=organization_slug deal_pk=deal.id  %}?parent_task={{ pk }}" class="btn btn-success {% if not enable_button %}disabled{% endif %}" {% if not enable_button %}onclick="return false;" {% endif %}>Add Subtask</a>
                 </div>
             {% endif %}              
         {% endif %}            

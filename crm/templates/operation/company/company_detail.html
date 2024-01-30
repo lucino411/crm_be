@@ -1,0 +1,53 @@
+{% extends "administration/core/base.html" %}
+
+{% block title %}{{ titulo }}{% endblock %}
+
+{% block content %}
+
+<h1 class="text-xl">Company Detail {{ company.company_name }} - company id: {{ company.id }}</h1>
+
+<div class="card" style="width: 22rem;">
+    <div class="card-header">
+        <h2> {{ company.company_email }}</h2>
+    </div>
+    <ul class="list-group list-group-flush">
+        <span class="badge bg-success">Website</span>
+        <li class="list-group-item"><a href="{{ company.website }}" target="_blank">{{ company.website }}</a></li>
+        <span class="badge bg-success">Phone</span>
+        <li class="list-group-item">{{ company.company_phone }} </li>
+        <span class="badge bg-secondary">Created By</span>
+        <li class="list-group-item">{{ company.created_by }} </li>
+        <span class="badge bg-secondary">Created At</span>
+        <li class="list-group-item">{{ company.created_time }} </li>
+        <span class="badge bg-secondary">industry</span>
+        <li class="list-group-item">{{ company.industry }}</li>         
+
+        {% if deals %}
+            <span class="badge bg-info">Deals</span>
+            {% for deal in deals %}
+            <li class="list-group-item">
+                <a href="{% url 'deal:detail' pk=deal.pk organization_slug=organization_slug %}">{{ deal.deal_name }}</a>
+            </li>
+            {% endfor %}        
+        {% endif %}
+
+        {% if clients %}
+            <span class="badge bg-info">Clients</span>
+            {% for client in clients %}
+            <li class="list-group-item">
+                <a href="{% url 'client:client-detail' pk=client.pk organization_slug=organization_slug %}">{{ client.first_name }} {{ client.last_name }}</a>
+            </li>
+            {% endfor %}        
+        {% endif %}        
+        
+    </ul>
+</div>
+<div>
+
+</div>
+<div class="col-md-8 mt-3">
+
+</div>
+                
+
+{% endblock %}

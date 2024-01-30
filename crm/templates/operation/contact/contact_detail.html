@@ -26,7 +26,7 @@
             <span class="badge bg-warning">Leads</span>
             {% for lead in contact_leads %}
             <li class="list-group-item">
-                <a href="{% url 'lead:detail' pk=lead.pk organization_name=organization_name %}">{{ lead.lead_name }}</a>
+                <a href="{% url 'lead:detail' pk=lead.pk organization_slug=organization_slug %}">{{ lead.lead_name }}</a>
             </li>
             {% endfor %}       
         {% endif %}     

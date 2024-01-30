@@ -10,8 +10,8 @@
 
 <div class="row mb-3">
     <div class="col-md-8">
-        <a href="{% url 'product:category-update' pk=category.pk organization_name=request.user.organizer.organization.name %}" class="btn btn-primary">Update</a>
-        <a href="{% url 'product:category-delete' pk=category.pk organization_name=request.user.organizer.organization.name %}" class="btn btn-danger">Delete</a>
+        <a href="{% url 'product:category-update' pk=category.pk organization_slug=organization_slug %}" class="btn btn-primary">Update</a>
+        <a href="{% url 'product:category-delete' pk=category.pk organization_slug=organization_slug %}" class="btn btn-danger">Delete</a>
     </div>
 </div>
 

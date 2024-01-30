@@ -36,9 +36,9 @@ class ProductCreateView(OrganizerRequiredMixin, OrganizerContextMixin, CreateVie
         return kwargs
 
     def get_success_url(self):
-        organization_name = self.get_organization()
+        organization_slug = self.get_organization().slug
         messages.success(self.request, "Product created.")
-        return reverse_lazy('product:list', kwargs={'organization_name': organization_name})
+        return reverse_lazy('product:list', kwargs={'organization_slug': organization_slug})
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -56,7 +56,7 @@ class ProductDetailView(OrganizerRequiredMixin, OrganizerContextMixin, DetailVie
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Detail Product'
-        context['organization_name'] = self.get_organization()
+        # context['organization_slug'] = self.get_organization()
         return context
 
 
@@ -68,7 +68,7 @@ class ProductUpdateView(OrganizerRequiredMixin, OrganizerContextMixin, UpdateVie
     def get_success_url(self):
         pk = self.object.pk
         messages.success(self.request, "Product updated.")
-        return reverse_lazy('product:detail', kwargs={'organization_name': self.get_organization(), 'pk': pk})
+        return reverse_lazy('product:detail', kwargs={'organization_slug': self.get_organization().slug, 'pk': pk})
 
 
 class ProductDeleteView(OrganizerRequiredMixin, OrganizerContextMixin, DeleteView):
@@ -89,25 +89,17 @@ class ProductDeleteView(OrganizerRequiredMixin, OrganizerContextMixin, DeleteVie
             return response
 
     def get_success_url(self):
-        organization_name = self.get_organization()
-        return reverse_lazy('product:list', kwargs={'organization_name': organization_name})
+        organization_slug = self.get_organization().slug
+        return reverse_lazy('product:list', kwargs={'organization_slug': organization_slug})
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Product Delete'
-        context['organization_name'] = self.get_organization()
+        # context['organization_slug'] = self.get_organization().slug
         return context
     
 
     
-
-
-
-
-
-
-
-
 
 class ProductCategoryListView(OrganizerRequiredMixin, OrganizerContextMixin, ListView):
     model = ProductCategory
@@ -128,14 +120,14 @@ class ProductCategoryCreateView(OrganizerRequiredMixin, OrganizerContextMixin, C
         return super().form_valid(form)
 
     def get_success_url(self):
-        organization_name = self.get_organization()
+        organization_slug = self.get_organization().slug
         messages.success(self.request, "Category created.")
-        return reverse_lazy('product:category-list', kwargs={'organization_name': organization_name})
+        return reverse_lazy('product:category-list', kwargs={'organization_slug': organization_slug})
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Product Category Create'
-        context['organization_name'] = self.get_organization()
+        # context['organization_slug'] = self.get_organization()
         return context
    
 
@@ -147,7 +139,7 @@ class ProductCategoryDetailView(OrganizerRequiredMixin, OrganizerContextMixin, D
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Detail Lead'
-        context['organization_name'] = self.get_organization()
+        # context['organization_slug'] = self.get_organization()
         return context
 
 
@@ -159,7 +151,7 @@ class ProductCategoryUpdateView(OrganizerRequiredMixin, OrganizerContextMixin, U
     def get_success_url(self):
         pk = self.object.pk
         messages.success(self.request, "Category updated.")
-        return reverse_lazy('product:category-detail', kwargs={'organization_name': self.get_organization(), 'pk': pk})
+        return reverse_lazy('product:category-detail', kwargs={'organization_slug': self.get_organization().slug, 'pk': pk})
 
 
 class ProductCategoryDeleteView(OrganizerRequiredMixin, OrganizerContextMixin, DeleteView):
@@ -183,11 +175,11 @@ class ProductCategoryDeleteView(OrganizerRequiredMixin, OrganizerContextMixin, D
         return response
 
     def get_success_url(self):
-        organization_name = self.get_organization()
-        return reverse_lazy('product:category-list', kwargs={'organization_name': organization_name})
+        organization_slug = self.get_organization().slug
+        return reverse_lazy('product:category-list', kwargs={'organization_slug': organization_slug})
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Category Delete'
-        context['organization_name'] = self.get_organization()
+        # context['organization_slug'] = self.get_organization().slug
         return context

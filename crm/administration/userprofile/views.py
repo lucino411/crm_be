@@ -16,7 +16,8 @@ class OrganizerRequiredMixin(UserPassesTestMixin):
 class OrganizerContextMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['organization_name'] = self.get_organization()
+        # context['organization_name'] = self.get_organization()
+        context['organization'] = self.get_organization()
         return context
 
     def get_organization(self):
@@ -31,7 +32,8 @@ class AgentRequiredMixin(UserPassesTestMixin):
 class AgentContextMixin:
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['organization_name'] = self.get_organization()
+        # context['organization_name'] = self.get_organization()
+        context['organization'] = self.get_organization()
         return context
 
     def get_organization(self):

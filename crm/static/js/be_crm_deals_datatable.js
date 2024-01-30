@@ -51,7 +51,6 @@ const dataTableOptions = {
         });
     },
 
-
     // BOTONES DESCARGAR
     buttons: [
         {
@@ -107,8 +106,8 @@ const listDeals = async () => {
     try {
         const dealListElement = document.getElementById('deal-list');
         console.log(dealListElement);
-        const organizationName = dealListElement.dataset.organizationName;
-        const response = await fetch(`${BASE_URL}/${organizationName}/deal/deals_json`);
+        const organizationSlug = dealListElement.dataset.organizationSlug;
+        const response = await fetch(`${BASE_URL}/${organizationSlug}/deal/deals_json`);
         const data = await response.json();
         console.log(response);
         let content = ``;
@@ -131,7 +130,7 @@ const listDeals = async () => {
             <td>${createdTime}</td> 
             <td>${dealData.last_modified_by}</td> 
             <td>${dealData.assigned_to}</td>
-            <td>${dealData.organization}</td>      
+            <td>${dealData.organization__name}</td>      
         </tr>
         `;
         });

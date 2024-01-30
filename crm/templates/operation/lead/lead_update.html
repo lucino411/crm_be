@@ -169,7 +169,7 @@
 <div class="row mb-3">
     <div class="col text-end">
         {% if lead %}
-            <a href="{% url 'lead:task-create' lead_pk=lead.id organization_name=organization_name %}" id="add-more-task"
+            <a href="{% url 'lead:task-create' lead_pk=lead.id organization_slug=organization_slug %}" id="add-more-task"
             class="btn btn-warning {% if not enable_button %}disabled{% endif %}" {% if not enable_button %}onclick="return false;" {% endif %}>Agregar Task</a>
         {% endif %}
     </div>
@@ -196,7 +196,7 @@
                     </div>
                     <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <a href="{% url 'lead:converted-to-deal' pk=pk organization_name=organization_name %}" class="btn btn-success">Aceptar</a>
+                    <a href="{% url 'lead:converted-to-deal' pk=pk organization_slug=organization_slug %}" class="btn btn-success">Aceptar</a>
                     </div>
                 </div>
                 </div>

@@ -26,7 +26,7 @@ from operation.deal.models import Deal, DealProduct, DealTask
 
 LeadProductFormset = inlineformset_factory(Lead, LeadProduct, form=LeadProductForm, extra=0, can_delete=True)
 
-def convert_lead_to_deal(request, organization_name, pk):
+def convert_lead_to_deal(request, organization_slug, pk):
     lead = get_object_or_404(Lead, id=pk)
 
 
@@ -84,6 +84,12 @@ def convert_lead_to_deal(request, organization_name, pk):
         else:
             # Eliminar el Contact si solo está asociado a este Lead
             contact.delete()
+        
+        # Obtener la Company asociada con el Lead
+        company = lead.company
+        if company:
+            company.is_client = True
+            company.save()
 
         # Crear una instancia de Deal con los datos de Lead
         deal = Deal(
@@ -172,15 +178,16 @@ def convert_lead_to_deal(request, organization_name, pk):
 
     # Redireccionar a la página adecuada después de la conversión
     url = reverse('deal:list', kwargs={
-            'organization_name': organization_name})
+            'organization_slug': organization_slug})
     return redirect(url)
 
 class HomeLeadView(LoginRequiredMixin, TemplateView):
     template_name = 'operation/lead/lead_list.html'
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs):        
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Gestion de Leads'
+
         return context
 
 # Query de Leads de la base de datos enviada a JS como JSON para las Datatables JS
@@ -194,7 +201,7 @@ class LeadListView(ListView, AgentRequiredMixin, AgentContextMixin):
     def get(self, request, *args, **kwargs):
         leads = self.get_queryset()
         leads_data = list(leads.values('id', 'lead_name', 'first_name', 'last_name', 'primary_email',
-                                       'country', 'created_time', 'last_modified_by_id', 'assigned_to_id', 'organization'))
+                                       'country', 'created_time', 'last_modified_by_id', 'assigned_to_id', 'organization__name'))
         country_names = {
             country.id: country.name for country in Country.objects.all()
         }
@@ -207,14 +214,16 @@ class LeadListView(ListView, AgentRequiredMixin, AgentContextMixin):
             lead['last_modified_by'] = user_names.get(
                 lead['last_modified_by_id'])
             # lead['created_by'] = user_names.get(lead['created_by_id'])
-            lead['organization'] = self.get_organization().name
+            # lead['organization'] = self.get_organization().name
+            # lead['organization'] = self.get_organization()
 
         return JsonResponse({'leads': leads_data})
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['organization_name'] = self.get_organization().name
-        return context
+    # def get_context_data(self, **kwargs):
+        # context = super().get_context_data(**kwargs)
+        # context['organization_name'] = self.get_organization().name
+        # context['organization_slug'] = self.get_organization().slug
+        # return context
 
 class LeadDetailView(DetailView, AgentRequiredMixin, AgentContextMixin):
     model = Lead
@@ -224,7 +233,7 @@ class LeadDetailView(DetailView, AgentRequiredMixin, AgentContextMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Detail Lead'
-        context['organization_name'] = self.get_organization()
+        # context['organization_name'] = self.get_organization()
         # Añadir productos asociados al Lead
         lead_products = LeadProduct.objects.filter(lead=self.object)
         context['lead_products'] = lead_products
@@ -482,7 +491,7 @@ class LeadCreateView(LoginRequiredMixin, FormView, AgentRequiredMixin, AgentCont
                 
             messages.success(self.request, "Lead Creado correctamente")
             url = reverse('lead:list', kwargs={
-                'organization_name': agent.organization})
+                'organization_slug': agent.organization.slug})
             return redirect(url)
 
         except ValidationError as e:
@@ -494,7 +503,8 @@ class LeadCreateView(LoginRequiredMixin, FormView, AgentRequiredMixin, AgentCont
             # Agrega los errores del ValidationError al formulario y vuelve a mostrar el formulario
             form.add_error(None, e)
             # return self.form_invalid(form)
-            return render(self.request, self.template_name, {'form': form, 'organization_name': agent.organization})
+            # return render(self.request, self.template_name, {'form': form, 'organization_slug': agent.organization.slug})
+            return render(self.request, self.template_name, {'form': form})
 
     def form_invalid(self, form):
         # print(form.errors)      
@@ -506,7 +516,7 @@ class LeadCreateView(LoginRequiredMixin, FormView, AgentRequiredMixin, AgentCont
         context.update({
             'form': form,  # Asegurarse de pasar el formulario inválido
             'lead_pk': lead.id,  # ID del lead
-            'organization_name': self.get_organization(),
+            # 'organization_name': self.get_organization(),
         })
         if not self.validation_error_handled:
             messages.error(
@@ -516,7 +526,7 @@ class LeadCreateView(LoginRequiredMixin, FormView, AgentRequiredMixin, AgentCont
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Create Lead'
-        context['organization_name'] = self.get_organization()
+        # context['organization_name'] = self.get_organization()
         # if self.request.POST:
         #     context['formset'] = LeadProductFormset(self.request.POST)
         # else:
@@ -1044,7 +1054,7 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
 
             messages.success(self.request, "Lead actualizado")
             url = reverse('lead:update', kwargs={
-                'organization_name': self.get_organization(), 'pk': self.object.pk})
+                'organization_slug': self.get_organization().slug, 'pk': self.object.pk})
             return redirect(url)
         
         except ValidationError as e:
@@ -1066,7 +1076,7 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
         context.update({
             'form': form,  # Asegurarse de pasar el formulario inválido
             'lead_pk': lead.id,  # ID del lead
-            'organization_name': self.get_organization(),
+            # 'organization_name': self.get_organization(),
         })
         if not self.validation_error_handled:
             messages.error(
@@ -1080,7 +1090,7 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
         organization = self.get_organization()
         context['pk'] = lead.pk
         context['titulo'] = 'Update Lead'
-        context['organization_name'] = self.get_organization()
+        # context['organization_name'] = self.get_organization()
         current_time = timezone.now()
 
         # Determina si deshabilitan los botones update y create task
@@ -1173,12 +1183,12 @@ class LeadDeleteView(DeleteView, AgentRequiredMixin, AgentContextMixin):
         return response
 
     def get_success_url(self):  
-        return reverse_lazy('lead:list', kwargs={'organization_name': self.get_organization()})
+        return reverse_lazy('lead:list', kwargs={'organization_slug': self.get_organization().slug})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Delete Lead'
-        context['organization_name'] = self.get_organization()
+        # context['organization_name'] = self.get_organization()
         return context
 
 
@@ -1226,7 +1236,8 @@ class LeadTaskListView(ListView, AgentRequiredMixin, AgentContextMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['organization_name'] = self.get_organization().name
+        # context['organization_name'] = self.get_organization().name
+        context['titulo'] = 'Lead Task Detail'
         return context
 
 
@@ -1323,7 +1334,7 @@ class LeadTaskCreateView(FormView, AgentRequiredMixin, AgentContextMixin):
 
             # Redirige a una URL específica después de la creación, como la página update del lead asociado
             url = reverse('lead:task-list', kwargs={
-                'organization_name': agent.organization})
+                'organization_slug': agent.organization.slug})
             return redirect(url)
 
         except ValidationError as e:
@@ -1348,7 +1359,7 @@ class LeadTaskCreateView(FormView, AgentRequiredMixin, AgentContextMixin):
                 self.request, "Invalid form data. Please check the entries and try again.")
         return render(self.request, self.template_name, {
             'form': form,
-            'organization_name': self.get_organization(),
+            # 'organization_name': self.get_organization(),
             'lead_pk': lead.id,
         })   
 
@@ -1368,7 +1379,7 @@ class LeadTaskCreateView(FormView, AgentRequiredMixin, AgentContextMixin):
         context['lead'] = lead
         context['lead_name'] = lead.lead_name if lead else None
         context['lead_pk'] = lead_id
-        context['organization_name'] = self.get_organization()
+        # context['organization_name'] = self.get_organization()
 
         return context
     
@@ -1381,7 +1392,7 @@ class LeadTaskDetailView(DetailView, AgentRequiredMixin, AgentContextMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Detail Task'
-        context['organization_name'] = self.get_organization()
+        # context['organization_name'] = self.get_organization()
        # Obtener el producto asociado a la tarea
         task = context['task']  # Esta es la instancia de Task que DetailView está mostrando
         task_product = None  # Inicializa como None por si no hay producto asociado        
@@ -1412,12 +1423,12 @@ class LeadTaskDeleteView(DeleteView, AgentRequiredMixin, AgentContextMixin):
 
     def get_success_url(self):
         messages.success(self.request, "Task Deleted.")
-        return reverse_lazy('lead:task-list', kwargs={'organization_name': self.get_organization()})
+        return reverse_lazy('lead:task-list', kwargs={'organization_slug': self.get_organization().slug})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Delete Task'
-        context['organization_name'] = self.get_organization()
+        # context['organization_name'] = self.get_organization()
         return context
 
 
@@ -1536,7 +1547,7 @@ class LeadTaskUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
 
             # Redirige a una URL específica después de editar la tarea, como la página update del lead asociado
             url = reverse('lead:task-update', kwargs={
-                'organization_name': agent.organization, 'pk': current_task_id})
+                'organization_slug': agent.organization.slug, 'pk': current_task_id})
             return redirect(url)
 
 
@@ -1560,7 +1571,7 @@ class LeadTaskUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
         context.update({
             'form': form,  # Asegurarse de pasar el formulario inválido
             'lead_pk': lead.id,  # ID del lead
-            'organization_name': self.get_organization(),
+            # 'organization_name': self.get_organization(),
         })
         if not self.validation_error_handled:
             messages.error(
@@ -1587,7 +1598,7 @@ class LeadTaskUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
         context['lead_pk'] = lead.id
         context['pk'] = current_task_id
         context['lead_name'] = lead.lead_name if lead else None
-        context['organization_name'] = self.get_organization()
+        # context['organization_name'] = self.get_organization()
 
         # Determina si deshabilia los botones del formulario
         context['enable_button'] = True

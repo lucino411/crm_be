@@ -30,6 +30,11 @@ class Company(models.Model):
     modified_time = models.DateTimeField(auto_now=True)    
     organization = models.ForeignKey(Organization, related_name='organization_company', on_delete=models.CASCADE)      
     erased = models.BooleanField(default=False)
+    is_client = models.BooleanField(default=False)
+
+    def clean(self):
+        super().clean()
+        self.company_name = self.company_name.title()
 
     def __str__(self):       
         return self.company_name  

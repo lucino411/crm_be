@@ -44,7 +44,7 @@ class DealListView(ListView, AgentRequiredMixin, AgentContextMixin):
     def get(self, request, *args, **kwargs):
         deals = self.get_queryset()
         deals_data = list(deals.values('id', 'deal_name', 'first_name', 'last_name', 'primary_email',
-                                       'country', 'created_time', 'last_modified_by_id', 'assigned_to_id', 'organization'))
+                                       'country', 'created_time', 'last_modified_by_id', 'assigned_to_id', 'organization__name'))
         country_names = {
             country.id: country.name for country in Country.objects.all()
         }
@@ -54,17 +54,16 @@ class DealListView(ListView, AgentRequiredMixin, AgentContextMixin):
         for deal in deals_data:
             deal['country'] = country_names.get(deal['country'])
             deal['assigned_to'] = user_names.get(deal['assigned_to_id'])
-            deal['last_modified_by'] = user_names.get(
-                deal['last_modified_by_id'])
+            deal['last_modified_by'] = user_names.get(deal['last_modified_by_id'])
             # deal['created_by'] = user_names.get(deal['created_by_id'])
-            deal['organization'] = self.get_organization().name
+            # deal['organization'] = self.get_organization().name
 
         return JsonResponse({'deals': deals_data})
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['organization_name'] = self.get_organization().name
-        return context
+    # def get_context_data(self, **kwargs):
+        # context = super().get_context_data(**kwargs)
+        # context['organization_slug'] = self.get_organization().slug
+        # return context
 
 
 class DealDetailView(DetailView, AgentRequiredMixin, AgentContextMixin):
@@ -75,7 +74,7 @@ class DealDetailView(DetailView, AgentRequiredMixin, AgentContextMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Detail Deal'
-        context['organization_name'] = self.get_organization()
+        # context['organization_slug'] = self.get_organization()
         # Añadir productos asociados al Deal
         deal_products = DealProduct.objects.filter(deal=self.object)
         context['deal_products'] = deal_products
@@ -605,7 +604,7 @@ class DealUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
 
             messages.success(self.request, "Deal actualizado")
             url = reverse('deal:update', kwargs={
-                'organization_name': self.get_organization(), 'pk': self.object.pk})
+                'organization_slug': self.get_organization().slug, 'pk': self.object.pk})
             return redirect(url)
         
         except ValidationError as e:
@@ -627,7 +626,7 @@ class DealUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
         context.update({
             'form': form,  # Asegurarse de pasar el formulario inválido
             'deal_pk': deal.id,  # ID del deal
-            'organization_name': self.get_organization(),
+            # 'organization_slug': self.get_organization(),
             # Aquí puedes agregar cualquier otro dato específico necesario
         })
         if not self.validation_error_handled:
@@ -642,7 +641,7 @@ class DealUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
         organization = self.get_organization()
         context['pk'] = deal.pk
         context['titulo'] = 'Update Deal'
-        context['organization_name'] = self.get_organization()
+        # context['organization_slug'] = self.get_organization()
         current_time = timezone.now()
 
         # Determina si deshabilitan los botones update y create task
@@ -736,12 +735,12 @@ class DealDeleteView(DeleteView, AgentRequiredMixin, AgentContextMixin):
         return response
 
     def get_success_url(self):  
-        return reverse_lazy('deal:list', kwargs={'organization_name': self.get_organization()})
+        return reverse_lazy('deal:list', kwargs={'organization_slug': self.get_organization().slug})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Delete Deal'
-        context['organization_name'] = self.get_organization()
+        # context['organization_slug'] = self.get_organization().slug
         return context
 
 
@@ -791,7 +790,7 @@ class DealTaskListView(ListView, AgentRequiredMixin, AgentContextMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['organization_name'] = self.get_organization().name
+        # context['organization_slug'] = self.get_organization().name
         return context
 
 
@@ -887,7 +886,7 @@ class DealTaskCreateView(FormView, AgentRequiredMixin, AgentContextMixin):
 
             # Redirige a una URL específica después de la creación, como la página update del deal asociado
             url = reverse('deal:task-list', kwargs={
-                'organization_name': agent.organization})
+                'organization_slug': agent.organization.slug})
             return redirect(url)
 
         except ValidationError as e:
@@ -912,7 +911,7 @@ class DealTaskCreateView(FormView, AgentRequiredMixin, AgentContextMixin):
                 self.request, "Invalid form data. Please check the entries and try again.")
         return render(self.request, self.template_name, {
             'form': form,
-            'organization_name': self.get_organization(),
+            # 'organization_slug': self.get_organization(),
             'deal_pk': deal.id,
         })   
 
@@ -931,7 +930,7 @@ class DealTaskCreateView(FormView, AgentRequiredMixin, AgentContextMixin):
         context['deal'] = deal
         context['deal_name'] = deal.deal_name if deal else None
         context['deal_pk'] = deal_id
-        context['organization_name'] = self.get_organization()
+        # context['organization_slug'] = self.get_organization()
 
         return context
     
@@ -944,7 +943,7 @@ class DealTaskDetailView(DetailView, AgentRequiredMixin, AgentContextMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Deal Detail Task'
-        context['organization_name'] = self.get_organization()
+        # context['organization_slug'] = self.get_organization()
        # Obtener el producto asociado a la tarea
         task = context['task']  # Esta es la instancia de Task que DetailView está mostrando
         task_product = None  # Inicializa como None por si no hay producto asociado        
@@ -975,12 +974,12 @@ class DealTaskDeleteView(DeleteView, AgentRequiredMixin, AgentContextMixin):
 
     def get_success_url(self):
         messages.success(self.request, "Task Deleted.")
-        return reverse_lazy('deal:task-list', kwargs={'organization_name': self.get_organization()})
+        return reverse_lazy('deal:task-list', kwargs={'organization_slug': self.get_organization()})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Delete Task'
-        context['organization_name'] = self.get_organization()
+        # context['organization_slug'] = self.get_organization()
         return context
 
 
@@ -1099,7 +1098,7 @@ class DealTaskUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
 
             # Redirige a una URL específica después de editar la tarea, como la página update del deal asociado
             url = reverse('deal:task-update', kwargs={
-                'organization_name': agent.organization, 'pk': current_task_id})
+                'organization_slug': agent.organization.slug, 'pk': current_task_id})
             return redirect(url)
 
 
@@ -1123,7 +1122,7 @@ class DealTaskUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
         context.update({
             'form': form,  # Asegurarse de pasar el formulario inválido
             'deal_pk': deal.id,  # ID del deal
-            'organization_name': self.get_organization(),
+            # 'organization_slug': self.get_organization(),
             # Aquí puedes agregar cualquier otro dato específico necesario
         })
         if not self.validation_error_handled:
@@ -1151,7 +1150,7 @@ class DealTaskUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
         context['deal_pk'] = deal.id
         context['pk'] = current_task_id
         context['deal_name'] = deal.deal_name if deal else None
-        context['organization_name'] = self.get_organization()
+        # context['organization_slug'] = self.get_organization()
 
         # Determina si deshabilia los botones del formulario
         context['enable_button'] = True

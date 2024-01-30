@@ -157,7 +157,7 @@
 <div class="row mb-3">
     <div class="col text-end">
         {% if deal %}
-        <a href="{% url 'deal:task-create' deal_pk=deal.id organization_name=organization_name %}" id="add-more-task"
+        <a href="{% url 'deal:task-create' deal_pk=deal.id organization_slug=organization_slug %}" id="add-more-task"
         class="btn btn-warning {% if not enable_button %}disabled{% endif %}" {% if not enable_button %}onclick="return false;" {% endif %}>Agregar Task</a>
     {% endif %}
     </div>

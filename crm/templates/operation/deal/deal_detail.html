@@ -31,7 +31,7 @@
         {% endfor %}
             
         {% for deal_task in deal_tasks %}
-            <li class="list-group-item"> Tareas: <a href="{% url 'deal:task-detail' pk=deal_task.id organization_name=organization_name %}">{{ deal_task.name }}</a></li>  
+            <li class="list-group-item"> Tareas: <a href="{% url 'deal:task-detail' pk=deal_task.id organization_slug=organization_slug %}">{{ deal_task.name }}</a></li>  
         {% empty %}
             <li class="list-group-item">No tasks associated with this deal.</li>
         {% endfor %}
@@ -39,8 +39,8 @@
     </ul>
 </div>
 <div class="col-md-8 mt-3">
-    <a href="{% url 'deal:update' pk=deal.pk organization_name=organization_name %}" class="btn btn-primary">Update</a>
-    <a href="{% url 'deal:delete' pk=deal.pk organization_name=organization_name %}" class="btn btn-danger">Delete</a>
+    <a href="{% url 'deal:update' pk=deal.pk organization_slug=organization_slug %}" class="btn btn-primary">Update</a>
+    <a href="{% url 'deal:delete' pk=deal.pk organization_slug=organization_slug %}" class="btn btn-danger">Delete</a>
 </div>
                 
 

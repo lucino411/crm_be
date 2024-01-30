@@ -7,7 +7,7 @@
 
 {% endblock %} {% block content %}
 <!-- con este div le pasamos el nombre de la organization a JS de datatables -->
-<div id="task-list" data-organization-name="{{ organization_name }}" class="d-none"></div>
+<div id="task-list" data-organization-slug="{{ organization_slug }}" class="d-none"></div>
 <div class="container">
     <div class="row">
         <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
@@ -60,6 +60,6 @@
 <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
 
 <!-- Custom Datatable JS -->
-<script src="{% static 'js/be_crm_task_datatable.js' %}"></script>
+<script src="{% static 'js/be_crm_leadtask_datatable.js' %}"></script>
 
 {% endblock %}

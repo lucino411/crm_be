@@ -37,5 +37,10 @@ class Client(models.Model):
     organization = models.ForeignKey(Organization, related_name='client_organization', on_delete=models.CASCADE)  
     erased = models.BooleanField(default=False)
 
+    def clean(self):
+        super().clean()
+        self.first_name = self.first_name.title()
+        self.last_name = self.last_name.title()
+
     def __str__(self):
         return self.first_name + " " + self.last_name

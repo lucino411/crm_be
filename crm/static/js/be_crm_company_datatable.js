@@ -93,9 +93,8 @@ const initDataTable = async () => {
     }
 
     await listTasks();
-
       
-    dataTable = $("#datatable-tasks").DataTable({
+    dataTable = $("#datatable-companies").DataTable({
         ...dataTableOptions,
         select: true  // Agrega esta línea dentro de las opciones
     });
@@ -106,14 +105,14 @@ const initDataTable = async () => {
 
 const listTasks = async () => {
     try {
-        const taskListElement = document.getElementById('task-list');
-        const organizationName = taskListElement.dataset.organizationName;
-        const response = await fetch(`${BASE_URL}/${organizationName}/lead/tasks_json`);
+        const companyListElement = document.getElementById('company-list');
+        const organizationSlug = companyListElement.dataset.organizationSlug;
+        const response = await fetch(`${BASE_URL}/${organizationSlug}/company/companies_json`);
         const data = await response.json();
         let content = ``;
         
-        data.tasks.forEach((task, index) => {
-            const taskData = task;
+        data.companies.forEach((company, index) => {
+            const companyData = company;
 
             // Define un método para procesar las fechas
             const processDate = (dateString) => {
@@ -124,23 +123,25 @@ const listTasks = async () => {
                 }
             };
 
-            // console.log(taskData); // Agrega esta línea para imprimir taskData en la consola
+            // console.log(companyData); // Agrega esta línea para imprimir companyData en la consola
             // Procesa las fechas utilizando el método definido
-            const modifiedTime = processDate(taskData.modified_time); 
+            const modifiedTime = processDate(companyData.modified_time); 
 
 
             content += `
         <tr>
-            <td><a href="/${taskData.organization}/lead/task/${taskData.id}/" class='table-link'>${taskData.name}</a></td>
-            <td>${taskData.lead_name}</td>
-            <td>${taskData.product_name}</td>
+            <td><a href="/${companyData.organization}/company/${companyData.id}/" class='table-link'>${companyData.company_name}</a></td>
+            <td>${companyData.company_email}</td>
+            <td>${companyData.company_phone}</td>
+            <td>${companyData.website}</td>
+            <td>${companyData.industry}</td>
             <td>${modifiedTime}</td>     
-            <td>${taskData.created_by}</td>     
-            <td>${taskData.assigned_to}</td>
+            <td>${companyData.created_by}</td>     
+            <td>${companyData.organization}</td>
         </tr>
         `;
         });
-        tableBody_tasks.innerHTML = content;
+        tableBody_companies.innerHTML = content;
     } catch (e) {
         alert(e);
     }

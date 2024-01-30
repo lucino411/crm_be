@@ -26,7 +26,7 @@
             <span class="badge bg-warning">Deals</span>
             {% for deal in client_deals %}
             <li class="list-group-item">
-                <a href="{% url 'deal:detail' pk=deal.pk organization_name=organization_name %}">{{ deal.deal_name }}</a>
+                <a href="{% url 'deal:detail' pk=deal.pk organization_slug=organization_slug %}">{{ deal.deal_name }}</a>
             </li>
             {% endfor %}       
         {% endif %}     

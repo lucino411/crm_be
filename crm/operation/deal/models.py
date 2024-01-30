@@ -88,6 +88,12 @@ class Deal(models.Model):
     is_closed = models.BooleanField(default=False)  
     erased = models.BooleanField(default=False)
 
+    def clean(self):
+        super().clean()
+        self.deal_name = self.deal_name.title()
+        self.first_name = self.first_name.title()
+        self.last_name = self.last_name.title()
+
     def __str__(self):
         return self.deal_name
     
@@ -135,6 +141,10 @@ class DealTask(models.Model):
     ]   
     stage = models.CharField(max_length=20, choices=STAGE_CHOICES, default='pending')    
     is_closed = models.BooleanField(default=False)
+
+    def clean(self):
+        super().clean()
+        self.name = self.name.title()
 
     def __str__(self):
         return self.name

@@ -55,7 +55,7 @@ class ContactDetailView(DetailView, AgentRequiredMixin, AgentContextMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Detail Contact'
-        context['organization_name'] = self.get_organization()
+        # context['organization_name'] = self.get_organization()
 
         # Obtener el objeto Contact actual
         contact = self.get_object()

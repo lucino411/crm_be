@@ -7,5 +7,14 @@ class Currency(models.Model):
     code = models.CharField(max_length=3)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
 
+    def clean(self):
+        super().clean()
+        self.code = self.code.upper()
+
     def __str__(self):
         return self.code
+    
+    class Meta:
+        verbose_name = 'Currency'
+        verbose_name_plural = 'Currencies'
+        ordering = ['code']

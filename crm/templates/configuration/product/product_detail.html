@@ -17,9 +17,9 @@
         {{ product.product_url }}
     </div>
     <div class="col-md-8">
-        <a href="{% url 'product:update' pk=product.pk organization_name=request.user.organizer.organization.name %}"
+        <a href="{% url 'product:update' pk=product.pk organization_slug=organization_slug %}"
             class="btn btn-primary">Update</a>
-        <a href="{% url 'product:delete' pk=product.pk organization_name=request.user.organizer.organization.name %}"
+        <a href="{% url 'product:delete' pk=product.pk organization_slug=organization_slug %}"
             class="btn btn-danger">Delete</a>
     </div>
 </div>

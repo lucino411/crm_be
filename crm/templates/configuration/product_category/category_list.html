@@ -10,11 +10,11 @@
             <h1>Lista de Categorias de Producto</h1>
             <ul class="list-group">
                 {% for category in categories %}
-                    <li class="list-group-item"><a href="{% url 'product:category-detail' pk=category.pk organization_name=request.user.organizer.organization.name  %}" class="">{{ category.name }}</a> - {{ category.url }}</li>
+                    <li class="list-group-item"><a href="{% url 'product:category-detail' pk=category.pk organization_slug=organization_slug  %}" class="">{{ category.name }}</a> - {{ category.url }}</li>
                 {% endfor %}
             </ul>
             <br>
-            <a href="{% url 'product:category-create' organization_name=request.user.organizer.organization %}" class="btn btn-primary">Create</a> 
+            <a href="{% url 'product:category-create' organization_slug=organization_slug %}" class="btn btn-primary">Create</a> 
         </div>
     </div>
 </div>

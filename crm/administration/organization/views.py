@@ -32,13 +32,12 @@ class ImageUploadView(LoginRequiredMixin, OrganizerRequiredMixin, OrganizerConte
         return super().form_invalid(form)
     
     def get_success_url(self):  
-        return reverse_lazy('lead:list', kwargs={'organization_name': self.get_organization()})
+        return reverse_lazy('lead:list', kwargs={'organization_slug': self.get_organization().slug})
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update({
-            'organization_name': self.get_organization(),
-        })
+        # context.update({'organization_slug': self.get_organization()})
+        context['titulo'] = 'Subir Imagen'
         return context
 
 
@@ -50,16 +49,13 @@ class MediaLibraryView(LoginRequiredMixin, OrganizerRequiredMixin, OrganizerCont
     def get_queryset(self):
         # organization_id = self.kwargs['organization_id']
         # print('organization_id  ', organization_id)
-        organization_name = self.kwargs['organization_name']
-        organization = get_object_or_404(Organization, name=organization_name)
+        organization_slug = self.kwargs['organization_slug']
+        # organization = get_object_or_404(Organization, name=organization_slug)
+        organization = get_object_or_404(Organization, slug=organization_slug)
         return OrganizationMedia.objects.filter(organization=organization)
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context.update({
-            'organization_name': self.get_organization(),
-        })
+        # context.update({'organization_slug': self.get_organization()})
+        context['titulo'] = 'Media Library'
         return context
-
-
-
