@@ -14,5 +14,6 @@ def organization_details(request):
         if organization:
             context['organization_slug'] = organization.slug
             context['organization_id'] = organization.id
+            context['organization_name'] = organization.name  # Agregar el nombre de la organización al contexto
             
     return context

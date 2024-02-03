@@ -13,7 +13,7 @@ class HomeClientView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Gestion de Clients'
+        context['title'] = 'Clients'
         return context
 
 # Query de Clients de la base de datos enviada a JS como JSON para las Datatables JS
@@ -40,11 +40,6 @@ class ClientListView(ListView, AgentRequiredMixin, AgentContextMixin):
             client['organization'] = self.get_organization().name
 
         return JsonResponse({'clients': clients_data})
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['organization_name'] = self.get_organization().name
-        return context
     
 
 class ClientDetailView(DetailView, AgentRequiredMixin, AgentContextMixin):
@@ -54,7 +49,7 @@ class ClientDetailView(DetailView, AgentRequiredMixin, AgentContextMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Detail Client'
+        context['title'] = 'Detail Client'
         context['organization_name'] = self.get_organization()
 
         # Obtener el objeto Client actual

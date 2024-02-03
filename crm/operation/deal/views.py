@@ -30,7 +30,7 @@ class HomeDealView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Gestion de Deals'
+        context['title'] = 'Deals'
         return context
 
 # Query de Deals de la base de datos enviada a JS como JSON para las Datatables JS
@@ -60,11 +60,6 @@ class DealListView(ListView, AgentRequiredMixin, AgentContextMixin):
 
         return JsonResponse({'deals': deals_data})
 
-    # def get_context_data(self, **kwargs):
-        # context = super().get_context_data(**kwargs)
-        # context['organization_slug'] = self.get_organization().slug
-        # return context
-
 
 class DealDetailView(DetailView, AgentRequiredMixin, AgentContextMixin):
     model = Deal
@@ -73,8 +68,9 @@ class DealDetailView(DetailView, AgentRequiredMixin, AgentContextMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Detail Deal'
-        # context['organization_slug'] = self.get_organization()
+        deal = self.get_object()
+        context['title'] = f"{deal.deal_name}"
+        context['crud'] = "Deal Detail"
         # Añadir productos asociados al Deal
         deal_products = DealProduct.objects.filter(deal=self.object)
         context['deal_products'] = deal_products
@@ -640,8 +636,8 @@ class DealUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
         deal = self.get_object()
         organization = self.get_organization()
         context['pk'] = deal.pk
-        context['titulo'] = 'Update Deal'
-        # context['organization_slug'] = self.get_organization()
+        context['title'] = f"{deal.deal_name}"
+        context['crud'] = 'Update Deal'
         current_time = timezone.now()
 
         # Determina si deshabilitan los botones update y create task
@@ -739,7 +735,9 @@ class DealDeleteView(DeleteView, AgentRequiredMixin, AgentContextMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Delete Deal'
+        deal = self.get_object()
+        context['title'] = f"{deal.deal_name}"
+        context['crud'] = "Delete Deal"
         # context['organization_slug'] = self.get_organization().slug
         return context
 
@@ -756,7 +754,7 @@ class DealHomeTaskView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Gestion de Tasks Deals'
+        context['title'] = 'Tasks Deals'
         return context
 
 
@@ -787,11 +785,6 @@ class DealTaskListView(ListView, AgentRequiredMixin, AgentContextMixin):
 
         return JsonResponse({'tasks': tasks_data})
 
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # context['organization_slug'] = self.get_organization().name
-        return context
 
 
 class DealTaskCreateView(FormView, AgentRequiredMixin, AgentContextMixin):
@@ -924,13 +917,12 @@ class DealTaskCreateView(FormView, AgentRequiredMixin, AgentContextMixin):
 
         # Componer el título y añadirlo al contexto
         if deal.deal_name:
-            context['titulo'] = f"Crear Task for {deal.deal_name}"
+            context['title'] = f"Create Task for {deal.deal_name}"
         else:
-            context['titulo'] = "Crear Task"
+            context['title'] = "Create Task"
         context['deal'] = deal
         context['deal_name'] = deal.deal_name if deal else None
         context['deal_pk'] = deal_id
-        # context['organization_slug'] = self.get_organization()
 
         return context
     
@@ -942,8 +934,7 @@ class DealTaskDetailView(DetailView, AgentRequiredMixin, AgentContextMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Deal Detail Task'
-        # context['organization_slug'] = self.get_organization()
+        context['title'] = 'Detail Task Deal'
        # Obtener el producto asociado a la tarea
         task = context['task']  # Esta es la instancia de Task que DetailView está mostrando
         task_product = None  # Inicializa como None por si no hay producto asociado        
@@ -978,7 +969,7 @@ class DealTaskDeleteView(DeleteView, AgentRequiredMixin, AgentContextMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Delete Task'
+        context['title'] = 'Delete Task'
         # context['organization_slug'] = self.get_organization()
         return context
 
@@ -1142,9 +1133,9 @@ class DealTaskUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
         deal = task.deal  # Obteniendo el deal asociado a la tarea
         # Componer el título y añadirlo al contexto
         if deal.deal_name:
-            context['titulo'] = f"Crear Task for {deal.deal_name}"
+            context['title'] = f"Create Task for {deal.deal_name}"
         else:
-            context['titulo'] = "Crear Task"
+            context['title'] = "Create Task"
         context['task'] = task
         context['deal'] = deal
         context['deal_pk'] = deal.id

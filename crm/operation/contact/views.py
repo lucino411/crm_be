@@ -13,7 +13,7 @@ class HomeContactView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Gestion de Contacts'
+        context['title'] = 'Contacts'
         return context
 
 # Query de Contacts de la base de datos enviada a JS como JSON para las Datatables JS
@@ -40,11 +40,6 @@ class ContactListView(ListView, AgentRequiredMixin, AgentContextMixin):
             contact['organization'] = self.get_organization().name
 
         return JsonResponse({'contacts': contacts_data})
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['organization_name'] = self.get_organization().name
-        return context
     
 
 class ContactDetailView(DetailView, AgentRequiredMixin, AgentContextMixin):
@@ -54,8 +49,7 @@ class ContactDetailView(DetailView, AgentRequiredMixin, AgentContextMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Detail Contact'
-        # context['organization_name'] = self.get_organization()
+        context['title'] = 'Detail Contact'
 
         # Obtener el objeto Contact actual
         contact = self.get_object()

@@ -1,4 +1,4 @@
-be
+crm_be
 ├─ crm
 │  ├─ administration
 │  │  ├─ core
@@ -12,8 +12,11 @@ be
 │  │  ├─ organization
 │  │  │  ├─ admin.py
 │  │  │  ├─ apps.py
+│  │  │  ├─ context_processors.py
+│  │  │  ├─ forms.py
 │  │  │  ├─ models.py
 │  │  │  ├─ tests.py
+│  │  │  ├─ urls.py
 │  │  │  └─ views.py
 │  │  └─ userprofile
 │  │     ├─ admin.py
@@ -47,6 +50,13 @@ be
 │  │     ├─ tests.py
 │  │     ├─ urls.py
 │  │     └─ views.py
+│  ├─ media
+│  │  └─ organizations
+│  │     └─ 1
+│  │        ├─ 2023-12-30_21-21.png
+│  │        ├─ Pieter_the_older_Bruegel.jpeg
+│  │        ├─ Schubert-Klimt.jpg
+│  │        └─ written_down.png
 │  ├─ operation
 │  │  ├─ client
 │  │  │  ├─ admin.py
@@ -60,6 +70,7 @@ be
 │  │  │  ├─ apps.py
 │  │  │  ├─ models.py
 │  │  │  ├─ tests.py
+│  │  │  ├─ urls.py
 │  │  │  └─ views.py
 │  │  ├─ contact
 │  │  │  ├─ admin.py
@@ -99,25 +110,31 @@ be
 │  │  └─ urls.py
 │  ├─ static
 │  │  ├─ css
-│  │  │  └─ be_crm.css
+│  │  │  ├─ be_crm.css
+│  │  │  └─ be_crm0.css
 │  │  ├─ img
+│  │  │  └─ logo.png
 │  │  └─ js
 │  │     ├─ ai.js
 │  │     ├─ be_crm_client_datatable.js
+│  │     ├─ be_crm_company_datatable.js
 │  │     ├─ be_crm_contact_datatable.js
 │  │     ├─ be_crm_datatable copy.js
 │  │     ├─ be_crm_deals_datatable.js
 │  │     ├─ be_crm_dealtask_datatable.js
 │  │     ├─ be_crm_leads_datatable.js
-│  │     └─ be_crm_task_datatable.js
+│  │     └─ be_crm_leadtask_datatable.js
 │  └─ templates
 │     ├─ administration
-│     │  └─ core
-│     │     ├─ 404.html
-│     │     ├─ base copy.html
-│     │     ├─ base.html
-│     │     ├─ navbar copy.html
-│     │     └─ navbar.html
+│     │  ├─ core
+│     │  │  ├─ 404.html
+│     │  │  ├─ base.html
+│     │  │  ├─ base1.html
+│     │  │  ├─ navbar.html
+│     │  │  └─ navbar1.html
+│     │  └─ organization
+│     │     ├─ media_library.html
+│     │     └─ upload_media.html
 │     ├─ configuration
 │     │  ├─ country
 │     │  │  ├─ country_create.html
@@ -148,6 +165,9 @@ be
 │     │  │  ├─ client_detail.html
 │     │  │  ├─ client_list.html
 │     │  │  └─ client_update.html
+│     │  ├─ company
+│     │  │  ├─ company_detail.html
+│     │  │  └─ company_list.html
 │     │  ├─ contact
 │     │  │  ├─ contact_detail.html
 │     │  │  ├─ contact_list.html

@@ -6,10 +6,6 @@
 
 {% block content %}
 
-<h1 class="text-xl">Update Task for {{ lead_name }}</h1>
-
-<br><br>
-
 <form id="taskUpdateForm" action="." method="post" enctype="multipart/form-data" class="row g-3">
     {% csrf_token %}
     <div class="row mb-3">

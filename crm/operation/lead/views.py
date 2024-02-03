@@ -186,7 +186,7 @@ class HomeLeadView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):        
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Gestion de Leads'
+        context['title'] = 'Leads'
 
         return context
 
@@ -232,8 +232,9 @@ class LeadDetailView(DetailView, AgentRequiredMixin, AgentContextMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Detail Lead'
-        # context['organization_name'] = self.get_organization()
+        lead = self.get_object()
+        context['title'] = f'{ lead.lead_name}' 
+        context['crud'] = "Detail Lead"
         # Añadir productos asociados al Lead
         lead_products = LeadProduct.objects.filter(lead=self.object)
         context['lead_products'] = lead_products
@@ -525,7 +526,9 @@ class LeadCreateView(LoginRequiredMixin, FormView, AgentRequiredMixin, AgentCont
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Create Lead'
+        context['title'] =  "Create Lead"
+        
+       
         # context['organization_name'] = self.get_organization()
         # if self.request.POST:
         #     context['formset'] = LeadProductFormset(self.request.POST)
@@ -1089,7 +1092,9 @@ class LeadUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
         lead = self.get_object()
         organization = self.get_organization()
         context['pk'] = lead.pk
-        context['titulo'] = 'Update Lead'
+        context['title'] = f"{lead.lead_name}"
+        context['crud'] = "Update Lead"
+
         # context['organization_name'] = self.get_organization()
         current_time = timezone.now()
 
@@ -1187,7 +1192,9 @@ class LeadDeleteView(DeleteView, AgentRequiredMixin, AgentContextMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Delete Lead'
+        lead = self.get_object()
+        context['title'] = f'{ lead.lead_name}' 
+        context['crud'] = "Delete Lead"
         # context['organization_name'] = self.get_organization()
         return context
 
@@ -1202,7 +1209,7 @@ class LeadHomeTaskView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Gestion de Tasks Leads'
+        context['title'] = 'Lead Tasks'
         return context
 
 
@@ -1234,11 +1241,9 @@ class LeadTaskListView(ListView, AgentRequiredMixin, AgentContextMixin):
         return JsonResponse({'tasks': tasks_data})
 
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # context['organization_name'] = self.get_organization().name
-        context['titulo'] = 'Lead Task Detail'
-        return context
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     return context
 
 
 class LeadTaskCreateView(FormView, AgentRequiredMixin, AgentContextMixin):
@@ -1373,9 +1378,10 @@ class LeadTaskCreateView(FormView, AgentRequiredMixin, AgentContextMixin):
 
         # Componer el título y añadirlo al contexto
         if lead.lead_name:
-            context['titulo'] = f"Crear Task for {lead.lead_name}"
+            context['title'] = f"{lead.lead_name }"
+            context['crud'] = "Create Lead Task"
         else:
-            context['titulo'] = "Crear Task"
+            context['title'] = "Task Create"
         context['lead'] = lead
         context['lead_name'] = lead.lead_name if lead else None
         context['lead_pk'] = lead_id
@@ -1391,8 +1397,9 @@ class LeadTaskDetailView(DetailView, AgentRequiredMixin, AgentContextMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Detail Task'
-        # context['organization_name'] = self.get_organization()
+        task = self.get_object()
+        context['title'] = f'{ task.name }' 
+        context['crud'] = "Detail Lead Task"
        # Obtener el producto asociado a la tarea
         task = context['task']  # Esta es la instancia de Task que DetailView está mostrando
         task_product = None  # Inicializa como None por si no hay producto asociado        
@@ -1427,8 +1434,9 @@ class LeadTaskDeleteView(DeleteView, AgentRequiredMixin, AgentContextMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Delete Task'
-        # context['organization_name'] = self.get_organization()
+        task = self.get_object()
+        context['title'] = f'{ task.name }' 
+        context['crud'] = "Delete Lead Task"
         return context
 
 
@@ -1590,9 +1598,10 @@ class LeadTaskUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
         lead = task.lead  # Obteniendo el lead asociado a la tarea
         # Componer el título y añadirlo al contexto
         if lead.lead_name:
-            context['titulo'] = f"Crear Task for {lead.lead_name}"
+            context['title'] = f"{lead.lead_name }"
+            context['crud'] = "Update Task"
         else:
-            context['titulo'] = "Crear Task"
+            context['title'] = "Task Update"
         context['task'] = task
         context['lead'] = lead
         context['lead_pk'] = lead.id

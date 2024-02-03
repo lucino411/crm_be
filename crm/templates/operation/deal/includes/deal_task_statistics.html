@@ -1,0 +1,45 @@
+<div class="row g-3 my-2">
+      
+        {% if deal_with_most_tasks %}
+        <div class="col-md-3">
+            <div class="p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+                <div>
+                    <h3 class="fs-2">{{ deal_with_most_tasks.task_count }} tasks</h3>
+                    <p class="fs-5">Deal {{ deal_with_most_tasks.deal_name }} </p>
+                </div>
+                <i class="fa-brands fa-product-hunt fs-1 primary-text border rounded-full secondary-bg p-3"></i>
+            </div>
+        </div>
+        {% endif %} 
+        
+        <div class="col-md-3">
+            <div class="p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+                <div>
+                    <h3 class="fs-2">{{ total_tasks }}</h3>
+                    <p class="fs-5">Total Tasks</p>
+                </div>
+                <i class="fas fa-chart-line fs-1 primary-text border rounded-full secondary-bg p-3"></i>
+            </div>
+        </div>
+    
+        <div class="col-md-3">
+            <div class="p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+                <div>
+                    <h3 class="fs-2">{{ total_tasks_completed }}</h3>
+                    <p class="fs-5">Tasks Completed</p>
+                </div>
+                <i class="fas fa-sad-tear fs-1 primary-text border rounded-full secondary-bg p-3"></i>
+            </div>
+        </div>
+    
+        <div class="col-md-3">
+        <div class="p-3 bg-white shadow-sm d-flex justify-content-around align-items-center rounded">
+            <div>
+                <h3 class="fs-2">{{ total_tasks_canceled }}</h3>
+                <p class="fs-5">Tasks Canceled</p>
+            </div>
+            <i class="fas fa-chart-line fs-1 primary-text border rounded-full secondary-bg p-3"></i>
+        </div>
+    </div>
+  
+  </div>

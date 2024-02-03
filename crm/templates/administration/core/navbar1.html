@@ -1,0 +1,114 @@
+<nav class="navbar navbar-expand-sm bg-light navbar-light fixed-top">
+    <div class="container-fluid">
+
+        {% if not request.user.is_authenticated %}
+            <span class="navbar-brand">Blasting Experts</span>
+        {% else %}      
+            {% if request.user.organizer or request.user.agent %}
+                <a class="navbar-brand" href="{% url 'dashboard-home' organization_slug=organization_slug %}">
+                    {% if request.user.organizer %}
+                        {{ request.user.organizer.organization }}
+                    {% elif request.user.agent %}
+                        {{ request.user.agent.organization }}
+                    {% endif %}                    
+                </a>
+            {% else %}
+                <span class="navbar-brand">Blasting Experts Inc.</span>
+            {% endif %}  
+        {% endif %}
+
+
+        {% if request.user.is_authenticated and request.user.agent %}
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">                    
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Leads
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'lead:list' organization_slug=organization_slug %}">Leads</a></li>
+                        <li><a class="dropdown-item" href="{% url 'lead:task-list' organization_slug=organization_slug %}">Lead Tasks</a></li>
+                        <li><a class="dropdown-item" href="{% url 'contact:contact-list' organization_slug=organization_slug %}">Contacs</a></li>
+                    </ul>
+                </li>
+                
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Deals
+                    </a>
+                    <ul class="dropdown-menu">                            
+                        <li><a class="nav-link" href="{% url 'deal:list' organization_slug=organization_slug %}">Deals</a></li>
+                        <li><a class="dropdown-item" href="{% url 'deal:task-list' organization_slug=organization_slug %}">Deal Tasks</a></li>
+                        <li><a class="dropdown-item" href="{% url 'client:client-list' organization_slug=organization_slug %}">Clients</a></li>
+                        <li><a class="dropdown-item" href="{% url 'company:company-list' organization_slug=organization_slug %}">Companies</a></li>
+                    </ul>
+                </li>     
+
+            </ul>
+        {% endif %}         
+
+        <button class="btn btn-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon link-underline-opacity-25 link-underline-opacity-100-hover"></span>
+        </button>
+
+    </div>
+</nav>
+
+
+
+<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title" id="offcanvasNavbarLabel">Settings</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Logged in as: {{ request.user.username }}</a>
+                </li>                     
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                </li>
+            {% if request.user.organizer %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        Configuration
+                    </a>
+                        <ul class="dropdown-menu">                                    
+                            <li>
+                                <a class="dropdown-item" aria-current="page"
+                                href="{% url 'country:list' organization_slug=organization_slug %}">Countries</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" aria-current="page"
+                                    href="{% url 'product:list' organization_slug=organization_slug %}">Products</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" aria-current="page"
+                                    href="{% url 'product:category-list' organization_slug=organization_slug %}">Product Categories</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" aria-current="page"
+                                    href="{% url 'currency:list' organization_slug=organization_slug %}">Currency</a>
+                            </li>
+
+                            <li>  
+                                <a class="dropdown-item" aria-current="page"
+                                    href="{% url 'organization:upload-file' organization_slug=organization_slug %}">Images</a>                                     
+                            </li>
+                            <li>  
+                                <a class="dropdown-item" aria-current="page"
+                                    href="{% url 'organization:media-library' organization_slug=organization_slug %}">Media Library</a>                                     
+                            </li>
+                            <li><a class="dropdown-item" href="#">Action</a></li>
+                            <li><a class="dropdown-item" href="#">Another action</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="#">Something else here</a></li>
+                        </ul>
+                    </li>
+            {% endif %}                                
+        </ul>
+    </div>
+</div>
