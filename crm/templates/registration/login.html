@@ -4,19 +4,25 @@
 
 {% block content %}
 
+    <main class="form-signin w-100 m-auto">
+        <form method="POST" action="{% url 'login-home' %}">{% csrf_token %}
 
-<h1>Login Django</h1>
-<br>
-<form method="POST" action="{% url 'login-home' %}">{% csrf_token %}
-    <div class="mb-3">
-        <input type="text" class="form-control" name="username" , placeholder="Username" required>
-    </div><br>
-    <div class="mb-3">
-        <input type="password" class="form-control" name="password" , placeholder="Password" required>
-    </div>
-    <br>
-    <button type="submit" class="btn btn-secondary">Login</button>
-</form>
+            <img class="mb-4" src="#" alt="" width="72" height="57">
+            <h1 class="h3 mb-3 fw-normal">Please login</h1>
 
+            <div class="form-floating">
+            <input type="text" id="floatingInput" class="form-control" name="username" , placeholder="Username" required>
+            <label for="floatingInput">Username</label>
+            </div>
+            <div class="form-floating">
+            <input type="password" id="floatingPassword" class="form-control" name="password" , placeholder="Password" required>
+            <label for="floatingPassword">Password</label>
+            </div>
+
+        
+            <button class="btn btn-primary w-100 py-2" type="submit">Login</button>
+            <p class="mt-5 mb-3 text-body-secondary">&copy; BlastingExperts-2024</p>
+        </form>
+    </main>
 
 {% endblock %}

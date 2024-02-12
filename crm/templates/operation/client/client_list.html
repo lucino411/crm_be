@@ -22,10 +22,10 @@
               <th class="centered">First Name</th>
               <th class="centered">Last Name</th>
               <th class="centered">Email</th>
+              <th class="centered">Phone</th>
               <th class="centered">Country</th>
               <th class="centered">Created Time</th>
               <th class="centered">Last Modified By</th>
-              <th class="centered">Organization</th>
             </tr>
           </thead>
           <tbody id="tableBody_clients"></tbody>
@@ -45,6 +45,44 @@
     </div>
   </div>
 </div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="dealClientModal" tabindex="-1" aria-labelledby="dealClientModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="dealClientModalLabel"><span id="modal-client-first-name"></span>&nbsp;<span id="modal-client-last-name"></span></h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-light" role="alert">  
+          <p><strong>Email:</strong> <span id="modal-client-primary-email"></span></p>
+          <p><strong>Title:</strong> <span id="modal-client-title"></span></p>
+          <p><strong>Phone:</strong> <span id="modal-client-phone"></span></p>
+          <p><strong>Cellphone:</strong> <span id="modal-client-mobile-phone"></span></p>
+          <p><strong>Company:</strong> <span id="modal-client-company"></span></p>
+          <p><strong>Modified By:</strong> <span id="modal-client-modified-by"></span></p>
+          <p><strong>Modified Time:</strong> <span id="modal-client-modified-time"></span></p>
+          <p><strong>Created By:</strong> <span id="modal-client-created-by"></span></p>
+          <p><strong>Created Time:</strong> <span id="modal-client-created-time"></span></p>
+          <p><strong>Country:</strong> <span class="badge bg-dark fs-6"><span id="modal-client-country"></span></span></p>
+
+          <div id="modal-client-deals" class="alert alert-light" role="alert">
+            <h5>Related Deals</h5>
+            <!-- Los productos del deal se listarán aquí -->
+          </div>
+
+        </div>         
+      </div>
+      <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>    
+      </div>
+    </div>
+  </div>
+</div>
+
+
 {% endblock %} {% block scripts %}
 <!-- Datatables -->
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

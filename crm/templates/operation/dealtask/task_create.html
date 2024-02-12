@@ -6,58 +6,58 @@
 
 {% block content %}
 
-<h1 class="text-xl">Add Task for {{ deal_name }}</h1>
+<div class="container rounded shadow-sm bg-light border border-2 p-5 my-4" style="width: 40%;">
 
-<br><br>
-<form action="." method="post" enctype="multipart/form-data" class="row g-3">
-    {% csrf_token %}
-    <div class="row mb-3">
-        <div class="col-md-8">
-            <label for="formGroupExampleInput2" class="form-label">Task Nombre</label>
-            {{ form.name }}
-        </div>
-    </div>
-    <div class="row mb-3">
-
-        <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Product</label>
-            {{ form.deal_product }}
-        </div>
-    </div>
-    {% if form.parent_task %}               
+    <form action="." method="post" enctype="multipart/form-data" class="row g-3">
+        {% csrf_token %}
         <div class="row mb-3">
-            <div class="col-md-5">            
-                <label for="formGroupExampleInput2" class="form-label">Parent Task</label>
-                {{ form.parent_task }}
-                <input type="hidden" name="parent_task_id" value="{{ request.GET.parent_task }}">
+            <div class="col-12">
+                <label for="formGroupExampleInput2" class="form-label">Task Nombre</label>
+                {{ form.name }}
             </div>
         </div>
-    {% endif %}
 
-
-    <div class="row mb-3">
-        <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Assigned to</label>
-            {{ form.assigned_to }}
+        {% if form.parent_task %}               
+            <div class="row mb-3">
+                <div class="col-12">            
+                    <label for="formGroupExampleInput2" class="form-label">Parent Task</label>
+                    {{ form.parent_task }}
+                    <input type="hidden" name="parent_task_id" value="{{ request.GET.parent_task }}">
+                </div>
+            </div>
+        {% endif %}
+        
+        <div class="row mb-3">
+            <div class="col-8">
+                <label for="formGroupExampleInput2" class="form-label">Product</label>
+                {{ form.deal_product }}
+            </div>
         </div>
-    </div>
 
-    <div class="row mb-3">
-        <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Description</label>
-            {{ form.description }}
+        <div class="row mb-3">
+            <div class="col-8">
+                <label for="formGroupExampleInput2" class="form-label">Assigned to</label>
+                {{ form.assigned_to }}
+            </div>
         </div>
-    </div>
 
-    <br>
-    <div class="row mb-3">
-        <div class="col-md-5">
-            <button type="submit" class="btn btn-primary">Create</button>
+        <div class="row mb-3">
+            <div class="col-12">
+                <label for="formGroupExampleInput2" class="form-label">Description</label>
+                {{ form.description }}
+            </div>
         </div>
-    </div>
-    <br><br><br>
-</form>
 
+        <div class="row my-4">
+            <div class="btn-group">
+                <button type="button" onclick="window.history.back();" class="btn btn-secondary">Return</button> 
+                <button type="submit" class="btn btn-primary">Create</button>
+            </div>
+        </div>
+
+    </form>
+
+</div>
 {% endblock %}
 
 {% block scripts %}

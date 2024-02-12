@@ -29,16 +29,27 @@ class CompanyListView(ListView, AgentRequiredMixin, AgentContextMixin):
     def get(self, request, *args, **kwargs):
         companies = self.get_queryset()
         companies_data = list(companies.values('id', 'company_name', 'company_email', 'company_phone', 'website', 'industry', 'last_modified_by_id',
-                          'organization', 'modified_time', 'created_by_id', 'is_client'))
+                          'organization', 'created_time', 'created_by', 'modified_time', 'created_by_id', 'is_client', 'organization__slug'))
         
         user_names = {
             user.id: f"{user.first_name} {user.last_name}" for user in User.objects.all()
         }
 
+        # Diccionario para convertir valores de industry a su representación legible
+        industry_choices = dict(Company.INDUSTRY_CHOICES)
+
         for company in companies_data:
             company['created_by'] = user_names.get(company['created_by_id'])
             company['last_modified_by'] = user_names.get(company['last_modified_by_id'])
             company['organization'] = self.get_organization().name
+            # Convertir industry de código a representación legible
+            company['industry'] = industry_choices.get(company['industry'], 'Unknown') # Ver más detalles en la nota de Obsidian: [[Notas en el Codigo]]
+            # Obtener Deals relacionados correctamente
+            deals = Deal.objects.filter(company_id=company['id']).values('id', 'deal_name')                
+            company['deals'] = list(deals)  # Cambia 'deal' a 'deals' para reflejar que puede haber múltiples
+            # Obtener Clients relacionados correctamente
+            clients = Client.objects.filter(company_id=company['id']).values('id', 'primary_email', 'first_name', 'last_name')                
+            company['clients'] = list(clients)  # Cambia 'deal' a 'deals' para reflejar que puede haber múltiples
 
         return JsonResponse({'companies': companies_data})
     
@@ -57,14 +68,5 @@ class CompanyDetailView(DetailView, AgentRequiredMixin, AgentContextMixin):
         context['deals'] = Deal.objects.filter(company=company)
         # Obtener los Clients asociados con esta Company
         context['clients'] = Client.objects.filter(company=company)
-
-
-        # context['organization_name'] = self.get_organization()
-        # # Obtener el objeto Contact actual
-        # contact = self.get_object()
-        # # Obtener los leads relacionados
-        # contact_leads = contact.contact_leads.all()  # Utiliza el related_name aquí
-        # # Agregar los leads al contexto
-        # context['contact_leads'] = contact_leads
 
         return context

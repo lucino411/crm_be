@@ -4,209 +4,181 @@
 
 {% block content %}
 
+<div class="container rounded shadow-sm bg-light border border-2 p-5 my-4" >
 
-<form action="." method="post" class="">
-    {% csrf_token %}
-    <div class="row mb-3">
-        <div class="col-md-9">
-            <label for="formGroupExampleInput2" class="form-label">Lead Nombre</label>
-            {{ form.lead_name }}
-        </div>
-        <!-- Campo de Lead Source -->
-        <div class="col-md-3">
-            <label for="lead_source" class="form-label">Lead Source</label>
-            {{ form.lead_source }}
-        </div>
-    </div>
-
-
-      <div class="row mb-3">
-        <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Nombre</label>
-            {{ form.first_name }}
-        </div>
-        <div class="col-md-4">
-            <label for="formGroupExampleInput2" class="form-label">Apellido</label>
-            {{ form.last_name }}
-        </div>
-           <!-- Campo de Title -->
-        <div class="col-md-3">
-            <label for="title" class="form-label">Title</label>
-            {{ form.title }}
-        </div>
-    </div>
-
-    <div class="row mb-3">
-        <div class="col-md-8">
-            <label for="formGroupExampleInput2" class="form-label">Email</label>
-            {{ form.primary_email }}
-            {% if form.errors.primary_email %}
-            <div id="email-error" class="text-danger">{{ form.errors.primary_email }}</div>
-            {% endif %}
-        </div>     
-    </div>
-
-    <!-- Campos de Phone y Mobile Phone -->
-    <div class="row mb-3">
-        <div class="col-md-5">
-            <label for="phone" class="form-label">Phone</label>
-            {{ form.phone }}
-        </div>
-        <div class="col-md-5">
-            <label for="mobile_phone" class="form-label">Mobile Phone</label>
-            {{ form.mobile_phone }}
-        </div>
-    </div>
-
-    <!-- Campo de Company Name -->
-    <div class="row mb-3">
-        <div class="col-md-8">
-            <label for="company_name" class="form-label">Company Name</label>
-            {{ form.company_name }}
-        </div>
-        <div class="col-md-2">
-            <label for="industry" class="form-label">Industry</label>
-            {{ form.industry }}
-        </div> 
-    </div>
-
-    <!-- Campo de Company Email -->
-    <div class="row mb-3">
-        <div class="col-md-7">
-            <label for="company_email" class="form-label">Company Email</label>
-            {{ form.company_email }}
-        </div>
-        <div class="col-md-3">
-            <label for="company_phone" class="form-label">Company Phone</label>
-            {{ form.company_phone }}
-        </div>
-    </div>
-
-    <!-- Campo de Website -->
-    <div class="row mb-3">
-        <div class="col-md-8">
-            <label for="id_website" class="form-label">Website</label>
-            {{ form.website }}
-            {% if form.errors.website %}
-                <div id="email-error" class="text-danger">{{ form.errors.website }}</div>
-            {% endif %}
-        </div>
-    </div> 
-
-    <div class="row mb-3">
-        <div class="col-md-4">
-            <label for="formGroupExampleInput2" class="form-label">Country</label>
-            {{ form.country }}
-        </div>
-        <div class="col-md-2">
-            <label for="formGroupExampleInput2" class="form-label">Currency</label>
-            {{ form.currency }}
-        </div>  
-    </div>
-
-
-    <div class="row mb-3">
-        <div class="col-md-12">
-            <label for="description" class="form-label">Description</label>
-            {{ form.description }}
-        </div>
-    </div>    
-
-    <div class="row mb-3">
-        <div class="col-md-4">
-            <label for="formGroupExampleInput2" class="form-label">Start Date</label>
-            {{ form.start_date_time }}
-        </div>
-        <div class="col-md-4">
-            <label for="id_end_date_time" class="form-label">End Date</label>
-            {{ form.end_date_time }}
-        </div>
-        <div class="col-md-4" {% if hide_extended_end_date_time %}style="display:none;" {% endif %}>
-            <label for="formGroupExampleInput2" class="form-label">Extended End Date</label>
-            {{ form.extended_end_date_time }}
-        </div>
-    </div>
-
-    <div class="row mb-3">
-        <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Assigned to</label>
-            {{ form.assigned_to }}
-        </div>
-    </div>
-    
-    <div class="row mb-3">
-        {{ formset.management_form }}
-        <div id="form-list">
-            {% for form in formset %}
-            <div class="lead-product-form">{{ form.as_p }}</div>
-            {% endfor %}
-        </div>
-        <div class="col-md-5">
-            <button type="button" id="add-more-product" class="btn btn-primary" {% if not enable_button %}disabled{% endif %} {% if not enable_button %}onclick="return false;"{% endif %}>Agregar Producto</button> {# Botón para añadir más formularios #}
-        </div>
-    </div>
-
-    <!-- LeadProductForm oculto para crear uno nuevo con JS -->
-    <span id="lead-info" data-stage="{{ lead.stage }}" data-is-closed="{{ lead.is_closed }}" style="display: none;"></span>
-    <span id="form-index" data-form-index="{{ formset.total_form_count }}" style="display: none;"></span>
-    <div id="form-template" style="display: none;">
-        {{ formset.empty_form.as_p }}
-    </div>
-
-    <div class="row mb-3">
-        <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Stage</label>
-            {{ form.stage }}
-        </div>
-    </div>
-
-    <br>
-    <button id="updateLeadFormButton" type="submit" class="btn btn-primary" {% if not enable_update %}disabled{% endif %} {% if not enable_update %}onclick="return false;"{% endif %}>Update</button>
-    <br><br><br>
-</form>
-<!-- Botón para añadir una nueva task al lead -->
-<div class="row mb-3">
-    <div class="col text-end">
-        {% if lead %}
-            <a href="{% url 'lead:task-create' lead_pk=lead.id organization_slug=organization_slug %}" id="add-more-task"
-            class="btn btn-warning {% if not enable_button %}disabled{% endif %}" {% if not enable_button %}onclick="return false;" {% endif %}>Agregar Task</a>
-        {% endif %}
-    </div>
-
-    
-    <div class="col text-end">
-        {% if lead %}           
-        
-            <!-- Button trigger modal -->
-            <button id="ConvertLeadToDeal" type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#LeadToDealModal" {% if not enable_button %}disabled{% endif %} {% if not enable_button %}onclick="return false;"{% endif %}>
-                Convert to Deal
-            </button>
-            
-            <!-- Modal -->
-            <div class="modal fade" id="LeadToDealModal" tabindex="-1" aria-labelledby="LeadToDealModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="LeadToDealModalLabel">Confirmación</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body text-center">
-                        ¿Seguro que quieres convertir el Lead en un Deal?
-                    </div>
-                    <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <a href="{% url 'lead:converted-to-deal' pk=pk organization_slug=organization_slug %}" class="btn btn-success">Aceptar</a>
-                    </div>
-                </div>
-                </div>
+    <form action="." method="post" class="">
+        {% csrf_token %}
+        <div class="row mb-3">
+            <div class="col-md-9">
+                <label for="formGroupExampleInput2" class="form-label">Lead Nombre</label>
+                {{ form.lead_name }}
             </div>
+            <!-- Campo de Lead Source -->
+            <div class="col-md-3">
+                <label for="lead_source" class="form-label">Lead Source</label>
+                {{ form.lead_source }}
+            </div>
+        </div>
 
-        {% endif %}
-    </div>
+
+        <div class="row mb-3">
+            <div class="col-md-5">
+                <label for="formGroupExampleInput2" class="form-label">Nombre</label>
+                {{ form.first_name }}
+            </div>
+            <div class="col-md-4">
+                <label for="formGroupExampleInput2" class="form-label">Apellido</label>
+                {{ form.last_name }}
+            </div>
+            <!-- Campo de Title -->
+            <div class="col-md-3">
+                <label for="title" class="form-label">Title</label>
+                {{ form.title }}
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-8">
+                <label for="formGroupExampleInput2" class="form-label">Email</label>
+                {{ form.primary_email }}
+                {% if form.errors.primary_email %}
+                <div id="email-error" class="text-danger">{{ form.errors.primary_email }}</div>
+                {% endif %}
+            </div>     
+        </div>
+
+        <!-- Campos de Phone y Mobile Phone -->
+        <div class="row mb-3">
+            <div class="col-md-5">
+                <label for="phone" class="form-label">Phone</label>
+                {{ form.phone }}
+            </div>
+            <div class="col-md-5">
+                <label for="mobile_phone" class="form-label">Mobile Phone</label>
+                {{ form.mobile_phone }}
+            </div>
+        </div>
+
+        <!-- Campo de Company Name -->
+        <div class="row mb-3">
+            <div class="col-md-8">
+                <label for="company_name" class="form-label">Company Name</label>
+                {{ form.company_name }}
+            </div>
+            <div class="col-md-2">
+                <label for="industry" class="form-label">Industry</label>
+                {{ form.industry }}
+            </div> 
+        </div>
+
+        <!-- Campo de Company Email -->
+        <div class="row mb-3">
+            <div class="col-md-7">
+                <label for="company_email" class="form-label">Company Email</label>
+                {{ form.company_email }}
+            </div>
+            <div class="col-md-3">
+                <label for="company_phone" class="form-label">Company Phone</label>
+                {{ form.company_phone }}
+            </div>
+        </div>
+
+        <!-- Campo de Website -->
+        <div class="row mb-3">
+            <div class="col-md-8">
+                <label for="id_website" class="form-label">Website</label>
+                {{ form.website }}
+                {% if form.errors.website %}
+                    <div id="email-error" class="text-danger">{{ form.errors.website }}</div>
+                {% endif %}
+            </div>
+        </div> 
+
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="formGroupExampleInput2" class="form-label">Country</label>
+                {{ form.country }}
+            </div>
+            <div class="col-md-2">
+                <label for="formGroupExampleInput2" class="form-label">Currency</label>
+                {{ form.currency }}
+            </div>  
+        </div>
+
+
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <label for="description" class="form-label">Description</label>
+                {{ form.description }}
+            </div>
+        </div>    
+
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="formGroupExampleInput2" class="form-label">Start Date</label>
+                {{ form.start_date_time }}
+            </div>
+            <div class="col-md-4">
+                <label for="id_end_date_time" class="form-label">End Date</label>
+                {{ form.end_date_time }}
+            </div>
+            <div class="col-md-4" {% if hide_extended_end_date_time %}style="display:none;" {% endif %}>
+                <label for="formGroupExampleInput2" class="form-label">Extended End Date</label>
+                {{ form.extended_end_date_time }}
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-5">
+                <label for="formGroupExampleInput2" class="form-label">Assigned to</label>
+                {{ form.assigned_to }}
+            </div>
+        </div>
+        
+        <div class="row mb-3">
+            {{ formset.management_form }}
+            <div id="form-list" class="col-md-5 alert alert-secondary" role="alert">
+                {% for form in formset %}
+                    <div class="deal-product-form">{{ form.as_p }}</div>
+                {% endfor %}
+                <button type="button" id="add-more-product" class="btn btn-primary" {% if not enable_button %}disabled{% endif %} {% if not enable_button %}onclick="return false;"{% endif %}>Add Product</button> {# Botón para añadir más formularios #}
+            </div>
+        </div>
+
+        <!-- LeadProductForm oculto para crear uno nuevo con JS -->
+        <span id="lead-info" data-stage="{{ lead.stage }}" data-is-closed="{{ lead.is_closed }}" style="display: none;"></span>
+        <span id="form-index" data-form-index="{{ formset.total_form_count }}" style="display: none;"></span>
+        <div id="form-template" style="display: none;">
+            {{ formset.empty_form.as_p }}
+        </div>
+        
+        <div class="row mb-3">
+            <div class="col-md-5 alert bg-success-subtle" role="alert">
+                <label for="formGroupExampleInput2" class="form-label">Stage</label>
+                {{ form.stage }}
+            </div>
+        </div>
+
+        <br>
+                       
+        <div class="row my-5">
+            <div class="btn-group">
+                <button type="button" onclick="window.history.back();" class="btn btn-secondary">Return</button> 
+                {% if lead %}
+                    <a href="{% url 'lead:task-create' lead_pk=lead.id organization_slug=organization_slug %}" id="add-more-task"
+                    class="btn btn-warning {% if not enable_button %}disabled{% endif %}" {% if not enable_button %}onclick="return false;" {% endif %}>Agregar Task</a>
+                {% endif %}
+                <button id="updateLeadFormButton" type="submit" class="btn btn-primary" {% if not enable_update %}disabled{% endif %} {% if not enable_update %}onclick="return false;"{% endif %}>Update</button>
+            </div>
+        </div>
+    </form>
+
+
+
 </div>
 
-{% endblock %}
 
+{% endblock %}
 
 
 {% block scripts %}

@@ -26,7 +26,7 @@
                             <th class="centered">Industry</th>
                             <th class="centered">Created time</th>
                             <th class="centered">Created By</th>
-                            <th class="centered">Organization</th>
+                            <th class="centered">Industry</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody_companies"></tbody>
@@ -47,6 +47,54 @@
         </div>
     </div>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="dealCompanyModal" tabindex="-1" aria-labelledby="dealCompanyModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="dealCompanyModalLabel"><span id="modal-company-name"></h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-light" role="alert">  
+            <p><strong>Email:</strong> <span id="modal-company-email"></span></p>
+            <p><strong>Phone:</strong> <span id="modal-company-phone"></span></p>
+            <p><strong>Website:</strong> <span id="modal-company-website"></span></p>
+            <p><strong>Industry:</strong> <span id="modal-company-industry"></span></p>
+            <p><strong>Modified By:</strong> <span id="modal-company-modified-by"></span></p>
+            <p><strong>Modified Time:</strong> <span id="modal-company-modified-time"></span></p>
+            <p><strong>Created By:</strong> <span id="modal-company-created-by"></span></p>
+            <p><strong>Created Time:</strong> <span id="modal-company-created-time"></span></p>
+            <div id="modal-company-deals" class="alert alert-light" role="alert">
+                <h5>Related Deals</h5>
+                <!-- Los productos del deal se listarán aquí -->
+              </div>
+
+              <div id="modal-company-clients" class="alert alert-light" role="alert">
+                <h5>Related Clients</h5>
+                <!-- Los productos del deal se listarán aquí -->
+              </div>   
+  
+          </div>         
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>    
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+
+
+
 {% endblock %} {% block scripts %}
 <!-- Datatables -->
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

@@ -120,8 +120,12 @@ const listContacts = async () => {
 
             content += `
         <tr>
-
-        <td><a href="/${contactData.organization}/contact/${contactData.id}/" class='table-link'>${contactData.first_name}</a></td>
+            <td>
+                <p class="p-3 m-0"><a href="#" class="link-opacity-75-hover" data-bs-toggle="modal" data-bs-target="#leadContactModal" onclick='showLeadContactDetail(${JSON.stringify(
+                    contactData
+                    )})'>${contactData.first_name}</a>
+                </p>            
+            </td>
             <td>${contactData.last_name}</td>
             <td>${contactData.primary_email}</td>
             <td>${contactData.country}</td>
@@ -142,15 +146,67 @@ window.addEventListener("load", async () => {
     await initDataTable();
 });
 
-// A $( document ).ready() block.
-// $(document).ready(function () {
-//     console.log("ready!");
-//     // Agrega un evento de clic al enlace para limpiar el filtro de búsqueda
-//     $('body').on('click', '.table-link', function () {
-//         // Limpia el filtro de búsqueda de la tabla
-//         dataTable.search('').columns().search('').draw();
-//     });
-// });
+// Muestra los datos del Deal en el modal (Deal Detail)
+function showLeadContactDetail(contactData) {
+    if (typeof contactData === "string") {
+      contactData = JSON.parse(contactData);
+    }
+
+    // Actualiza los elementos del modal con los datos del contact
+    document.getElementById("modal-contact-first-name").textContent = contactData.first_name;                  
+    document.getElementById("modal-contact-last-name").textContent = contactData.last_name;
+    document.getElementById("modal-contact-primary-email").textContent = contactData.primary_email;
+    document.getElementById("modal-contact-title").textContent = contactData.title;
+    document.getElementById("modal-contact-phone").textContent = contactData.phone;
+    document.getElementById("modal-contact-mobile-phone").textContent = contactData.mobile_phone;
+    document.getElementById("modal-contact-company").textContent = contactData.company__company_name;
+    const createdTime = new Date(contactData.created_time).toLocaleString("es", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true, // Cambiar a false si prefieres el formato de 24 horas
+    });
+    document.getElementById("modal-contact-created-time").textContent = createdTime;
+    document.getElementById('modal-contact-created-by').textContent = contactData.created_by;
+    const modifiedTime = new Date(contactData.modified_time).toLocaleString("es", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true, // Cambiar a false si prefieres el formato de 24 horas
+    });
+    document.getElementById("modal-contact-modified-time").textContent = modifiedTime;
+    document.getElementById('modal-contact-modified-by').textContent = contactData.last_modified_by;
+    document.getElementById("modal-contact-country").textContent = contactData.country;    
+
+    // Mostrar leads asociados al contact
+    const contactLeadsContainer = document.getElementById("modal-contact-leads");
+    contactLeadsContainer.innerHTML = "<h5>Related Leads</h5>"; // Reiniciar el contenido y agregar título
+    if (contactData.leads && contactData.leads.length) {
+        const contactList = document.createElement("ul");
+        contactData.leads.forEach((lead) => {
+        const item = document.createElement("li");
+        // Crear el enlace
+        const link = document.createElement("a");
+        link.setAttribute(
+            "href",
+            `/${contactData.organization__slug}/lead/${lead.id}/update/`
+        );
+        link.textContent = lead.lead_name;
+
+        // Crear un elemento de lista y añadir el enlace a este elemento
+        item.appendChild(link);
+        contactList.appendChild(item);
+        });
+        contactLeadsContainer.appendChild(contactList);
+    } else {
+        contactLeadsContainer.innerHTML += "<p>There isn't a related lead.</p>";
+    }
+
+}
 
 
 

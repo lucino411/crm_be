@@ -6,71 +6,63 @@
 
 {% block content %}
 
-<form id="taskUpdateForm" action="." method="post" enctype="multipart/form-data" class="row g-3">
-    {% csrf_token %}
-    <div class="row mb-3">
-        <div class="col-md-8">
-            <label for="formGroupExampleInput2" class="form-label">Task Nombre</label>
-            {{ form.name }}
-        </div>
-    </div>
-    <div class="row mb-3">
-        <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Product</label>
-            {{ form.lead_product }}
-        </div>
-    </div>
-    <div class="row mb-3">
-        <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Parent Task</label>
-            {{ form.parent_task }}
-        </div>
-    </div>
+<div class="container rounded shadow-sm bg-light border border-2 p-5 my-4" style="width: 40%;">
 
-    <div class="row mb-3">
-        <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Assigned to</label>
-            {{ form.assigned_to }}
+    <form id="taskUpdateForm" action="." method="post" enctype="multipart/form-data" class="row g-3">
+        {% csrf_token %}
+        <div class="row mb-3">
+            <div class="col-12">
+                <label for="formGroupExampleInput2" class="form-label">Task Nombre</label>
+                {{ form.name }}
+            </div>
         </div>
-    </div>
-
-    <div class="row mb-3">
-        <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Stage</label>
-            {{ form.stage }}
+        <div class="row mb-3">
+            <div class="col-12">
+                <label for="formGroupExampleInput2" class="form-label">Product</label>
+                {{ form.lead_product }}
+            </div>
         </div>
-    </div>
-
-    <div class="row mb-3">
-        <div class="col-md-5">
-            <label for="formGroupExampleInput2" class="form-label">Description</label>
-            {{ form.description }}
+        <div class="row mb-3">
+            <div class="col-12">
+                <label for="formGroupExampleInput2" class="form-label">Parent Task</label>
+                {{ form.parent_task }}
+            </div>
         </div>
-    </div>
 
-    <br>
-    <div class="row mb-3">
-        <div class="col-md-5">
-            {% if not task.is_closed %}
+        <div class="row mb-3">
+            <div class="col-8">
+                <label for="formGroupExampleInput2" class="form-label">Assigned to</label>
+                {{ form.assigned_to }}
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-8">
+                <label for="formGroupExampleInput2" class="form-label">Stage</label>
+                {{ form.stage }}
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-12">
+                <label for="formGroupExampleInput2" class="form-label">Description</label>
+                {{ form.description }}
+            </div>
+        </div>
+
+       <br>    
+            
+        <div class="row my-4">
+            <div class="btn-group">
+                <button type="button" onclick="window.history.back();" class="btn btn-secondary">Return</button> 
+                <a id="addSubtaskButton" href="{% url 'lead:task-create' organization_slug=organization_slug lead_pk=lead.id  %}?parent_task={{ pk }}" class="btn btn-success {% if not enable_button %}disabled{% endif %}" {% if not enable_button %}onclick="return false;" {% endif %}>Add Subtask</a>
                 <button id="buttonSubmitTaskUpdate" type="submit" class="btn btn-primary">Update</button>
-            {% endif %}
+            </div>
         </div>
 
-       
-        {% if lead %}
-            {% if not task.is_closed %}
-                <div class="col-md-5">
-                    <a id="addSubtaskButton" href="{% url 'lead:task-create' organization_slug=organization_slug lead_pk=lead.id  %}?parent_task={{ pk }}" class="btn btn-success {% if not enable_button %}disabled{% endif %}" {% if not enable_button %}onclick="return false;" {% endif %}>Add Subtask</a>
-                </div>
-            {% endif %}              
-        {% endif %}            
+    </form>
 
-    </div>
-    <br><br><br>
-</form>
-
-
-<br><br>
+</div>
 {% endblock %}
 
 

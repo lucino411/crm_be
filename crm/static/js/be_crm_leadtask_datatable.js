@@ -130,12 +130,17 @@ const listTasks = async () => {
 
             content += `
         <tr>
-            <td><a href="/${taskData.organization}/lead/task/${taskData.id}/" class='table-link'>${taskData.name}</a></td>
+            <td>
+                <p class="p-3 m-0"><a href="#" class="link-opacity-75-hover" data-bs-toggle="modal" data-bs-target="#leadTaskModal" onclick='showLeadTaskDetail(${JSON.stringify(
+                    taskData
+                    )})'>${taskData.name}</a></p>            
+            </td>
             <td>${taskData.lead_name}</td>
             <td>${taskData.product_name}</td>
             <td>${modifiedTime}</td>     
             <td>${taskData.created_by}</td>     
             <td>${taskData.assigned_to}</td>
+            <td>${taskData.stage}</td>     
         </tr>
         `;
         });
@@ -149,16 +154,64 @@ window.addEventListener("load", async () => {
     await initDataTable();
 });
 
-// A $( document ).ready() block.
-// $(document).ready(function () {
-//     console.log("ready!");
-//     // Agrega un evento de clic al enlace para limpiar el filtro de búsqueda
-//     $('body').on('click', '.table-link', function () {
-//         // Limpia el filtro de búsqueda de la tabla
-//         dataTable.search('').columns().search('').draw();
-//     });
-// });
 
+// Muestra los datos del Lead en el modal (Lead Detail)
+function showLeadTaskDetail(taskData) {
+    if (typeof taskData === "string") {
+      taskData = JSON.parse(taskData);
+    }
 
+    // Actualiza los elementos del modal con los datos del lead
+    document.getElementById("modal-task-name").textContent = taskData.name;
 
+    // taskData incluye un campo 'lead__id'
+    const leadUpdateUrl = `/${taskData.organization__slug}/lead/${taskData.lead__id}/update/`; // Modifica según la estructura de tus URLs
+    document.getElementById("modal-lead-name").innerHTML = `<a href="${leadUpdateUrl}">${taskData.lead_name}</a>`;
+    document.getElementById("modal-product-name").textContent = taskData.product_name;
+    const modifiedTime = new Date(taskData.modified_time).toLocaleString("es", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true, // Cambiar a false si prefieres el formato de 24 horas
+    });
+    document.getElementById("modal-modified-time").textContent = modifiedTime;
+    document.getElementById('modal-modified-by').textContent = taskData.last_modified_by;
+    document.getElementById("modal-assigned-to").textContent = taskData.assigned_to;
+    document.getElementById("modal-stage").textContent = taskData.stage;
+
+    // Agrega el enlace de actualización
+    const updateLinkContainer = document.getElementById(
+        "lead-task-update-link-container"
+    );
+    updateLinkContainer.innerHTML = ""; // Limpia el contenedor por si hay contenido previo
+
+    // Crea el enlace solo si update_url está presente
+    if (taskData.update_url) {
+        const updateLink = document.createElement("a");
+        updateLink.href = taskData.update_url; // Establece el URL del enlace
+        updateLink.textContent = "Update"; // Texto del enlace
+        updateLink.className = "btn btn-primary"; // Añade clases para estilos, por ejemplo, clases de Bootstrap
+
+        updateLinkContainer.appendChild(updateLink); // Añade el enlace al contenedor
+    }
+
+    // Agrega el enlace de eliminacion
+    const deleteLinkContainer = document.getElementById(
+        "lead-task-delete-link-container"
+    );
+    deleteLinkContainer.innerHTML = ""; // Limpia el contenedor por si hay contenido previo
+
+    // Crea el enlace solo si delete_url está presente
+    if (taskData.delete_url) {
+        const deleteLink = document.createElement("a");
+        deleteLink.href = taskData.delete_url; // Establece el URL del enlace
+        deleteLink.textContent = "Delete"; // Texto del enlace
+        deleteLink.className = "btn btn-danger"; // Añade clases para estilos, por ejemplo, clases de Bootstrap
+
+        deleteLinkContainer.appendChild(deleteLink); // Añade el enlace al contenedor
+    }
+
+}
 

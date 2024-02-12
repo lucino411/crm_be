@@ -121,13 +121,6 @@ class LeadProduct(models.Model):
 
 
 class LeadTask(models.Model):
-    STAGE_CHOICES = [
-        ('pending', 'Pending'),
-        ('in_progress', 'In Progress'),
-        ('completed', 'Completed'),
-        ('canceled', 'Canceled'),
-    ]
-
     name = models.CharField(max_length=200, blank=False)
     lead = models.ForeignKey('Lead', related_name='lead_leadtask', on_delete=models.CASCADE, null=True, blank=True)
     lead_product = models.ForeignKey('LeadProduct', related_name='product_leadtask', on_delete=models.CASCADE, null=True, blank=True)
@@ -139,6 +132,12 @@ class LeadTask(models.Model):
     assigned_to = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='assigned_leadtask', on_delete=models.CASCADE)
     last_modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='modified_leadtask', on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, related_name='organization_leadtask', on_delete=models.CASCADE)    
+    STAGE_CHOICES = [
+        ('pending', 'Pending'),
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed'),
+        ('canceled', 'Canceled'),
+    ]
     stage = models.CharField(max_length=20, choices=STAGE_CHOICES, default='pending')    
     is_closed = models.BooleanField(default=False)
 

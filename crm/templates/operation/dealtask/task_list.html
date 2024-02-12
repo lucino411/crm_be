@@ -1,37 +1,44 @@
-{% extends "administration/core/base.html" %} {% load static %} {% block title %}{% endblock %} {% block styles %}
+{% extends "administration/core/base.html" %} {% load static %} 
+{% block title %}{% endblock %} 
+
+{% block styles %}
 <!-- Datatables -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" />
 <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css" />
 <link rel="stylesheet" href="https://cdn.datatables.net/searchbuilder/1.6.0/css/searchBuilder.dataTables.min.css" />
 <link rel="stylesheet" href="https://cdn.datatables.net/searchbuilder/1.6.0/css/searchBuilder.dataTables.min.css" />
+{% endblock %} 
 
-{% endblock %} {% block content %}
+{% block statistics %}
+    {% include 'operation/deal/includes/deal_statistics.html' %}
+{% endblock statistics %}
 
-{% include 'operation/deal/includes/deal_task_statistics.html' %}
-
+{% block content %}
 <!-- con este div le pasamos el nombre de la organization a JS de datatables -->
 <div id="task-list" data-organization-slug="{{ organization_slug }}" class="d-none"></div>
 <div class="container">
     <div class="row">
         <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
             <div class="table-responsive">
-                <table id="datatable-tasks" class="table table-striped table_tasks" style="width: 100%">
+                <table id="datatable-tasks" class="table table-striped w-100 table_tasks">
                     <caption>
                         {{ titulo }}
                     </caption>
                     <thead>
                         <tr>
                             <th class="centered">Name</th>
-                            <th class="centered">Lead</th>
+                            <th class="centered">Deal</th>
                             <th class="centered">Product</th>
                             <th class="centered">Modified Time</th>
                             <th class="centered">Created By</th>
                             <th class="centered">Assigned to</th>
+                            <th class="centered">Stage</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody_tasks"></tbody>
                     <tfoot class="text-primary">
                         <tr>
+                            <th class="centered"></th>
                             <th class="centered"></th>
                             <th class="centered"></th>
                             <th class="centered"></th>
@@ -45,6 +52,38 @@
         </div>
     </div>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="dealTaskModal" tabindex="-1" aria-labelledby="dealTaskModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="dealTaskModalLabel"><span id="modal-task-name"></span></h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="alert alert-light" role="alert">  
+            <p><strong>Deal:</strong> <span id="modal-name"></span> <a href="#"><span id="modal-deal-name"></span></a></p>
+            <p><strong>Product:</strong> <span id="modal-product-name"></span></p>
+            <p><strong>Modified By:</strong> <span id="modal-modified-by"></span></p>
+            <p><strong>Modified Time:</strong> <span id="modal-modified-time"></span></p>
+            <p><strong>Stage:</strong> <span class="badge bg-dark fs-6"><span id="modal-stage"></span></span> </p>
+          </div>
+            
+          <div class="alert alert-secondary" role="alert">
+            <strong>Assigned to:</strong> <span id="modal-assigned-to"></span>
+          </div>  
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <div id="deal-task-delete-link-container"></div>
+            <div id="deal-task-update-link-container"></div>         
+        </div>
+      </div>
+    </div>
+  </div>
+
+
 {% endblock %} {% block scripts %}
 <!-- Datatables -->
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

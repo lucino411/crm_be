@@ -1,5 +1,5 @@
 {% extends "administration/core/base.html" %} {% load static %}
-{% block title %}{% endblock %} 
+{% block title %}{% endblock %}
 
 {% block styles %}
 <!-- Datatables -->
@@ -8,11 +8,13 @@
 <link rel="stylesheet" href="https://cdn.datatables.net/searchbuilder/1.6.0/css/searchBuilder.dataTables.min.css" />
 <link rel="stylesheet" href="https://cdn.datatables.net/searchbuilder/1.6.0/css/searchBuilder.dataTables.min.css" />
 
-{% endblock %} 
+{% endblock %}
+
+{% block statistics %}
+  {% include 'operation/lead/includes/lead_statistics.html' %}
+{% endblock statistics %}
 
 {% block content %}
-
-{% include 'operation/lead/includes/lead_statistics.html' %}
 
 <!-- con este div le pasamos el nombre de la organization a JS de datatables -->
 <div id="lead-list" data-organization-slug="{{ organization_slug }}" class="d-none"></div>
@@ -34,7 +36,7 @@
               <th class="centered">Created Time</th>
               <th class="centered">Last Modified By</th>
               <th class="centered">Assigned to</th>
-              <th class="centered">Organization</th>
+              <th class="centered">Stage</th>
             </tr>
           </thead>
           <tbody id="tableBody_leads"></tbody>
@@ -57,7 +59,66 @@
     </div>
   </div>
 </div>
-{% endblock %} {% block scripts %}
+
+<!-- Modal -->
+<div class="modal fade" id="leadDetailModal" tabindex="-1" aria-labelledby="leadDetailModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="leadDetailModalLabel"><span id="modal-lead-name"></span></h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-light" role="alert">
+
+          <p><strong>Client:</strong> <span id="modal-first-name"></span> <span id="modal-last-name"></span></p>
+          <p><strong>Email:</strong> <span id="modal-primary-email"></span></p>
+          <p class="d-flex justify-content-between">
+            <strong>Phone:</strong> <span id="modal-phone"  class="w-50 px-2"></span> 
+            <strong>Cellphone:</strong> <span id="modal-mobile-phone" class="w-50 px-2"></span>
+          </p>
+          <p><strong>Company:</strong> <span id="modal-company"></span></p>
+          <p><strong>Modified By:</strong> <span id="modal-modified-by"></span></p>
+          <p><strong>Modified Time:</strong> <span id="modal-modified-time"></span></p>
+          <p><strong>Country:</strong> <span id="modal-country"></span></p>
+          <p><strong>Stage:</strong> <span class="badge bg-dark fs-6"><span id="modal-stage"></span></span> </p>
+
+        </div>
+
+        <div id="modal-lead-products" class="alert alert-light" role="alert">
+          <h5>Productos Asociados</h5>
+          <!-- Los productos del deal se listarán aquí -->
+        </div>
+
+        <div id="modal-lead-tasks" class="alert alert-light" role="alert">
+          <h5>Tareas Asociadas</h5>
+          <!-- Las tareas del deal se listarán aquí -->
+        </div>
+
+        <div class="alert alert-success" role="alert">
+          <strong>Assigned to:</strong> <span id="modal-assigned-to"></span>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <div id="lead-delete-link-container"></div>
+        <div id="lead-update-link-container"></div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+{% endblock %} 
+
+
+
+
+{% block scripts %}
 <!-- Datatables -->
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>

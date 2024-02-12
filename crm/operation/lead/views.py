@@ -6,7 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.urls import reverse_lazy, reverse
 from django.http import JsonResponse
-from django.db.models import Count, Q
+from django.db.models import Count, Q, F
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -200,30 +200,55 @@ class LeadListView(ListView, AgentRequiredMixin, AgentContextMixin):
 
     def get(self, request, *args, **kwargs):
         leads = self.get_queryset()
-        leads_data = list(leads.values('id', 'lead_name', 'first_name', 'last_name', 'primary_email',
-                                       'country', 'created_time', 'last_modified_by_id', 'assigned_to_id', 'organization__name'))
+        leads_data = list(leads.values('id', 'lead_name', 'lead_source', 'first_name', 'last_name', 'primary_email', 'phone', 'mobile_phone', 'country', 'company_name',
+                                       'created_time', 'last_modified_by_id', 'modified_time', 'assigned_to_id', 'organization__name', 'stage', 'organization__slug'))
         country_names = {
             country.id: country.name for country in Country.objects.all()
         }
         user_names = {
             user.id: f"{user.first_name} {user.last_name}" for user in User.objects.all()
         }
+
+        # Diccionario para convertir valores de lead_source y stage a su representación legible
+        lead_source_choices = dict(Lead.LEAD_SOURCE_CHOICES)
+        stage_choices = dict(Deal.STAGE_CHOICES)
+
         for lead in leads_data:
             lead['country'] = country_names.get(lead['country'])
             lead['assigned_to'] = user_names.get(lead['assigned_to_id'])
-            lead['last_modified_by'] = user_names.get(
-                lead['last_modified_by_id'])
-            # lead['created_by'] = user_names.get(lead['created_by_id'])
-            # lead['organization'] = self.get_organization().name
-            # lead['organization'] = self.get_organization()
+            lead['last_modified_by'] = user_names.get(lead['last_modified_by_id'])
+            # Convertir lead_source y stage de código a representación legible
+            lead['lead_source'] = lead_source_choices.get(lead['lead_source'], 'Unknown') # Ver más detalles en la nota de Obsidian: [[Notas en el Codigo]]
+            lead['stage'] = stage_choices.get(lead['stage'], 'Unknown') # Ver más detalles en la nota de Obsidian: [[Notas en el Codigo]]
+            # Aquí agregas las URLs de actualización y Eliminacion
+            lead['update_url'] = reverse('lead:update', kwargs={'pk': lead['id'], 'organization_slug': lead['organization__slug']})
+            lead['delete_url'] = reverse('lead:delete', kwargs={'pk': lead['id'], 'organization_slug': lead['organization__slug']})
+
+            # Obtener LeadProducts relacionados
+            for lead in leads_data:
+                lead_products = LeadProduct.objects.filter(lead_id=lead['id']).annotate(
+                    product_url=F('product__product_url')
+                ).values('id', 'product__name', 'product_url')
+                
+                lead['lead_products'] = list(lead_products)
+
+            # Obtener DealTasks relacionadas
+            lead_tasks = LeadTask.objects.filter(lead_id=lead['id']).values('id', 'name', 'stage', 'is_closed',
+                                                                            'modified_time', 'assigned_to__id',
+                                                                            'last_modified_by__id')
+            # Para cada tarea, reemplazar user IDs con nombres reales usando el diccionario user_names
+            lead_tasks = list(lead_tasks)
+            for task in lead_tasks:
+                task['assigned_to'] = user_names.get(task['assigned_to__id'])
+                task['last_modified_by'] = user_names.get(task['last_modified_by__id'])
+                # Asegúrate de eliminar las claves que ya no necesitas para evitar confusión
+                del task['assigned_to__id']
+                del task['last_modified_by__id']
+
+            lead['lead_tasks'] = lead_tasks
 
         return JsonResponse({'leads': leads_data})
 
-    # def get_context_data(self, **kwargs):
-        # context = super().get_context_data(**kwargs)
-        # context['organization_name'] = self.get_organization().name
-        # context['organization_slug'] = self.get_organization().slug
-        # return context
 
 class LeadDetailView(DetailView, AgentRequiredMixin, AgentContextMixin):
     model = Lead
@@ -1224,11 +1249,14 @@ class LeadTaskListView(ListView, AgentRequiredMixin, AgentContextMixin):
     
     def get(self, request, *args, **kwargs):
         tasks = self.get_queryset()
-        tasks_data = list(tasks.values('id', 'name', 'last_modified_by_id',
-                          'assigned_to_id', 'organization', 'modified_time', 'created_by_id', 'lead_product__product__name', 'lead__lead_name'))
+        tasks_data = list(tasks.values('id', 'name', 'last_modified_by_id', 'assigned_to_id', 'organization', 'modified_time', 
+                                'created_by_id', 'stage', 'lead__id', 'lead_product__product__name', 'lead__lead_name', 'organization__slug'))
         user_names = {
             user.id: f"{user.first_name} {user.last_name}" for user in User.objects.all()
         }
+
+        # Diccionario para convertir valores de stage a su representación legible
+        stage_choices = dict(LeadTask.STAGE_CHOICES)
 
         for task in tasks_data:
             task['created_by'] = user_names.get(task['created_by_id'])
@@ -1237,13 +1265,13 @@ class LeadTaskListView(ListView, AgentRequiredMixin, AgentContextMixin):
             task['organization'] = self.get_organization().name
             task['product_name'] = task['lead_product__product__name']  # Asigna el nombre del producto a una nueva clave
             task['lead_name'] = task['lead__lead_name']  # Nombre del lead
+            # Convertir stage de código a representación legible
+            task['stage'] = stage_choices.get(task['stage'], 'Unknown') # Ver más detalles en la nota de Obsidian: [[Notas en el Codigo]]
+             # Aquí agregas las URLs de actualización y Eliminacion
+            task['update_url'] = reverse('lead:task-update', kwargs={'pk': task['id'], 'organization_slug': task['organization__slug']})
+            task['delete_url'] = reverse('lead:task-delete', kwargs={'pk': task['id'], 'organization_slug': task['organization__slug']})
 
         return JsonResponse({'tasks': tasks_data})
-
-
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     return context
 
 
 class LeadTaskCreateView(FormView, AgentRequiredMixin, AgentContextMixin):
@@ -1379,13 +1407,12 @@ class LeadTaskCreateView(FormView, AgentRequiredMixin, AgentContextMixin):
         # Componer el título y añadirlo al contexto
         if lead.lead_name:
             context['title'] = f"{lead.lead_name }"
-            context['crud'] = "Create Lead Task"
         else:
             context['title'] = "Task Create"
         context['lead'] = lead
         context['lead_name'] = lead.lead_name if lead else None
         context['lead_pk'] = lead_id
-        # context['organization_name'] = self.get_organization()
+        context['crud'] = "Create Lead Task"
 
         return context
     
@@ -1437,6 +1464,7 @@ class LeadTaskDeleteView(DeleteView, AgentRequiredMixin, AgentContextMixin):
         task = self.get_object()
         context['title'] = f'{ task.name }' 
         context['crud'] = "Delete Lead Task"
+        context['lead_name'] = context['task'].lead.lead_name  # Add lead_name to context
         return context
 
 
@@ -1599,7 +1627,6 @@ class LeadTaskUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
         # Componer el título y añadirlo al contexto
         if lead.lead_name:
             context['title'] = f"{lead.lead_name }"
-            context['crud'] = "Update Task"
         else:
             context['title'] = "Task Update"
         context['task'] = task
@@ -1607,7 +1634,7 @@ class LeadTaskUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
         context['lead_pk'] = lead.id
         context['pk'] = current_task_id
         context['lead_name'] = lead.lead_name if lead else None
-        # context['organization_name'] = self.get_organization()
+        context['crud'] = "Update Lead Task"
 
         # Determina si deshabilia los botones del formulario
         context['enable_button'] = True

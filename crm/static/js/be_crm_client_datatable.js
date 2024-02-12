@@ -120,14 +120,18 @@ const listClients = async () => {
 
             content += `
         <tr>
-
-        <td><a href="/${clientData.organization}/client/${clientData.id}/" class='table-link'>${clientData.first_name}</a></td>
+            <td>
+                <p class="p-3 m-0"><a href="#" class="link-opacity-75-hover" data-bs-toggle="modal" data-bs-target="#dealClientModal" onclick='showDealClientDetail(${JSON.stringify(
+                    clientData
+                    )})'>${clientData.first_name}</a>
+                </p>            
+            </td>
             <td>${clientData.last_name}</td>
             <td>${clientData.primary_email}</td>
+            <td>${clientData.phone}</td>      
             <td>${clientData.country}</td>
             <td>${createdTime}</td> 
             <td>${clientData.last_modified_by}</td> 
-            <td>${clientData.organization}</td>      
         </tr>
         `;
         });
@@ -141,15 +145,67 @@ window.addEventListener("load", async () => {
     await initDataTable();
 });
 
-// A $( document ).ready() block.
-// $(document).ready(function () {
-//     console.log("ready!");
-//     // Agrega un evento de clic al enlace para limpiar el filtro de búsqueda
-//     $('body').on('click', '.table-link', function () {
-//         // Limpia el filtro de búsqueda de la tabla
-//         dataTable.search('').columns().search('').draw();
-//     });
-// });
+// Muestra los datos del Deal en el modal (Deal Detail)
+function showDealClientDetail(clientData) {
+    if (typeof clientData === "string") {
+      clientData = JSON.parse(clientData);
+    }
+
+    // Actualiza los elementos del modal con los datos del client
+    document.getElementById("modal-client-first-name").textContent = clientData.first_name;                  
+    document.getElementById("modal-client-last-name").textContent = clientData.last_name;
+    document.getElementById("modal-client-primary-email").textContent = clientData.primary_email;
+    document.getElementById("modal-client-title").textContent = clientData.title;
+    document.getElementById("modal-client-phone").textContent = clientData.phone;
+    document.getElementById("modal-client-mobile-phone").textContent = clientData.mobile_phone;
+    document.getElementById("modal-client-company").textContent = clientData.company__company_name;
+    const createdTime = new Date(clientData.created_time).toLocaleString("es", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true, // Cambiar a false si prefieres el formato de 24 horas
+    });
+    document.getElementById("modal-client-created-time").textContent = createdTime;
+    document.getElementById('modal-client-created-by').textContent = clientData.created_by;
+    const modifiedTime = new Date(clientData.modified_time).toLocaleString("es", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true, // Cambiar a false si prefieres el formato de 24 horas
+    });
+    document.getElementById("modal-client-modified-time").textContent = modifiedTime;
+    document.getElementById('modal-client-modified-by').textContent = clientData.last_modified_by;
+    document.getElementById("modal-client-country").textContent = clientData.country;
+    
+    // Mostrar deals asociados al client
+    const clientDealsContainer = document.getElementById("modal-client-deals");
+    clientDealsContainer.innerHTML = "<h5>Related Deals</h5>"; // Reiniciar el contenido y agregar título
+    if (clientData.deals && clientData.deals.length) {
+        const clientList = document.createElement("ul");
+        clientData.deals.forEach((deal) => {
+        const item = document.createElement("li");
+        // Crear el enlace
+        const link = document.createElement("a");
+        link.setAttribute(
+            "href",
+            `/${clientData.organization__slug}/deal/${deal.id}/update/`
+        );
+        link.textContent = deal.deal_name;
+
+        // Crear un elemento de lista y añadir el enlace a este elemento
+        item.appendChild(link);
+        clientList.appendChild(item);
+        });
+        clientDealsContainer.appendChild(clientList);
+    } else {
+        clientDealsContainer.innerHTML += "<p>There isn't a related deal.</p>";
+    }
+
+}
 
 
 

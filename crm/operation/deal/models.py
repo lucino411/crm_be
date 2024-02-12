@@ -11,7 +11,6 @@ from operation.company.models import Company
 from operation.client.models import Client
 
 
-
 def get_sentinel_user():
     user, created = User.objects.get_or_create(username="deleted")
     if created:
@@ -75,6 +74,7 @@ class Deal(models.Model):
     end_date_time = models.DateTimeField(null=True, blank=True, help_text="Please use the following format: <em>YYYY-MM-DD</em>.")
     extended_end_date_time = models.DateTimeField(null=True, blank=True, help_text="Please use the following format: <em>YYYY-MM-DD</em>.")    
     actual_completion_date = models.DateTimeField(null=True, blank=True)
+    
     organization = models.ForeignKey(Organization, related_name='deal', on_delete=models.CASCADE)    
     
     STAGE_CHOICES = [

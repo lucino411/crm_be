@@ -6,12 +6,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.urls import reverse_lazy, reverse
 from django.http import JsonResponse
-from django.db.models import Count, Q, F
+from django.db.models import Count, Q
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.core.exceptions import ValidationError
-
 
 from administration.userprofile.views import AgentRequiredMixin, AgentContextMixin
 from configuration.country.models import Country
@@ -24,6 +23,7 @@ from .forms import DealProductForm, DealTaskCreateForm, DealTaskUpdateForm, Deal
 
 
 DealProductFormset = inlineformset_factory(Deal, DealProduct, form=DealProductForm, extra=0, can_delete=True)
+
 
 class HomeDealView(LoginRequiredMixin, TemplateView):
     template_name = 'operation/deal/deal_list.html'
@@ -43,54 +43,18 @@ class DealListView(ListView, AgentRequiredMixin, AgentContextMixin):
 
     def get(self, request, *args, **kwargs):
         deals = self.get_queryset()
-        deals_data = list(deals.values('id', 'deal_name', 'deal_source', 'first_name', 'last_name', 'primary_email', 'phone', 'mobile_phone', 'country',  'company_name',
-                                        'created_time', 'last_modified_by_id', 'modified_time', 'assigned_to_id', 'organization__name', 'stage', 'organization__slug'))
+        deals_data = list(deals.values('id', 'deal_name', 'first_name', 'last_name', 'primary_email',
+                                       'country', 'created_time', 'last_modified_by_id', 'assigned_to_id', 'organization__name'))
         country_names = {
             country.id: country.name for country in Country.objects.all()
         }
         user_names = {
             user.id: f"{user.first_name} {user.last_name}" for user in User.objects.all()
         }
-
-        # Diccionario para convertir valores de deal_source y stage a su representación legible
-        deal_source_choices = dict(Deal.DEAL_SOURCE_CHOICES)
-        stage_choices = dict(Deal.STAGE_CHOICES)
-
         for deal in deals_data:
             deal['country'] = country_names.get(deal['country'])
             deal['assigned_to'] = user_names.get(deal['assigned_to_id'])
             deal['last_modified_by'] = user_names.get(deal['last_modified_by_id'])
-            # Convertir deal_source y stage de código a representación legible
-            deal['deal_source'] = deal_source_choices.get(deal['deal_source'], 'Unknown') # Ver más detalles en la nota de Obsidian: [[Notas en el Codigo]]
-            deal['stage'] = stage_choices.get(deal['stage'], 'Unknown') # Ver más detalles en la nota de Obsidian: [[Notas en el Codigo]]
-            # Aquí agregas las URLs de actualización y Eliminacion
-            deal['update_url'] = reverse('deal:update', kwargs={'pk': deal['id'], 'organization_slug': deal['organization__slug']})
-            deal['delete_url'] = reverse('deal:delete', kwargs={'pk': deal['id'], 'organization_slug': deal['organization__slug']})
-
-            # Obtener DealProducts relacionados
-            for deal in deals_data:
-                deal_products = DealProduct.objects.filter(deal_id=deal['id']).annotate(
-                    product_url=F('product__product_url')
-                ).values('id', 'product__name', 'product_url')
-                
-                deal['deal_products'] = list(deal_products)
-
-
-            # Obtener DealTasks relacionadas
-            deal_tasks = DealTask.objects.filter(deal_id=deal['id']).values('id', 'name', 'stage', 'is_closed',
-                                                                            'modified_time', 'assigned_to__id',
-                                                                            'last_modified_by__id')
-            # Para cada tarea, reemplazar user IDs con nombres reales usando el diccionario user_names
-            deal_tasks = list(deal_tasks)
-            for task in deal_tasks:
-                task['assigned_to'] = user_names.get(task['assigned_to__id'])
-                task['last_modified_by'] = user_names.get(task['last_modified_by__id'])
-                # Asegúrate de eliminar las claves que ya no necesitas para evitar confusión
-                del task['assigned_to__id']
-                del task['last_modified_by__id']
-
-            deal['deal_tasks'] = deal_tasks
-
 
         return JsonResponse({'deals': deals_data})
 
@@ -776,9 +740,12 @@ class DealDeleteView(DeleteView, AgentRequiredMixin, AgentContextMixin):
         return context
 
 
+
+
 # # ************
 #   # CUR TASK
 # # ************
+
 
 class DealHomeTaskView(LoginRequiredMixin, TemplateView):
     template_name = 'operation/dealtask/task_list.html'
@@ -800,14 +767,11 @@ class DealTaskListView(ListView, AgentRequiredMixin, AgentContextMixin):
     
     def get(self, request, *args, **kwargs):
         tasks = self.get_queryset()
-        tasks_data = list(tasks.values('id', 'name', 'last_modified_by_id', 'assigned_to_id', 'organization', 'modified_time', 
-                                       'created_by_id', 'stage', 'deal__id', 'deal_product__product__name', 'deal__deal_name', 'organization__slug'))
+        tasks_data = list(tasks.values('id', 'name', 'last_modified_by_id',
+                          'assigned_to_id', 'organization', 'modified_time', 'created_by_id', 'deal_product__product__name', 'deal__deal_name'))
         user_names = {
             user.id: f"{user.first_name} {user.last_name}" for user in User.objects.all()
         }
-
-        # Diccionario para convertir valores de stage a su representación legible
-        stage_choices = dict(DealTask.STAGE_CHOICES)
 
         for task in tasks_data:
             task['created_by'] = user_names.get(task['created_by_id'])
@@ -816,13 +780,9 @@ class DealTaskListView(ListView, AgentRequiredMixin, AgentContextMixin):
             task['organization'] = self.get_organization().name
             task['product_name'] = task['deal_product__product__name']  # Asigna el nombre del producto a una nueva clave
             task['deal_name'] = task['deal__deal_name']  # Nombre del deal
-            # Convertir stage de código a representación legible
-            task['stage'] = stage_choices.get(task['stage'], 'Unknown') # Ver más detalles en la nota de Obsidian: [[Notas en el Codigo]]
-             # Aquí agregas las URLs de actualización y Eliminacion
-            task['update_url'] = reverse('deal:task-update', kwargs={'pk': task['id'], 'organization_slug': task['organization__slug']})
-            task['delete_url'] = reverse('deal:task-delete', kwargs={'pk': task['id'], 'organization_slug': task['organization__slug']})
 
         return JsonResponse({'tasks': tasks_data})
+
 
 
 class DealTaskCreateView(FormView, AgentRequiredMixin, AgentContextMixin):
@@ -961,7 +921,6 @@ class DealTaskCreateView(FormView, AgentRequiredMixin, AgentContextMixin):
         context['deal'] = deal
         context['deal_name'] = deal.deal_name if deal else None
         context['deal_pk'] = deal_id
-        context['crud'] = 'Create Deal Task'
 
         return context
     
@@ -1009,8 +968,7 @@ class DealTaskDeleteView(DeleteView, AgentRequiredMixin, AgentContextMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Delete Task'
-        context['crud'] = "Delete Deal Task"
-        context['deal_name'] = context['task'].deal.deal_name  # Add deal_name to context
+        # context['organization_slug'] = self.get_organization()
         return context
 
 
@@ -1181,7 +1139,7 @@ class DealTaskUpdateView(UpdateView, AgentRequiredMixin, AgentContextMixin):
         context['deal_pk'] = deal.id
         context['pk'] = current_task_id
         context['deal_name'] = deal.deal_name if deal else None
-        context['crud'] = "Update Deal Task"
+        # context['organization_slug'] = self.get_organization()
 
         # Determina si deshabilia los botones del formulario
         context['enable_button'] = True

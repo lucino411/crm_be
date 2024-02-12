@@ -4,32 +4,10 @@
 
 {% block content %}
 
-<!-- Button trigger modal -->
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#dealDetailModal">
-    Launch demo modal
-  </button>
-  
-  <!-- Modal -->
-  <div class="modal fade" id="dealDetailModal" tabindex="-1" aria-labelledby="dealDetailModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="dealDetailModalLabel">{{ deal.deal_name }}</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          ...
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Save changes</button>
-        </div>
-      </div>
+<div class="card" style="width: 42rem;">
+    <div class="card-header">
+        <h2>{{ deal.deal_name }}</h2>
     </div>
-  </div>
-
-
-
     <ul class="list-group list-group-flush">
         <li class="list-group-item">{{ deal.deal_source }} <span class="badge bg-secondary">Deal Source</span></li>
         <li class="list-group-item">{{ deal.first_name }} {{ deal.last_name }}</li>
@@ -55,22 +33,13 @@
         {% empty %}
             <li class="list-group-item">No tasks associated with this deal.</li>
         {% endfor %}
-        <li class="list-group-item">{{ deal.stage }}<span class="badge bg-success">Stage</span></li>
+        <li class="list-group-item">{{ deal.stage }}   <span class="badge bg-success">Stage</span></li>
     </ul>
-
-
+</div>
+<div class="col-md-8 mt-3">
     <a href="{% url 'deal:update' pk=deal.pk organization_slug=organization_slug %}" class="btn btn-primary">Update</a>
     <a href="{% url 'deal:delete' pk=deal.pk organization_slug=organization_slug %}" class="btn btn-danger">Delete</a>
+</div>
                 
-
-
-
-
-
-
-
-
-
-
 
 {% endblock %}
