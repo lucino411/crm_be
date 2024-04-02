@@ -17,12 +17,8 @@ urlpatterns = [
 
     # Rutas para ProductCategory con prefijo 'category-'
     path('categories/list/', ProductCategoryListView.as_view(), name='category-list'),
-    path('categories/create/', ProductCategoryCreateView.as_view(),
-         name='category-create'),
-    path('categories/<int:pk>/', ProductCategoryDetailView.as_view(),
-         name='category-detail'),
-    path('categories/<int:pk>/update/',
-         ProductCategoryUpdateView.as_view(), name='category-update'),
-    path('categories/<int:pk>/delete/',
-         ProductCategoryDeleteView.as_view(), name='category-delete'),
+    path('categories/create/', ProductCategoryCreateView.as_view(), name='category-create'),
+    path('categories/<int:pk>/', ProductCategoryDetailView.as_view(), name='category-detail'),
+    path('categories/<int:pk>/update/', ProductCategoryUpdateView.as_view(), name='category-update'),
+    path('categories/<int:pk>/delete/', ProductCategoryDeleteView.as_view(), name='category-delete'),
 ]

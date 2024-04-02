@@ -262,6 +262,33 @@ a.sidebar-link:hover {
     color: rgb(155, 155, 155);
 }
 
+/* SETTINGS */
+
+.settings-container {
+    max-width: 330px;
+    padding: 1rem;
+}
+
+.settings-items-link li a {
+    color: black;
+}
+
+.settings-items-link li a:hover {
+    color: grey;
+}
+
+.settings-items-link + .btn {
+    border-radius: 0%;
+}
+
+.not-selected a {
+    color: rgb(223, 145, 28) !important;
+}
+
+.not-selected a:hover {
+    color: rgb(245, 199, 130) !important;
+}
+
 
 
 

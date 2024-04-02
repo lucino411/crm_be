@@ -15,6 +15,12 @@ class CountryListView(OrganizerRequiredMixin, OrganizerContextMixin, ListView):
 
     def get_queryset(self):
         return Country.objects.filter(organization=self.get_organization())
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)              
+        context['title'] = "Countries"
+        context['crud'] = "Country Settings"
+        return context
 
 
 class CountryDetailView(OrganizerRequiredMixin, OrganizerContextMixin, DetailView):
@@ -36,6 +42,12 @@ class CountryCreateView(OrganizerRequiredMixin, OrganizerContextMixin, SuccessMe
     def get_success_url(self):
         messages.success(self.request, "Currency Created.")
         return reverse_lazy('country:list', kwargs={'organization_slug': self.get_organization().slug})
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)              
+        context['title'] = "Countries"
+        context['crud'] = "Country Create"
+        return context
 
 
 class CountryUpdateView(OrganizerRequiredMixin, OrganizerContextMixin, SuccessMessageMixin, UpdateView):
@@ -45,9 +57,14 @@ class CountryUpdateView(OrganizerRequiredMixin, OrganizerContextMixin, SuccessMe
     success_message = 'Country updated successfully'
 
     def get_success_url(self):
-        pk = self.object.pk
         # messages.success(self.request, "Country updated.")
-        return reverse_lazy('country:detail', kwargs={'organization_slug': self.get_organization().slug, 'pk': pk})
+        return reverse_lazy('country:list', kwargs={'organization_slug': self.get_organization().slug})
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)              
+        context['title'] = "Countries"
+        context['crud'] = "Country Update"
+        return context
 
 
 
@@ -60,7 +77,8 @@ class CountryDeleteView(OrganizerRequiredMixin, OrganizerContextMixin, SuccessMe
         # messages.success(self.request, "Country deleted.")
         return reverse_lazy('country:list', kwargs={'organization_slug': self.get_organization().slug})
     
-
-
-
-
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)              
+        context['title'] = "Countries"
+        context['crud'] = "Country Delete"
+        return context

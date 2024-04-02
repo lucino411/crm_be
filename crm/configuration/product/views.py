@@ -19,6 +19,13 @@ class ProductListView(OrganizerRequiredMixin, OrganizerContextMixin, ListView):
 
     def get_queryset(self):
         return Product.objects.filter(organization=self.get_organization())
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)              
+        context['title'] = "Products"
+        context['crud'] = "Product Settings"
+
+        return context
 
 
 class ProductCreateView(OrganizerRequiredMixin, OrganizerContextMixin, CreateView):
@@ -45,6 +52,8 @@ class ProductCreateView(OrganizerRequiredMixin, OrganizerContextMixin, CreateVie
         organization = self.get_organization()
         categories = ProductCategory.objects.filter(organization=organization)  # Usa filter en lugar de get
         context['categories'] = categories
+        context['title'] = "Product Create"
+        context['crud'] = "Product Settings"
         return context       
     
 
@@ -66,10 +75,16 @@ class ProductUpdateView(OrganizerRequiredMixin, OrganizerContextMixin, UpdateVie
     form_class = ProductForm
 
     def get_success_url(self):
-        pk = self.object.pk
         messages.success(self.request, "Product updated.")
-        return reverse_lazy('product:detail', kwargs={'organization_slug': self.get_organization().slug, 'pk': pk})
+        organization_slug = self.kwargs.get('organization_slug')  # Obtiene el slug de la URL
+        return reverse_lazy('product:list', kwargs={'organization_slug': organization_slug})
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        product = self.get_object()
+        context['title'] = f"{product.name}"
+        context['crud'] = "Product Update"
+        return context  
 
 class ProductDeleteView(OrganizerRequiredMixin, OrganizerContextMixin, DeleteView):
     model = Product
@@ -94,8 +109,9 @@ class ProductDeleteView(OrganizerRequiredMixin, OrganizerContextMixin, DeleteVie
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Product Delete'
-        # context['organization_slug'] = self.get_organization().slug
+        product = self.get_object()
+        context['title'] = f"{product.name}"
+        context['crud'] = "Product Delete"
         return context
     
 
@@ -108,6 +124,13 @@ class ProductCategoryListView(OrganizerRequiredMixin, OrganizerContextMixin, Lis
 
     def get_queryset(self):
         return ProductCategory.objects.filter(organization=self.get_organization())
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)              
+        context['title'] = "Product Categories"
+        context['crud'] = "Category Settings"
+
+        return context
 
 
 class ProductCategoryCreateView(OrganizerRequiredMixin, OrganizerContextMixin, CreateView):
@@ -149,9 +172,17 @@ class ProductCategoryUpdateView(OrganizerRequiredMixin, OrganizerContextMixin, U
     template_name = 'configuration/product_category/category_update.html'
 
     def get_success_url(self):
-        pk = self.object.pk
         messages.success(self.request, "Category updated.")
-        return reverse_lazy('product:category-detail', kwargs={'organization_slug': self.get_organization().slug, 'pk': pk})
+        organization_slug = self.kwargs.get('organization_slug')  # Obtiene el slug de la URL
+        return reverse_lazy('product:category-list', kwargs={'organization_slug': organization_slug})
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        category = self.get_object()
+        context['pk'] = category.pk  # Pasar el valor de pk al contexto
+        context['title'] = f"{category.name}"
+        context['crud'] = "Category Update"
+        return context  
 
 
 class ProductCategoryDeleteView(OrganizerRequiredMixin, OrganizerContextMixin, DeleteView):
@@ -180,6 +211,10 @@ class ProductCategoryDeleteView(OrganizerRequiredMixin, OrganizerContextMixin, D
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Category Delete'
-        # context['organization_slug'] = self.get_organization().slug
+        category = self.get_object()
+        context['title'] = f"{category.name}"
+        context['crud'] = "Category Delete"
         return context
+    
+
+

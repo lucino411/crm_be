@@ -4,17 +4,21 @@
 {% block title %}Countries{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
-            <h1>Lista de Monedas</h1>
-            <ul class="list-group">
-                {% for currency in currencies %}
-                    <li class="list-group-item"><a href="{% url 'currency:detail' pk=currency.pk organization_slug=organization_slug  %}" class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">{{ currency.code }}</a></li>
-                {% endfor %}
-            </ul>
-            <a href="{% url 'currency:create' organization_slug=organization_slug %}" class="btn btn-primary">Create</a> 
-        </div>
+
+    <div class="container rounded shadow-sm bg-light border border-2 p-5 my-4" style="width: 30%;">
+        <ul class="list-group list-group-flush settings-items-link">            
+            {% for currency in currencies %}
+                <li class="list-group-item bg-transparent">
+                    <a href="{% url 'currency:update' pk=currency.pk organization_slug=organization_slug  %}">{{ currency.code }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+                
+        <div class="row my-4">
+            <div class="btn-group">
+                <a href="{% url 'currency:create' organization_slug=organization_slug %}" class="btn btn-primary">Create</a> 
+            </div>
+        </div>    
     </div>
-</div>
+
 {% endblock %}

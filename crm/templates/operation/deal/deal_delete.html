@@ -6,22 +6,19 @@
 {% block content %}
     
     <div class="col-sm-6 col-md-6 col-lg-6 col-xl-6 mx-auto my-5">
-
-    <div class="card">
-        <h5 class="card-header">{{ deal.deal_name }}</h5>
-
-        <div class="card-body">
-          <h5 class="card-title">Are you sure you want to delete {{ deal.first_name }} {{ deal.last_name }}?</h5>
-          <br>
-          <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="button" onclick="window.history.back();" class="btn btn-secondary">Cancelar</button> 
-            <button type="submit" class="btn btn-danger">Delete</button>
-        </form>
+      <div class="card">
+          <h5 class="card-header">{{ deal.deal_name }}</h5>
+          <div class="card-body">
+            <h5 class="card-title">Are you sure you want to delete {{ deal.first_name }} {{ deal.last_name }}?</h5>
+            <br>
+            <form method="post">
+              {% csrf_token %}
+              {{ form.as_p }}
+              <button type="button" onclick="window.history.back();" class="btn btn-secondary">Return</button> 
+              <button type="submit" class="btn btn-danger">Delete</button>
+          </form>
+          </div>
         </div>
-      </div>
-
     </div>
 
 {% endblock %}

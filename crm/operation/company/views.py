@@ -17,6 +17,12 @@ class CompanyHomeView(LoginRequiredMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['titulo'] = 'Gestion de Companies'
         return context
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)              
+        context['title'] = "Companies"
+        context['crud'] = "Company Settings"
+        return context
 
 
 # Query de Companies de la BD enviada a JS como JSON para Datatables JS

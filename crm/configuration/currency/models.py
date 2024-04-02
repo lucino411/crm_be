@@ -4,7 +4,8 @@ from administration.organization.models import Organization
 
 class Currency(models.Model):
     # Código ISO de la moneda, como 'USD', 'EUR', etc.
-    code = models.CharField(max_length=3)
+    # code = models.CharField(max_length=3)
+    code = models.CharField(unique=True)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
 
     def clean(self):

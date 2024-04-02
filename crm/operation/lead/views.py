@@ -187,7 +187,6 @@ class HomeLeadView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):        
         context = super().get_context_data(**kwargs)
         context['title'] = 'Leads'
-
         return context
 
 # Query de Leads de la base de datos enviada a JS como JSON para las Datatables JS

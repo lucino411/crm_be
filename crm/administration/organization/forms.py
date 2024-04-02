@@ -16,3 +16,4 @@ class OrganizationMediaForm(forms.ModelForm):
                 raise ValidationError("El tamaño del archivo es demasiado grande (máximo 1MB).")
             self.instance.image_size = image.size
         return image
+    

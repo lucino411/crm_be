@@ -4,17 +4,23 @@
 {% block title %}Countries{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
-            <h1>Lista de Paises</h1>
-            <ul class="list-group">
-                {% for country in countries %}
-                    <li class="list-group-item"><a href="{% url 'country:detail' pk=country.pk organization_slug=organization_slug  %}" class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">{{ country.name }}</a></li>
-                {% endfor %}
-            </ul>
-            <a href="{% url 'country:create' organization_slug=organization_slug %}" class="btn btn-primary">Create</a> 
-        </div>
+
+    <div class="container rounded shadow-sm bg-light border border-2 p-5 my-4" style="width: 30%;">
+        <ul class="list-group list-group-flush settings-items-link">            
+            {% for country in countries %}
+                <li class="list-group-item bg-transparent">
+                    <div class="{% if not country.is_selected %}not-selected{% endif %}">
+                        <a href="{% url 'country:update' pk=country.pk organization_slug=organization_slug  %}">{{ country.name }}</a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+                
+        <div class="row my-4">
+            <div class="btn-group">
+                <a href="{% url 'country:create' organization_slug=organization_slug %}" class="btn btn-primary">Create</a> 
+            </div>
+        </div>    
     </div>
-</div>
+
 {% endblock %}

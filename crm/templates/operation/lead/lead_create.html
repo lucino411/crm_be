@@ -42,10 +42,9 @@
                 <label for="formGroupExampleInput2" class="form-label">Email</label>
                 {{ form.primary_email }}
                 {% if form.errors.primary_email %}
-                <div id="email-error" class="text-danger">{{ form.errors.primary_email }}</div>
+                    <div class="text-danger">{{ form.errors.primary_email }}</div>
                 {% endif %}
-            </div>
-        
+            </div>        
         </div>
 
         <!-- Campos de Phone y Mobile Phone -->
@@ -90,7 +89,7 @@
             <label for="id_website" class="form-label">Website</label>
             {{ form.website }}
             {% if form.errors.website %}
-                <div id="email-error" class="text-danger">{{ form.errors.website }}</div>
+                <div class="text-danger">{{ form.errors.website }}</div>
             {% endif %}
         </div>
     </div> 

@@ -10,7 +10,7 @@
         {% csrf_token %}
         <div class="row mb-3">
             <div class="col-md-9">
-                <label for="formGroupExampleInput2" class="form-label">Deal Name</label>
+                <label for="id_deal_name" class="form-label">Deal Name</label>
                 {{ form.deal_name }}
             </div>
             <!-- Campo de Deal Source -->
@@ -22,16 +22,16 @@
 
         <div class="row mb-3">
             <div class="col-md-5">
-                <label for="formGroupExampleInput2" class="form-label">Name</label>
+                <label for="id_first_name" class="form-label">Name</label>
                 {{ form.first_name }}
             </div>
             <div class="col-md-4">
-                <label for="formGroupExampleInput2" class="form-label">Lastname</label>
+                <label for="id_last_name" class="form-label">Lastname</label>
                 {{ form.last_name }}
             </div>
             <!-- Campo de Title -->
             <div class="col-md-3">
-                <label for="title" class="form-label">Title</label>
+                <label for="id_title" class="form-label">Title</label>
                 {{ form.title }}
             </div>
         </div>
@@ -39,7 +39,7 @@
 
         <div class="row mb-3">
             <div class="col-md-5">
-                <label for="formGroupExampleInput2" class="form-label">Email</label>
+                <label for="addDealUnregisterEmail" class="form-label">Email</label>
                 {{ form.primary_email }}
                 {% if form.errors.primary_email %}
                 <div id="email-error" class="text-danger">{{ form.errors.primary_email }}</div>
@@ -50,11 +50,11 @@
         <!-- Campos de Phone y Mobile Phone -->
         <div class="row mb-3">
             <div class="col-md-5">
-                <label for="phone" class="form-label">Phone</label>
+                <label for="id_phone" class="form-label">Phone</label>
                 {{ form.phone }}
             </div>
             <div class="col-md-5">
-                <label for="mobile_phone" class="form-label">Mobile Phone</label>
+                <label for="id_mobile_phone" class="form-label">Mobile Phone</label>
                 {{ form.mobile_phone }}
             </div>
         </div>
@@ -62,7 +62,7 @@
         <!-- Campo de Company Name -->
         <div class="row mb-3">
             <div class="col-md-8">
-                <label for="company_name" class="form-label">Company Name</label>
+                <label for="id_company_name" class="form-label">Company Name</label>
                 {{ form.company_name }}
             </div>
             <div class="col-md-2">
@@ -74,7 +74,7 @@
         <!-- Campo de Company Email -->
         <div class="row mb-3">
             <div class="col-md-7">
-                <label for="company_email" class="form-label">Company Email</label>
+                <label for="id_company_email" class="form-label">Company Email</label>
                 {{ form.company_email }}
             </div>
             <div class="col-md-3">
@@ -96,40 +96,40 @@
 
         <div class="row mb-3">
             <div class="col-md-4">
-                <label for="formGroupExampleInput2" class="form-label">Country</label>
+                <label for="id_country" class="form-label">Country</label>
                 {{ form.country }}
             </div>
             <div class="col-md-2">
-                <label for="formGroupExampleInput2" class="form-label">Currency</label>
+                <label for="id_currency" class="form-label">Currency</label>
                 {{ form.currency }}
             </div>   
         </div>
 
         <div class="row mb-3">
             <div class="col-md-12">
-                <label for="description" class="form-label">Description</label>
+                <label for="id_description" class="form-label">Description</label>
                 {{ form.description }}
             </div>
         </div>    
 
         <div class="row mb-3">
             <div class="col-md-4">
-                <label for="formGroupExampleInput2" class="form-label">Start Date</label>
+                <label for="id_start_date_time" class="form-label">Start Date</label>
                 {{ form.start_date_time }}
             </div>
             <div class="col-md-4">
-                <label for="formGroupExampleInput2" class="form-label">End Date</label>
+                <label for="id_end_date_time" class="form-label">End Date</label>
                 {{ form.end_date_time }}
             </div>
             <div class="col-md-4" {% if hide_extended_end_date_time %}style="display:none;" {% endif %}>
-                <label for="formGroupExampleInput2" class="form-label">Extended End Date</label>
+                <label for="id_extended_end_date_time" class="form-label">Extended End Date</label>
                 {{ form.extended_end_date_time }}
             </div>
         </div>
 
         <div class="row mb-3">
             <div class="col-md-5">
-                <label for="formGroupExampleInput2" class="form-label">Assigned to</label>
+                <label for="id_assigned_to" class="form-label">Assigned to</label>
                 {{ form.assigned_to }}
             </div>
         </div>

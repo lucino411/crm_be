@@ -27,14 +27,10 @@
                 <a href="{% url 'lead:detail' pk=lead.pk organization_slug=organization_slug %}">{{ lead.lead_name }}</a>
             </li>
             {% endfor %}       
-        {% endif %}     
-
-      
+        {% endif %}          
     </ul>
 </div>
-<div class="col-md-8 mt-3">
 
-</div>
                 
 
 {% endblock %}

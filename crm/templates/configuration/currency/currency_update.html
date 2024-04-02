@@ -4,16 +4,34 @@
 {% block title %}Update Currency{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
-            <h2>Update Currency</h2>
-            <form method="post">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-primary">Save</button>
-            </form>
+    <div class="container rounded shadow-sm bg-light border border-2 p-5 my-4" style="width: 30%;">
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                <form method="post">
+                    {% csrf_token %}              
+                
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <label for="id_code" class="form-label">* Code</label>
+                            <input type="text" class="form-control" id="id_code" name="code" value="{{ form.code.value }}">
+                            {% if form.errors.code %}
+                                <div class="text-danger">{{ form.errors.code }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="row my-4">
+                        <div class="btn-group">
+                            <button type="button" onclick="window.history.back();" class="btn btn-secondary">Return</button> 
+                            <a href="{% url 'currency:delete' pk=currency.pk organization_slug=organization_slug %}" class="btn btn-danger">Delete</a>
+                            <button type="submit" class="btn btn-primary">Update</button>
+                        </div>
+                    </div>
+
+                </form>
+                <p class="form-text">* ISO currency code such as 'USD', 'EUR', etc.</p>
+
+            </div>
         </div>
     </div>
-</div>
 {% endblock %}

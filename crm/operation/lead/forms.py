@@ -25,7 +25,7 @@ class LeadForm(forms.ModelForm):
     )
     primary_email = forms.EmailField(
         label="Email", 
-        widget=forms.EmailInput(attrs={'id': "addLeadUnregisterEmail", 'class': 'form-control', 'placeholder': 'Email'}),
+        widget=forms.EmailInput(attrs={'id': "leadRegisterPrimayEmail", 'class': 'form-control', 'placeholder': 'Email'}),
         error_messages={
             'unique': 'Este email ya está en uso. Por favor, proporciona un email diferente.',
             'invalid': 'Por favor, introduce un email válido.'
@@ -154,7 +154,7 @@ class LeadUpdateForm(forms.ModelForm):
     )
     primary_email = forms.EmailField(
         label="Email", 
-        widget=forms.EmailInput(attrs={'id': "addLeadUnregisterEmail", 'class': 'form-control', 'placeholder': 'Email'}),
+        widget=forms.EmailInput(attrs={'id': "leadRegisterPrimayEmail", 'class': 'form-control', 'placeholder': 'Email'}),
         error_messages={
             'unique': 'Este email ya está en uso. Por favor, proporciona un email diferente.',
             'invalid': 'Por favor, introduce un email válido.'

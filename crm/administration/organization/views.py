@@ -59,3 +59,15 @@ class MediaLibraryView(LoginRequiredMixin, OrganizerRequiredMixin, OrganizerCont
         # context.update({'organization_slug': self.get_organization()})
         context['titulo'] = 'Media Library'
         return context
+    
+
+
+
+
+
+
+
+
+
+
+

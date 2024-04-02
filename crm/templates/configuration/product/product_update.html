@@ -4,16 +4,41 @@
 {% block title %}Update Product{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
-            <h2>Update Product</h2>
-            <form method="post">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-primary">Update</button>
-            </form>
+    <div class="container rounded shadow-sm bg-light border border-2 p-5 my-4" style="width: 30%;">
+        <div class="row">
+            <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="row mb-3">            
+                        <div class="col-md-12">
+                            <label for="id_name" class="form-label">Product Name</label>
+                            {{ form.name }}
+                        </div>
+                    </div>
+                    <div class="row mb-3">            
+                        <div class="col-md-12">
+                            <label for="id_product_url" class="form-label">Product URL</label>
+                            {{ form.product_url }}
+                        </div>
+                    </div>                    
+                    <div class="row mb-3">            
+                        <div class="col-md-12">
+                            <label for="id_category" class="form-label">Category</label>                        
+                            {{ form.category }}                                                 
+                        </div>
+                    </div>
+
+                    <div class="row my-4">
+                        <div class="btn-group">
+                            <button type="button" onclick="window.history.back();" class="btn btn-secondary">Return</button> 
+                            <a href="{% url 'product:delete' pk=product.pk organization_slug=organization_slug %}" class="btn btn-danger">Delete</a>
+                            <button type="submit" class="btn btn-primary">Update</button>
+                        </div>
+                    </div>
+        
+                </form>
+            </div>
         </div>
     </div>
-</div>
 {% endblock %}

@@ -4,37 +4,39 @@
 {% block title %}Create Product{% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container rounded shadow-sm bg-light border border-2 p-5 my-4" style="width: 30%;">
     <div class="row">
         <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
-            <h2>Create Product</h2>
 
             <form action="." method="post" enctype="multipart/form-data" class="row g-3">
                 {% csrf_token %}
             
                 <div class="row mb-3">            
-                    <div class="col-md-5">
-                        <label for="formGroupExampleInput2" class="form-label">Product</label>
+                    <div class="col-md-12">
+                        <label for="id_name" class="form-label">Product</label>
                         {{ form.name }}
                     </div>
-                    <div class="col-md-5">
-                        <label for="formGroupExampleInput2" class="form-label">Product URL</label>
+                </div>
+                <div class="row mb-3">            
+                    <div class="col-md-12">
+                        <label for="id_product_url" class="form-label">Product URL</label>
                         {{ form.product_url }}
                     </div>
-            
-                    <div class="col-md-5">
-                        <label for="formGroupExampleInput2" class="form-label">Category</label>                        
+                </div>                    
+                <div class="row mb-3">            
+                    <div class="col-md-12">
+                        <label for="id_category" class="form-label">Category</label>                        
                         {{ form.category }}                                                 
                     </div>
                 </div>
-            
-               <br>
-                <div class="row mb-3">
-                    <div class="col-md-5">
+
+                <div class="row my-4">
+                    <div class="btn-group">
+                        <button type="button" onclick="window.history.back();" class="btn btn-secondary">Return</button> 
                         <button type="submit" class="btn btn-primary">Create</button>
                     </div>
                 </div>
-                <br><br><br>
+            
             </form>
         </div>
     </div>

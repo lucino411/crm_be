@@ -4,18 +4,23 @@
 {% block title %}Countries{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
-        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
-            <h1>Lista de Categorias de Producto</h1>
-            <ul class="list-group">
-                {% for category in categories %}
-                    <li class="list-group-item"><a href="{% url 'product:category-detail' pk=category.pk organization_slug=organization_slug  %}" class="">{{ category.name }}</a> - {{ category.url }}</li>
-                {% endfor %}
-            </ul>
-            <br>
-            <a href="{% url 'product:category-create' organization_slug=organization_slug %}" class="btn btn-primary">Create</a> 
-        </div>
+
+    <div class="container rounded shadow-sm bg-light border border-2 p-5 my-4" style="width: 40%;">
+        <ul class="list-group list-group-flush settings-items-link">            
+            {% for category in categories %}
+                <li class="list-group-item bg-transparent">
+                    <p><strong>Name:</strong>&nbsp;&nbsp;<a href="{% url 'product:category-update' pk=category.pk organization_slug=organization_slug  %}">{{ category.name }}</a></p>
+                    <p><strong>URL:</strong>&nbsp;&nbsp;<a href="{{ category.url }}" target="_blank">{{ category.url }}</a></p>             
+
+                </li>
+            {% endfor %}
+        </ul>
+                
+        <div class="row my-4">
+            <div class="btn-group">
+                <a href="{% url 'product:create' organization_slug=organization_slug %}" class="btn btn-primary">Create</a> 
+            </div>
+        </div>    
     </div>
-</div>
+
 {% endblock %}
