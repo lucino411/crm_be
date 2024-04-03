@@ -24,12 +24,8 @@
                 </div>
                 <div class="row mb-3">
                     <div class="col-12">
-                        <div class="form-check">
-                            {{ form.is_selected }}
-                            <label class="form-check-label" for="{{ form.is_selected.id_for_label }}">
-                                Selected
-                            </label>
-                        </div>
+                        <label for="id_is_selected" class="form-label">Selected</label>
+                        <input type="checkbox" class="form-check-input" id="id_is_selected" name="is_selected" {% if form.is_selected.value %}checked{% endif %}>
                     </div>
                 </div>
 

@@ -149,7 +149,8 @@ class ProductCategoryCreateView(OrganizerRequiredMixin, OrganizerContextMixin, C
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['titulo'] = 'Product Category Create'
+        context['title'] = 'Product Category'
+        context['crud'] = "Category Create"
         # context['organization_slug'] = self.get_organization()
         return context
    

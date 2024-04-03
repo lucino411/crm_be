@@ -1,0 +1,64 @@
+{% extends "administration/core/base.html" %}
+
+{% block title %}{% endblock %}
+
+{% block content %}
+
+
+<form id="imageForm">
+    {% csrf_token %}
+    <label for="imageSelect">Selecciona una imagen:</label>
+    <select id="imageSelect" name="image">
+        {% for media in media_urls %}
+            <option value="{{ media.image.url }}">{{ media }}</option>
+        {% endfor %}
+    </select>
+    <button type="button" id="selectImageBtn">Seleccionar</button>
+</form>
+
+
+<form id="imageForm">
+    {% csrf_token %}
+    <label for="imageSelect">Selecciona una imagen:</label>
+    <select id="imageSelect" name="image">
+        {% for media in media_list %}
+            <option value="{{ media.image.url }}">{{ media }}</option>
+        {% endfor %}
+    </select>
+    <button type="button" id="selectImageBtn">Seleccionar</button>
+</form>
+<img id="selectedImage" src="" alt="Imagen de la biblioteca de medios">
+
+
+<div id="selectedImageContainer"></div>
+
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Seleccionar Imagen</button>
+</form>
+
+
+
+<h1>Imágenes de la biblioteca de medios</h1>
+<!-- Itera sobre las URLs de las imágenes y muestra cada imagen -->
+{% for media_url in media_urls %}
+    <img src="{{ media_url }}" alt="Imagen de la biblioteca de medios">
+{% endfor %}
+
+
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        $('#selectImageBtn').click(function() {
+            var selectedImageUrl = $('#imageSelect').val();
+            $('#selectedImage').attr('src', selectedImageUrl);
+        });
+    });
+</script>
+
+{% endblock %}

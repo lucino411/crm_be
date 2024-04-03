@@ -30,18 +30,20 @@ class CountryDetailView(OrganizerRequiredMixin, OrganizerContextMixin, DetailVie
 
 
 class CountryCreateView(OrganizerRequiredMixin, OrganizerContextMixin, SuccessMessageMixin, CreateView):
+
     model = Country
     template_name = 'configuration/country/country_create.html'
     form_class = CountryForm
-    # success_message = "Country created successfully."
 
     def form_valid(self, form):
         form.instance.organization = self.get_organization()
         return super().form_valid(form)
 
     def get_success_url(self):
-        messages.success(self.request, "Currency Created.")
-        return reverse_lazy('country:list', kwargs={'organization_slug': self.get_organization().slug})
+        organization_slug = self.get_organization().slug
+        messages.success(self.request, "Country Created.")
+        return reverse_lazy('country:list', kwargs={'organization_slug': organization_slug})
+
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)              

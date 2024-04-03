@@ -5,37 +5,42 @@
 
 {% block content %}
 <div class="container rounded shadow-sm bg-light border border-2 p-5 my-4" style="width: 30%;">   
-    
-    <form action="" method="post" class="row g-3">
-        {% csrf_token %}
-        <div class="row mb-3">
-            <div class="col-12">
-                <label for="id_name" class="form-label">Country</label>
-                <input type="text" class="form-control" id="id_name" name="name" value="{{ form.name.value }}">
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-12">
-                <label for="id_code" class="form-label">Code</label>
-                <input type="text" class="form-control" id="id_code" name="code" value="{{ form.code.value }}">
-            </div>
-        </div>
-        <div class="row mb-3">
-            <div class="col-12">
-                <label for="id_is_selected" class="form-label">Selected</label>
-                <input type="checkbox" class="form-check-input" id="id_is_selected" name="is_selected" {% if form.is_selected.value %}checked{% endif %}>
-            </div>
-        </div>
+    <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
 
-        <div class="row my-4">
-            <div class="btn-group">
-                <button type="button" onclick="window.history.back();" class="btn btn-secondary">Return</button> 
-                <a href="{% url 'country:delete' pk=country.pk organization_slug=organization_slug %}" class="btn btn-danger">Delete</a>
-                <button type="submit" class="btn btn-primary">Update</button>
-            </div>
+            <form action="" method="post" class="row g-3">
+                {% csrf_token %}
+                
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <label for="id_name" class="form-label">Country</label>
+                        <input type="text" class="form-control" id="id_name" name="name" value="{{ form.name.value }}">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <label for="id_code" class="form-label">Code</label>
+                        <input type="text" class="form-control" id="id_code" name="code" value="{{ form.code.value }}">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <label for="id_is_selected" class="form-label">Selected</label>
+                        <input type="checkbox" class="form-check-input" id="id_is_selected" name="is_selected" {% if form.is_selected.value %}checked{% endif %}>
+                    </div>
+                </div>
+
+                <div class="row my-4">
+                    <div class="btn-group">
+                        <button type="button" onclick="window.history.back();" class="btn btn-secondary">Return</button> 
+                        <a href="{% url 'country:delete' pk=country.pk organization_slug=organization_slug %}" class="btn btn-danger">Delete</a>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </div>
+
+            </form>
+
         </div>
-
-    </form>
-
+    </div>
 </div>
 {% endblock %}

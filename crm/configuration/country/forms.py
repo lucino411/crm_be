@@ -19,7 +19,9 @@ class CountryForm(forms.ModelForm):
     )
     is_selected = forms.BooleanField(
         label="Selected", 
-            widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}
+        required=False,  # Permite que el campo esté vacío
+        widget=forms.CheckboxInput(
+            attrs={'class': 'form-check-input'}
         )
     )
 
